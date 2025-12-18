@@ -1,0 +1,29 @@
+{
+    "node_types": [
+        {
+            "name": "Inferred",
+            "labels": [
+                "Inferred"
+            ],
+            "properties": []
+        }
+    ],
+    "edge_types": [
+        {
+            "type": "SynapseSet_to_SynapseSet",
+            "name": "SynapseSet_to_SynapseSet",
+            "properties": [
+                {
+                    "name": ":START_ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": ":END_ID",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ]
+}

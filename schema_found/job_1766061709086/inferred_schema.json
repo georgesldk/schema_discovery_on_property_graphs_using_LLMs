@@ -1,0 +1,29 @@
+{
+    "node_types": [
+        {
+            "name": "Inferred",
+            "labels": [
+                "Inferred"
+            ],
+            "properties": []
+        }
+    ],
+    "edge_types": [
+        {
+            "type": "Synapse_Connections",
+            "name": "Synapse_Connections",
+            "properties": [
+                {
+                    "name": ":START_ID(Syn-ID)",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": ":END_ID(Syn-ID)",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ]
+}

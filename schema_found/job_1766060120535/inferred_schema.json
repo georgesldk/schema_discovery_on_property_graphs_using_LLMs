@@ -1,0 +1,18 @@
+{
+    "node_types": [
+        {
+            "name": "ROIs",
+            "labels": [
+                "ROIs"
+            ],
+            "properties": [
+                {
+                    "name": "name:ID",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": []
+}

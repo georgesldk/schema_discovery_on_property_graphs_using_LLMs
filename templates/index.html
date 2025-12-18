@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Discovery - LLM-Powered Graph Schema Inference</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Schema Discovery</h1>
+            <p class="subtitle">LLM-Powered Property Graph Schema Inference</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="card" id="uploadCard">
+                <h2>Upload CSV Files</h2>
+                <p class="description">Upload your CSV files containing node and edge data. The system will automatically detect node types, edge types, and properties.</p>
+                <p class="description" style="color: var(--primary-color); font-weight: 600; margin-top: -10px;">⚠️ IMPORTANT: Select ALL your CSV files at once (hold Ctrl/Cmd and click each file)</p>
+                
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" name="files[]" multiple accept=".csv" required>
+                        <div class="upload-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p>Click to select CSV files or drag and drop</p>
+                            <p class="hint">Hold Ctrl (or Cmd on Mac) to select multiple files</p>
+                        </div>
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span>Start Schema Discovery</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="card hidden" id="progressCard">
+                <h2>Processing</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Initializing...</p>
+                </div>
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card hidden" id="resultsCard">
+                <h2>Inferred Schema</h2>
+                <div class="results-header">
+                    <button class="btn btn-secondary" id="downloadBtn">Download JSON</button>
+                    <button class="btn btn-secondary" id="newAnalysisBtn">New Analysis</button>
+                </div>
+                
+                <div class="schema-viewer">
+                    <div class="schema-section">
+                        <h3>Node Types</h3>
+                        <div id="nodeTypes"></div>
+                    </div>
+                    <div class="schema-section">
+                        <h3>Edge Types</h3>
+                        <div id="edgeTypes"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Section -->
+            <div class="card error-card hidden" id="errorCard">
+                <h2>Error</h2>
+                <p id="errorMessage"></p>
+                <button class="btn btn-primary" onclick="resetForm()">Try Again</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by Google Gemini 2.5 Flash</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
