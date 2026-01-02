@@ -1,0 +1,44 @@
+{
+    "node_types": [
+        {
+            "name": "Inferred",
+            "labels": [
+                "Inferred"
+            ],
+            "properties": []
+        }
+    ],
+    "edge_types": [
+        {
+            "type": "Neuron_Connections",
+            "name": "Neuron_Connections",
+            "properties": [
+                {
+                    "name": ":START_ID(Body-ID)",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight:int",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP:int",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": ":END_ID(Body-ID)",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo:string",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ]
+}
