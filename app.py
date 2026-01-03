@@ -3,6 +3,7 @@ import json
 import random
 import threading
 import time
+import shutil
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 import networkx as nx
@@ -35,11 +36,6 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size (increased for large datasets)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 
-# Ensure upload directory exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs('schema_found', exist_ok=True)
-os.makedirs('gt_schema', exist_ok=True)
-
 # Global state for job tracking
 jobs = {}
 
@@ -47,6 +43,54 @@ ALLOWED_EXTENSIONS = {'csv'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def cleanup_old_uploads(upload_folder, schema_folder, keep_count=5):
+    """
+    Keep only the most recent N upload directories and schema_found directories.
+    Deletes older directories to save disk space.
+    """
+    try:
+        # Clean up upload directories
+        if os.path.exists(upload_folder):
+            upload_dirs = [d for d in os.listdir(upload_folder) if d.startswith('job_') and os.path.isdir(os.path.join(upload_folder, d))]
+            if len(upload_dirs) > keep_count:
+                # Sort by modification time (newest first)
+                upload_dirs.sort(key=lambda d: os.path.getmtime(os.path.join(upload_folder, d)), reverse=True)
+                # Keep only the most recent ones
+                to_delete = upload_dirs[keep_count:]
+                for dir_name in to_delete:
+                    dir_path = os.path.join(upload_folder, dir_name)
+                    try:
+                        shutil.rmtree(dir_path)
+                        print(f"Deleted old upload directory: {dir_path}")
+                    except Exception as e:
+                        print(f"Error deleting {dir_path}: {e}")
+        
+        # Clean up schema_found directories
+        if os.path.exists(schema_folder):
+            schema_dirs = [d for d in os.listdir(schema_folder) if d.startswith('job_') and os.path.isdir(os.path.join(schema_folder, d))]
+            if len(schema_dirs) > keep_count:
+                # Sort by modification time (newest first)
+                schema_dirs.sort(key=lambda d: os.path.getmtime(os.path.join(schema_folder, d)), reverse=True)
+                # Keep only the most recent ones
+                to_delete = schema_dirs[keep_count:]
+                for dir_name in to_delete:
+                    dir_path = os.path.join(schema_folder, dir_name)
+                    try:
+                        shutil.rmtree(dir_path)
+                        print(f"Deleted old schema directory: {dir_path}")
+                    except Exception as e:
+                        print(f"Error deleting {dir_path}: {e}")
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+
+# Ensure upload directory exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs('schema_found', exist_ok=True)
+os.makedirs('gt_schema', exist_ok=True)
+
+# Clean up old uploads on startup (keep only last 5)
+cleanup_old_uploads(app.config['UPLOAD_FOLDER'], 'schema_found', keep_count=5)
 
 # profile_node_type and profile_edge_type are now imported from main.py
 
@@ -297,6 +341,9 @@ def upload_files():
     thread = threading.Thread(target=process_schema_discovery, args=(upload_dir, output_dir, job_id))
     thread.daemon = True
     thread.start()
+    
+    # Clean up old uploads (keep only last 5)
+    cleanup_old_uploads(app.config['UPLOAD_FOLDER'], 'schema_found', keep_count=5)
     
     return jsonify({
         'job_id': job_id,

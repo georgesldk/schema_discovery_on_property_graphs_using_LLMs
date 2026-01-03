@@ -1,0 +1,276 @@
+{
+    "node_types": [
+        {
+            "label": "Meta",
+            "properties": [
+                {
+                    "name": ":LABEL",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "dataset",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "lastDatabaseEdit",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "latestMutationId",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "logo",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "meshHost",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerInfo",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerMeta",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHPThreshold",
+                    "type": "double",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHighAccuracyThreshold",
+                    "type": "double",
+                    "mandatory": true
+                },
+                {
+                    "name": "preHPThreshold",
+                    "type": "double",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryRois",
+                    "type": "array<string>",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiHierarchy",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "json_string",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusDefinitions",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "superLevelRois",
+                    "type": "array<string>",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPostCount",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPreCount",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "uuid",
+                    "type": "string",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "label": "Neurons",
+            "properties": [
+                {
+                    "name": ":LABEL",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "bodyId",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "cropped",
+                    "type": "boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "instance",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "post",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "pre",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryNeurite",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "json_string",
+                    "mandatory": true
+                },
+                {
+                    "name": "size",
+                    "type": "long",
+                    "mandatory": true
+                },
+                {
+                    "name": "somaLocation",
+                    "type": "point",
+                    "mandatory": true
+                },
+                {
+                    "name": "somaRadius",
+                    "type": "double",
+                    "mandatory": true
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "string",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "label": "SynapseSet",
+            "properties": [
+                {
+                    "name": ":Label",
+                    "type": "string",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "label": "Synapses",
+            "properties": [
+                {
+                    "name": ":Label",
+                    "type": "string",
+                    "mandatory": true
+                },
+                {
+                    "name": "confidence",
+                    "type": "double",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "location",
+                    "type": "point",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "string",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "label": "ROIs",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "type": "CONNECTS_SYNAPSE_SET",
+            "from_node": "SynapseSet",
+            "to_node": "SynapseSet",
+            "properties": []
+        },
+        {
+            "type": "CONTAINS_SYNAPSE",
+            "from_node": "SynapseSet",
+            "to_node": "Synapses",
+            "properties": []
+        },
+        {
+            "type": "CONNECTS_SYNAPSE",
+            "from_node": "Synapses",
+            "to_node": "Synapses",
+            "properties": []
+        },
+        {
+            "type": "HAS_SYNAPSE_SET",
+            "from_node": "Neurons",
+            "to_node": "SynapseSet",
+            "properties": []
+        },
+        {
+            "type": "CONNECTS_NEURON",
+            "from_node": "Neurons",
+            "to_node": "Neurons",
+            "properties": []
+        }
+    ]
+}

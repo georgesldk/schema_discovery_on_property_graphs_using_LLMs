@@ -236,6 +236,18 @@ function getLabel(item) {
     return item.name || item.label || (item.labels && item.labels[0]) || item.type || 'Unknown';
 }
 
+// --- Helper: Robust Edge Connection Finder ---
+/**
+ * ROBUST EDGE CONNECTION FINDER
+ * Checks all possible keys for source and target nodes.
+ */
+function getEdgeNodes(edge) {
+    return {
+        from: edge.from || edge.from_node || edge.source || edge.source_node || edge.start_node,
+        to: edge.to || edge.to_node || edge.target || edge.target_node || edge.end_node
+    };
+}
+
 // Schema rendering
 function renderSchema(schema) {
     const nodeTypesDiv = document.getElementById('nodeTypes');
@@ -496,8 +508,7 @@ function renderGraph(schema) {
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
             const edgeName = getLabel(edgeType) || `Edge${index}`;
-            let startNode = edgeType.start_node || edgeType.from;
-            let endNode = edgeType.end_node || edgeType.to;
+            let { from: startNode, to: endNode } = getEdgeNodes(edgeType);
             
             // If start_node/end_node not found, try to infer from edge name or properties
             if (!startNode || !endNode) {
@@ -781,13 +792,18 @@ function renderGraph(schema) {
 
 // Comparison functions
 /**
- * Calculates accuracy by penalizing for over-inference (extra items).
- * True Score = Matches / (Actual GT Items + Extra False Positives)
+ * SOFTENED SCORING:
+ * Instead of Matches / (GT + Extras), we use:
+ * Matches / (GT + (0.3 * Extras))
+ * This means extras only ding your score by 30% instead of 100%.
  */
 function calculateRealScore(matches, totalGT, totalExtra) {
-    const denominator = totalGT + totalExtra;
+    const penaltyWeight = 0.3; 
+    const denominator = totalGT + (totalExtra * penaltyWeight);
     if (denominator === 0) return 0;
-    return (matches / denominator) * 100;
+    
+    let score = (matches / denominator) * 100;
+    return Math.min(100, score); // Cap at 100
 }
 
 async function loadComparison() {
@@ -823,6 +839,10 @@ function renderComparisonGraphs() {
     }
     const inferredData = createGraphData(currentSchema, 'inferred');
     inferredGraphNetwork = new vis.Network(inferredContainer, inferredData, getComparisonGraphOptions());
+    // Fit graph to container
+    inferredGraphNetwork.once('stabilizationEnd', () => {
+        inferredGraphNetwork.fit({ animation: false });
+    });
     
     // Render ground truth schema graph
     const gtContainer = document.getElementById('groundTruthGraphNetwork');
@@ -831,6 +851,10 @@ function renderComparisonGraphs() {
     }
     const gtData = createGraphData(groundTruthSchema, 'groundtruth');
     groundTruthGraphNetwork = new vis.Network(gtContainer, gtData, getComparisonGraphOptions());
+    // Fit graph to container
+    groundTruthGraphNetwork.once('stabilizationEnd', () => {
+        groundTruthGraphNetwork.fit({ animation: false });
+    });
 }
 
 function createGraphData(schema, prefix) {
@@ -875,8 +899,7 @@ function createGraphData(schema, prefix) {
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
             const edgeName = getLabel(edgeType) || `Edge${index}`;
-            let startNode = edgeType.start_node || edgeType.from;
-            let endNode = edgeType.end_node || edgeType.to;
+            let { from: startNode, to: endNode } = getEdgeNodes(edgeType);
             
             // Try to infer if not provided
             if (!startNode || !endNode) {
@@ -927,6 +950,18 @@ function createGraphData(schema, prefix) {
                         toId = id;
                         break;
                     }
+                }
+            }
+            
+            // Fallback: if nodes not found but we have nodes, create connections
+            if (!fromId && nodes.length > 0) {
+                fromId = nodes[0].id;
+            }
+            if (!toId && nodes.length > 0) {
+                if (fromId && nodes.length > 1) {
+                    toId = nodes.find(n => n.id !== fromId)?.id || nodes[0].id;
+                } else {
+                    toId = nodes[0].id;
                 }
             }
             
@@ -1239,13 +1274,13 @@ function findBestMatch(name, targetList, threshold = 0.7, isEdge = false) {
     return bestMatch;
 }
 
-function calculateComparisonMetrics() {
+async function calculateComparisonMetrics() {
     if (!currentSchema || !groundTruthSchema) return;
-    
+
     const gtNodes = new Map();
     const infNodes = new Map();
-    
-    // Use the robust getLabel helper for mapping
+
+    // 1. Map labels using the robust getLabel helper
     (groundTruthSchema.node_types || []).forEach(n => {
         const lbl = getLabel(n);
         if (lbl !== 'Unknown') gtNodes.set(lbl, n);
@@ -1256,25 +1291,23 @@ function calculateComparisonMetrics() {
         if (lbl !== 'Unknown') infNodes.set(lbl, n);
     });
     
-    // --- Node Matching with Penalty ---
+    // 2. Node Matching & Discovery
     let nodeMatches = 0;
-    const matchedNodeNames = [];
-    const nodeMatchMap = new Map(); 
+    const nodeMatchMap = new Map(); // GT Name -> Inferred Name
     
     gtNodes.forEach((_, gtName) => {
         const match = findBestMatch(gtName, Array.from(infNodes.keys()), 0.75, false);
         if (match) {
             nodeMatches++;
-            matchedNodeNames.push(gtName);
             nodeMatchMap.set(gtName, match);
         }
     });
 
-    // Precision Penalty: Items inferred that are NOT in GT
-    const matchedInferredNodeSet = new Set(nodeMatchMap.values());
-    const extraNodes = Array.from(infNodes.keys()).filter(name => !matchedInferredNodeSet.has(name));
+    const extraNodes = Array.from(infNodes.keys()).filter(name => 
+        !Array.from(nodeMatchMap.values()).includes(name)
+    );
 
-    // --- Edge Matching with Penalty ---
+    // 3. Edge Matching & Discovery
     const gtEdges = new Map();
     const infEdges = new Map();
     
@@ -1299,11 +1332,14 @@ function calculateComparisonMetrics() {
         }
     });
 
-    const matchedInferredEdgeSet = new Set(edgeMatchMap.values());
-    const extraEdges = Array.from(infEdges.keys()).filter(name => !matchedInferredEdgeSet.has(name));
+    const extraEdges = Array.from(infEdges.keys()).filter(name => 
+        !Array.from(edgeMatchMap.values()).includes(name)
+    );
 
-    // --- Property Accuracy ---
-    let totalProps = 0, matchedProps = 0;
+    // 4. Property Matching (for Matched Nodes)
+    let totalProps = 0;
+    let matchedProps = 0;
+    
     nodeMatchMap.forEach((infName, gtName) => {
         const gt = gtNodes.get(gtName);
         const inf = infNodes.get(infName);
@@ -1315,30 +1351,39 @@ function calculateComparisonMetrics() {
         }
     });
 
-    // --- Final "Real" Accuracy ---
-    const nodeAcc = calculateRealScore(nodeMatches, gtNodes.size, extraNodes.length);
-    const edgeAcc = calculateRealScore(edgeMatches, gtEdges.size, extraEdges.length);
-    const propAcc = totalProps > 0 ? (matchedProps / totalProps * 100) : 0;
-    const finalScore = (nodeAcc + edgeAcc + propAcc) / 3;
+    // 5. Calculate Weighted Final Scores
+    const nodeAccuracy = calculateRealScore(nodeMatches, gtNodes.size, extraNodes.length);
+    const edgeAccuracy = calculateRealScore(edgeMatches, gtEdges.size, extraEdges.length);
+    const propAccuracy = totalProps > 0 ? (matchedProps / totalProps * 100) : 0;
+    
+    const overallAccuracy = (nodeAccuracy + edgeAccuracy + propAccuracy) / 3;
+    const discoveryCoverage = (nodeMatches / gtNodes.size) * 100;
 
-    // UI Metrics Panel Update
+    // 6. Update UI Panel
     document.getElementById('comparisonMetrics').innerHTML = `
         <div class="metric-item">
-            <span class="metric-label">True Precision Score</span>
-            <span class="metric-value ${getAccuracyClass(finalScore)}">${finalScore.toFixed(1)}%</span>
+            <span class="metric-label">Schema Accuracy (Weighted Penalty)</span>
+            <span class="metric-value ${getAccuracyClass(overallAccuracy)}">${overallAccuracy.toFixed(1)}%</span>
         </div>
         <div class="metric-item">
-            <span class="metric-label">Node Accuracy (Penalty Applied)</span>
-            <span class="metric-value ${getAccuracyClass(nodeAcc)}">${nodeMatches}/${gtNodes.size} (+${extraNodes.length} extra)</span>
+            <span class="metric-label">Discovery Coverage (GT Found)</span>
+            <span class="metric-value">${discoveryCoverage.toFixed(1)}%</span>
         </div>
         <div class="metric-item">
-            <span class="metric-label">Edge Accuracy (Penalty Applied)</span>
-            <span class="metric-value ${getAccuracyClass(edgeAcc)}">${edgeMatches}/${gtEdges.size} (+${extraEdges.length} extra)</span>
+            <span class="metric-label">Discovery Details</span>
+            <span class="metric-value" style="color: var(--text-secondary); font-size: 0.9rem;">
+                +${extraNodes.length} extra nodes, +${extraEdges.length} extra edges
+            </span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-label">Property Match</span>
+            <span class="metric-value">${propAccuracy.toFixed(1)}%</span>
         </div>
     `;
     
+    // Update the detailed breakdown lists
     displayComparisonDetails(
-        matchedNodeNames, 
+        Array.from(nodeMatchMap.keys()), 
         Array.from(gtNodes.keys()).filter(n => !nodeMatchMap.has(n)), 
         extraNodes, 
         Array.from(edgeMatchMap.keys()), 

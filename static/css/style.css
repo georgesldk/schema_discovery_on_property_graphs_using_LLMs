@@ -611,6 +611,12 @@ footer {
     overflow: hidden;
 }
 
+#inferredGraphNetwork,
+#groundTruthGraphNetwork {
+    width: 100%;
+    height: 100%;
+}
+
 .comparison-details {
     margin-top: 24px;
     padding: 20px;
