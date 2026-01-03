@@ -1,6 +1,0 @@
-﻿nodeType,properties
-Meta:medulla7column_Meta,"[primaryRois, roiInfo, roiHierarchy, neuroglancerInfo, totalPreCount, lastDatabaseEdit, uuid, statusDefinitions, preHPThreshold, totalPostCount, superLevelRois, latestMutationId, logo, postHighAccuracyThreshold, meshHost, dataset, postHPThreshold, neuroglancerMeta]"
-Neuron:Segment:medulla7column_Neuron:medulla7column_Segment,"[roiInfo, pre, instance, distal, post, size, proximal, bodyId, type, cropped, statusLabel, status]"
-Neuron:Segment:medulla7column_Segment,"[roiInfo, pre, distal, instance, post, size, proximal, bodyId, cropped, statusLabel, status]"
-Synapse:medulla7column_Synapse,"[location, proximal, distal, type, confidence]"
-SynapseSet:medulla7column_SynapseSet,[]

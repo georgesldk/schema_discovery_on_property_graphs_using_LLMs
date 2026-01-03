@@ -1,0 +1,4 @@
+﻿relType,sources,targets,properties
+CONNECTS_TO,"[SynapseSet:medulla7column_SynapseSet, Neuron:Segment:medulla7column_Neuron:medulla7column_Segment, Neuron:Segment:medulla7column_Segment]","[SynapseSet:medulla7column_SynapseSet, Neuron:Segment:medulla7column_Segment, Neuron:Segment:medulla7column_Neuron:medulla7column_Segment]","[weight, weightHP, roiInfo]"
+CONTAINS,"[SynapseSet:medulla7column_SynapseSet, Neuron:Segment:medulla7column_Neuron:medulla7column_Segment, Neuron:Segment:medulla7column_Segment]","[Synapse:medulla7column_Synapse, SynapseSet:medulla7column_SynapseSet]",[]
+SYNAPSES_TO,[Synapse:medulla7column_Synapse],[Synapse:medulla7column_Synapse],[]

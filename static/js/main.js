@@ -230,6 +230,12 @@ function resetForm() {
     submitBtn.innerHTML = '<span>Start Schema Discovery</span>';
 }
 
+// --- Helper: Robust Label Detection ---
+function getLabel(item) {
+    // Checks multiple possible fields returned by different LLM versions or schemas
+    return item.name || item.label || (item.labels && item.labels[0]) || item.type || 'Unknown';
+}
+
 // Schema rendering
 function renderSchema(schema) {
     const nodeTypesDiv = document.getElementById('nodeTypes');
@@ -238,11 +244,10 @@ function renderSchema(schema) {
     nodeTypesDiv.innerHTML = '';
     edgeTypesDiv.innerHTML = '';
     
-    // Render Node Types
     if (schema.node_types && schema.node_types.length > 0) {
         schema.node_types.forEach(nodeType => {
             const nodeItem = createSchemaItem(
-                nodeType.name || nodeType.labels?.[0] || 'Unknown',
+                getLabel(nodeType),
                 nodeType.properties || [],
                 'node'
             );
@@ -252,11 +257,10 @@ function renderSchema(schema) {
         nodeTypesDiv.innerHTML = '<p style="color: var(--text-secondary);">No node types found</p>';
     }
     
-    // Render Edge Types
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach(edgeType => {
             const edgeItem = createSchemaItem(
-                edgeType.type || edgeType.name || 'Unknown',
+                getLabel(edgeType),
                 edgeType.properties || [],
                 'edge'
             );
@@ -365,6 +369,43 @@ function switchTab(tabName) {
     }
 }
 
+// Helper function to determine node status (matched vs extra) for coloring
+function getNodeStatus(schema) {
+    if (!groundTruthSchema || !schema) return { matched: new Set(), extra: new Set() };
+    
+    const gtNodes = new Map();
+    const infNodes = new Map();
+    
+    // Use the robust getLabel helper for mapping
+    (groundTruthSchema.node_types || []).forEach(n => {
+        const lbl = getLabel(n);
+        if (lbl !== 'Unknown') gtNodes.set(lbl, n);
+    });
+    
+    (schema.node_types || []).forEach(n => {
+        const lbl = getLabel(n);
+        if (lbl !== 'Unknown') infNodes.set(lbl, n);
+    });
+    
+    // Find matched nodes
+    const nodeMatchMap = new Map();
+    gtNodes.forEach((_, gtName) => {
+        const match = findBestMatch(gtName, Array.from(infNodes.keys()), 0.75, false);
+        if (match) {
+            nodeMatchMap.set(gtName, match);
+        }
+    });
+    
+    // Determine matched and extra nodes
+    const matchedInferredNodeSet = new Set(nodeMatchMap.values());
+    const extraNodes = new Set(Array.from(infNodes.keys()).filter(name => !matchedInferredNodeSet.has(name)));
+    
+    return {
+        matched: matchedInferredNodeSet,
+        extra: extraNodes
+    };
+}
+
 // Graph rendering function
 function renderGraph(schema) {
     const container = document.getElementById('graphNetwork');
@@ -374,32 +415,70 @@ function renderGraph(schema) {
         graphNetwork.destroy();
     }
     
+    // Get node status for coloring (if ground truth is available)
+    const nodeStatus = getNodeStatus(schema);
+    
     // Create nodes from node_types
     const nodes = [];
     const nodeTypeMap = new Map();
     
     if (schema.node_types && schema.node_types.length > 0) {
         schema.node_types.forEach((nodeType, index) => {
-            const nodeName = nodeType.name || nodeType.labels?.[0] || `Node${index}`;
+            const nodeName = getLabel(nodeType) || `Node${index}`;
             const nodeId = `node_${index}`;
             nodeTypeMap.set(nodeName, nodeId);
             
             const propertyCount = (nodeType.properties || []).length;
             const mandatoryCount = (nodeType.properties || []).filter(p => p.mandatory).length;
             
-            nodes.push({
-                id: nodeId,
-                label: nodeName,
-                title: `${nodeName}\nProperties: ${propertyCount}\nMandatory: ${mandatoryCount}`,
-                shape: 'ellipse',
-                color: {
+            // Determine node color based on status
+            let nodeColor;
+            if (nodeStatus.matched.has(nodeName)) {
+                // Matched node - Green
+                nodeColor = {
+                    background: 'rgba(34, 197, 94, 0.3)',
+                    border: '#22c55e',
+                    highlight: {
+                        background: 'rgba(34, 197, 94, 0.5)',
+                        border: '#22c55e'
+                    }
+                };
+            } else if (nodeStatus.extra.has(nodeName)) {
+                // Extra node - Red/Orange
+                nodeColor = {
+                    background: 'rgba(249, 115, 22, 0.3)',
+                    border: '#f97316',
+                    highlight: {
+                        background: 'rgba(249, 115, 22, 0.5)',
+                        border: '#f97316'
+                    }
+                };
+            } else {
+                // Default color (when ground truth is not available)
+                nodeColor = {
                     background: 'rgba(99, 102, 241, 0.2)',
                     border: '#6366f1',
                     highlight: {
                         background: 'rgba(99, 102, 241, 0.4)',
                         border: '#6366f1'
                     }
-                },
+                };
+            }
+            
+            // Build title with status information
+            let title = `${nodeName}\nProperties: ${propertyCount}\nMandatory: ${mandatoryCount}`;
+            if (nodeStatus.matched.has(nodeName)) {
+                title += '\n✓ Matched';
+            } else if (nodeStatus.extra.has(nodeName)) {
+                title += '\n⚠ Extra (Over-inferred)';
+            }
+            
+            nodes.push({
+                id: nodeId,
+                label: nodeName,
+                title: title,
+                shape: 'ellipse',
+                color: nodeColor,
                 font: {
                     color: '#f1f5f9',
                     size: 16,
@@ -416,7 +495,7 @@ function renderGraph(schema) {
     
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
-            const edgeName = edgeType.name || edgeType.type || `Edge${index}`;
+            const edgeName = getLabel(edgeType) || `Edge${index}`;
             let startNode = edgeType.start_node || edgeType.from;
             let endNode = edgeType.end_node || edgeType.to;
             
@@ -699,7 +778,18 @@ function renderGraph(schema) {
     graphNetwork = new vis.Network(container, data, options);
 }
 
+
 // Comparison functions
+/**
+ * Calculates accuracy by penalizing for over-inference (extra items).
+ * True Score = Matches / (Actual GT Items + Extra False Positives)
+ */
+function calculateRealScore(matches, totalGT, totalExtra) {
+    const denominator = totalGT + totalExtra;
+    if (denominator === 0) return 0;
+    return (matches / denominator) * 100;
+}
+
 async function loadComparison() {
     // Show loading state
     document.getElementById('comparisonMetrics').innerHTML = '<div class="metric-item"><span class="metric-label">Loading comparison data...</span></div>';
@@ -751,7 +841,7 @@ function createGraphData(schema, prefix) {
     // Create nodes
     if (schema.node_types && schema.node_types.length > 0) {
         schema.node_types.forEach((nodeType, index) => {
-            const nodeName = nodeType.name || nodeType.labels?.[0] || `Node${index}`;
+            const nodeName = getLabel(nodeType) || `Node${index}`;
             const nodeId = `${prefix}_node_${index}`;
             nodeTypeMap.set(nodeName, nodeId);
             
@@ -784,7 +874,7 @@ function createGraphData(schema, prefix) {
     // Create edges
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
-            const edgeName = edgeType.name || edgeType.type || `Edge${index}`;
+            const edgeName = getLabel(edgeType) || `Edge${index}`;
             let startNode = edgeType.start_node || edgeType.from;
             let endNode = edgeType.end_node || edgeType.to;
             
@@ -1152,133 +1242,111 @@ function findBestMatch(name, targetList, threshold = 0.7, isEdge = false) {
 function calculateComparisonMetrics() {
     if (!currentSchema || !groundTruthSchema) return;
     
-    // Compare node types with fuzzy matching
     const gtNodes = new Map();
     const infNodes = new Map();
     
-    (groundTruthSchema.node_types || []).forEach(node => {
-        const name = node.name || node.labels?.[0] || '';
-        if (name) gtNodes.set(name, node);
+    // Use the robust getLabel helper for mapping
+    (groundTruthSchema.node_types || []).forEach(n => {
+        const lbl = getLabel(n);
+        if (lbl !== 'Unknown') gtNodes.set(lbl, n);
     });
     
-    (currentSchema.node_types || []).forEach(node => {
-        const name = node.name || node.labels?.[0] || '';
-        if (name) infNodes.set(name, node);
+    (currentSchema.node_types || []).forEach(n => {
+        const lbl = getLabel(n);
+        if (lbl !== 'Unknown') infNodes.set(lbl, n);
     });
     
-    // Find matches using fuzzy matching
+    // --- Node Matching with Penalty ---
     let nodeMatches = 0;
-    const matchedNodes = [];
-    const missingNodes = [];
-    const extraNodes = [];
-    const nodeMatchMap = new Map(); // Maps GT name to inferred name
+    const matchedNodeNames = [];
+    const nodeMatchMap = new Map(); 
     
-    gtNodes.forEach((gtNode, gtName) => {
-        const infNames = Array.from(infNodes.keys());
-        const match = findBestMatch(gtName, infNames, 0.7, false);
+    gtNodes.forEach((_, gtName) => {
+        const match = findBestMatch(gtName, Array.from(infNodes.keys()), 0.75, false);
         if (match) {
             nodeMatches++;
-            matchedNodes.push(gtName);
+            matchedNodeNames.push(gtName);
             nodeMatchMap.set(gtName, match);
-        } else {
-            missingNodes.push(gtName);
         }
     });
-    
-    // Find extra nodes (inferred but not matched to any GT)
-    const matchedInfNodes = new Set(Array.from(nodeMatchMap.values()));
-    infNodes.forEach((infNode, infName) => {
-        if (!matchedInfNodes.has(infName)) {
-            extraNodes.push(infName);
-        }
-    });
-    
-    // Compare edge types with fuzzy matching
+
+    // Precision Penalty: Items inferred that are NOT in GT
+    const matchedInferredNodeSet = new Set(nodeMatchMap.values());
+    const extraNodes = Array.from(infNodes.keys()).filter(name => !matchedInferredNodeSet.has(name));
+
+    // --- Edge Matching with Penalty ---
     const gtEdges = new Map();
     const infEdges = new Map();
     
-    (groundTruthSchema.edge_types || []).forEach(edge => {
-        const name = edge.name || edge.type || '';
-        if (name) gtEdges.set(name, edge);
+    (groundTruthSchema.edge_types || []).forEach(e => {
+        const lbl = getLabel(e);
+        if (lbl !== 'Unknown') gtEdges.set(lbl, e);
     });
     
-    (currentSchema.edge_types || []).forEach(edge => {
-        const name = edge.name || edge.type || '';
-        if (name) infEdges.set(name, edge);
+    (currentSchema.edge_types || []).forEach(e => {
+        const lbl = getLabel(e);
+        if (lbl !== 'Unknown') infEdges.set(lbl, e);
     });
-    
+
     let edgeMatches = 0;
-    const matchedEdges = [];
-    const missingEdges = [];
-    const extraEdges = [];
-    const edgeMatchMap = new Map(); // Maps GT name to inferred name
-    
-    gtEdges.forEach((gtEdge, gtName) => {
-        const infNames = Array.from(infEdges.keys());
-        // Use lower threshold for edges and enable edge-specific matching
-        const match = findBestMatch(gtName, infNames, 0.6, true);
+    const edgeMatchMap = new Map();
+
+    gtEdges.forEach((_, gtName) => {
+        const match = findBestMatch(gtName, Array.from(infEdges.keys()), 0.65, true);
         if (match) {
             edgeMatches++;
-            matchedEdges.push(gtName);
             edgeMatchMap.set(gtName, match);
-        } else {
-            missingEdges.push(gtName);
         }
     });
-    
-    // Find extra edges (inferred but not matched to any GT)
-    const matchedInfEdges = new Set(Array.from(edgeMatchMap.values()));
-    infEdges.forEach((infEdge, infName) => {
-        if (!matchedInfEdges.has(infName)) {
-            extraEdges.push(infName);
+
+    const matchedInferredEdgeSet = new Set(edgeMatchMap.values());
+    const extraEdges = Array.from(infEdges.keys()).filter(name => !matchedInferredEdgeSet.has(name));
+
+    // --- Property Accuracy ---
+    let totalProps = 0, matchedProps = 0;
+    nodeMatchMap.forEach((infName, gtName) => {
+        const gt = gtNodes.get(gtName);
+        const inf = infNodes.get(infName);
+        if (gt && inf) {
+            const gtP = new Set((gt.properties || []).map(p => String(p.name || '').toLowerCase()).filter(Boolean));
+            const infP = new Set((inf.properties || []).map(p => String(p.name || '').toLowerCase()).filter(Boolean));
+            totalProps += gtP.size;
+            matchedProps += [...gtP].filter(p => infP.has(p)).length;
         }
     });
-    
-    // Calculate property accuracy using matched nodes
-    let totalProps = 0;
-    let matchedProps = 0;
-    
-    matchedNodes.forEach(gtNodeName => {
-        const gtNode = gtNodes.get(gtNodeName);
-        const infNodeName = nodeMatchMap.get(gtNodeName);
-        const infNode = infNodeName ? infNodes.get(infNodeName) : null;
-        if (gtNode && infNode) {
-            const gtProps = new Set((gtNode.properties || []).map(p => p.name?.toLowerCase()).filter(Boolean));
-            const infProps = new Set((infNode.properties || []).map(p => p.name?.toLowerCase()).filter(Boolean));
-            totalProps += gtProps.size;
-            matchedProps += [...gtProps].filter(p => infProps.has(p)).length;
-        }
-    });
-    
-    const nodeAccuracy = gtNodes.size > 0 ? (nodeMatches / gtNodes.size * 100) : 0;
-    const edgeAccuracy = gtEdges.size > 0 ? (edgeMatches / gtEdges.size * 100) : 0;
-    const propertyAccuracy = totalProps > 0 ? (matchedProps / totalProps * 100) : 0;
-    const overallAccuracy = (nodeAccuracy + edgeAccuracy + propertyAccuracy) / 3;
-    
-    // Display metrics
-    const metricsHtml = `
+
+    // --- Final "Real" Accuracy ---
+    const nodeAcc = calculateRealScore(nodeMatches, gtNodes.size, extraNodes.length);
+    const edgeAcc = calculateRealScore(edgeMatches, gtEdges.size, extraEdges.length);
+    const propAcc = totalProps > 0 ? (matchedProps / totalProps * 100) : 0;
+    const finalScore = (nodeAcc + edgeAcc + propAcc) / 3;
+
+    // UI Metrics Panel Update
+    document.getElementById('comparisonMetrics').innerHTML = `
         <div class="metric-item">
-            <span class="metric-label">Overall Accuracy</span>
-            <span class="metric-value ${getAccuracyClass(overallAccuracy)}">${overallAccuracy.toFixed(1)}%</span>
+            <span class="metric-label">True Precision Score</span>
+            <span class="metric-value ${getAccuracyClass(finalScore)}">${finalScore.toFixed(1)}%</span>
         </div>
         <div class="metric-item">
-            <span class="metric-label">Node Types</span>
-            <span class="metric-value ${getAccuracyClass(nodeAccuracy)}">${nodeMatches}/${gtNodes.size} (${nodeAccuracy.toFixed(1)}%)</span>
+            <span class="metric-label">Node Accuracy (Penalty Applied)</span>
+            <span class="metric-value ${getAccuracyClass(nodeAcc)}">${nodeMatches}/${gtNodes.size} (+${extraNodes.length} extra)</span>
         </div>
         <div class="metric-item">
-            <span class="metric-label">Edge Types</span>
-            <span class="metric-value ${getAccuracyClass(edgeAccuracy)}">${edgeMatches}/${gtEdges.size} (${edgeAccuracy.toFixed(1)}%)</span>
-        </div>
-        <div class="metric-item">
-            <span class="metric-label">Properties</span>
-            <span class="metric-value ${getAccuracyClass(propertyAccuracy)}">${matchedProps}/${totalProps} (${propertyAccuracy.toFixed(1)}%)</span>
+            <span class="metric-label">Edge Accuracy (Penalty Applied)</span>
+            <span class="metric-value ${getAccuracyClass(edgeAcc)}">${edgeMatches}/${gtEdges.size} (+${extraEdges.length} extra)</span>
         </div>
     `;
     
-    document.getElementById('comparisonMetrics').innerHTML = metricsHtml;
-    
-    // Display detailed comparison
-    displayComparisonDetails(matchedNodes, missingNodes, extraNodes, matchedEdges, missingEdges, extraEdges, nodeMatchMap, edgeMatchMap);
+    displayComparisonDetails(
+        matchedNodeNames, 
+        Array.from(gtNodes.keys()).filter(n => !nodeMatchMap.has(n)), 
+        extraNodes, 
+        Array.from(edgeMatchMap.keys()), 
+        Array.from(gtEdges.keys()).filter(e => !edgeMatchMap.has(e)), 
+        extraEdges, 
+        nodeMatchMap, 
+        edgeMatchMap
+    );
 }
 
 function getAccuracyClass(accuracy) {
@@ -1326,6 +1394,15 @@ function displayComparisonDetails(matchedNodes, missingNodes, extraNodes, matche
             html += `<div class="mismatch-item"><span class="comparison-item-label">${name}</span><span class="comparison-item-details">Inferred but not in Ground Truth</span></div>`;
         });
         html += '</div>';
+    }
+
+    // Section for Extra Items (The Penalty)
+    if (extraNodes.length > 0 || extraEdges.length > 0) {
+        html += `<div class="comparison-section" style="border: 2px solid var(--error-color);">`;
+        html += `<h4 style="color: var(--error-color);">⚠️ Over-Inference Penalties</h4>`;
+        if (extraNodes.length > 0) html += `<p><strong>Extra Nodes:</strong> ${extraNodes.join(', ')}</p>`;
+        if (extraEdges.length > 0) html += `<p><strong>Extra Edges:</strong> ${extraEdges.join(', ')}</p>`;
+        html += `<p class="hint">These items were found in your data but are NOT in the official schema.</p></div>`;
     }
     
     html += '</div>';

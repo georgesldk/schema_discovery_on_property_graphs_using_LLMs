@@ -1,96 +1,98 @@
 import json
-import csv
 import os
 import glob
 import argparse
+import re
+import csv
 
-def clean_label(label_str):
-    if not label_str: return ""
-    return label_str.lstrip(':').replace('`', '')
+def parse_pgs_file(file_path):
+    """Parses .pgs to extract Node and Edge definitions with standardized types."""
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-def parse_strict_node_json(file_path):
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
-        data = json.load(f)
-    nodes = []
-    for entry in data:
-        node_def = {
-            "labels": entry.get("nodeLabels", []),
-            "raw_type_string": clean_label(entry.get("nodeType", "")),
-            "properties": []
-        }
-        for prop in entry.get("properties", []):
-            prop_def = {
-                "name": prop["name"],
-                "type": prop["types"][0] if prop["types"] else "Unknown",
-                "mandatory": prop["mandatory"]
-            }
-            node_def["properties"].append(prop_def)
-        nodes.append(node_def)
-    return nodes
+    node_pattern = re.compile(r"NODE\s+([a-zA-Z0-9_]+)\s*\{([^}]*)\}", re.DOTALL)
+    edge_pattern = re.compile(r"EDGE\s+([a-zA-Z0-9_]+)\s*\{([^}]*)\}", re.DOTALL)
 
-def parse_strict_edge_json(file_path):
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
-        data = json.load(f)
-    edges = {}
-    for entry in data:
-        rel_type = clean_label(entry.get("relType", ""))
+    node_types = []
+    edge_map = {}
+
+    def standardize_type(ptype):
+        ptype = ptype.lower().strip().strip(',')
+        if "int" in ptype: return "Long"
+        if "float" in ptype or "double" in ptype: return "Double"
+        if "bool" in ptype: return "Boolean"
+        if "datetime" in ptype or "string" in ptype: return "String"
+        return "String"
+
+    def parse_props(prop_block):
         props = []
-        for prop in entry.get("properties", []):
-            if prop["name"] is None: continue
-            prop_def = {
-                "name": prop["name"],
-                "type": prop["types"][0] if prop["types"] else "Unknown",
-                "mandatory": prop["mandatory"]
-            }
-            props.append(prop_def)
-        edges[rel_type] = {"type": rel_type, "properties": props, "topology": []}
-    return edges
+        for line in prop_block.strip().split('\n'):
+            if ':' in line:
+                name, ptype = line.split(':', 1)
+                props.append({
+                    "name": name.strip().replace('`', ''),
+                    "type": standardize_type(ptype),
+                    "mandatory": True
+                })
+        return props
 
-def parse_edge_csv_topology(file_path, edge_dict):
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
+    for match in node_pattern.finditer(content):
+        name, props_raw = match.groups()
+        node_types.append({
+            "name": name,
+            "labels": [name],
+            "properties": parse_props(props_raw)
+        })
+
+    for match in edge_pattern.finditer(content):
+        name, props_raw = match.groups()
+        edge_map[name] = {
+            "type": name,
+            "properties": parse_props(props_raw),
+            "topology": []
+        }
+
+    return node_types, edge_map
+
+def add_topology_from_csv(csv_path, edge_map):
+    """Enriches edge definitions with allowed source/target connections from CSV."""
+    if not os.path.exists(csv_path):
+        return
+    with open(csv_path, 'r', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if not row or 'relType' not in row: continue
-            rel_type = row['relType'].strip()
-            sources_raw = row.get('sources', "").strip("[]")
-            targets_raw = row.get('targets', "").strip("[]")
-            source_list = [s.strip() for s in sources_raw.split(',') if s.strip()]
-            target_list = [t.strip() for t in targets_raw.split(',') if t.strip()]
-            
-            if rel_type in edge_dict:
-                edge_dict[rel_type]["topology"].append({
-                    "allowed_sources": source_list,
-                    "allowed_targets": target_list
+            rel_type = row.get('relType', '').strip()
+            if rel_type in edge_map:
+                sources = [s.strip() for s in row.get('sources', '').strip("[]").split(',') if s.strip()]
+                targets = [t.strip() for t in row.get('targets', '').strip("[]").split(',') if t.strip()]
+                edge_map[rel_type]["topology"].append({
+                    "allowed_sources": sources,
+                    "allowed_targets": targets
                 })
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract Golden Truth Schema")
-    parser.add_argument("--input_dir", required=True, help="Folder containing _strict.json files (e.g. gt_data_fib25)")
-    parser.add_argument("--output_dir", required=True, help="Folder to save the result (e.g. gt_schema)")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_dir", required=True, help="Folder containing .pgs and edge_types.csv")
+    parser.add_argument("--output_dir", required=True, help="Folder to save the result")
     args = parser.parse_args()
     
-    # Generate a filename based on the input folder name
     dataset_name = os.path.basename(os.path.normpath(args.input_dir))
     output_file = os.path.join(args.output_dir, f"golden_truth_{dataset_name}.json")
-
-    # Ensure output directory exists
     os.makedirs(args.output_dir, exist_ok=True)
 
-    print(f"🔍 Scanning Ground Truth folder: {args.input_dir}")
+    pgs_files = glob.glob(os.path.join(args.input_dir, "*.pgs"))
+    csv_topology = glob.glob(os.path.join(args.input_dir, "*edge_types.csv"))
 
-    node_files = glob.glob(os.path.join(args.input_dir, "*_node_types_strict.json"))
-    edge_files = glob.glob(os.path.join(args.input_dir, "*_edge_types_strict.json"))
-    csv_files = glob.glob(os.path.join(args.input_dir, "*_edge_types.csv"))
-
-    if not node_files or not edge_files:
-        print(" Error: strict JSON files not found in input directory.")
+    if not pgs_files:
+        print(f"Error: No .pgs file found in {args.input_dir}")
         return
 
-    nodes = parse_strict_node_json(node_files[0])
-    edge_map = parse_strict_edge_json(edge_files[0])
+    print(f"Parsing {os.path.basename(pgs_files[0])}...")
+    nodes, edge_map = parse_pgs_file(pgs_files[0])
 
-    if csv_files:
-        parse_edge_csv_topology(csv_files[0], edge_map)
+    if csv_topology:
+        print(f"Adding topology from {os.path.basename(csv_topology[0])}...")
+        add_topology_from_csv(csv_topology[0], edge_map)
 
     final_schema = {
         "dataset_name": dataset_name,
@@ -100,8 +102,7 @@ def main():
 
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(final_schema, f, indent=4)
-
-    print(f" Golden Truth saved to: {output_file}")
+    print(f"Success! Golden Truth saved to: {output_file}")
 
 if __name__ == "__main__":
     main()

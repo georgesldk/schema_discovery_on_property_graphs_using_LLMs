@@ -1,0 +1,104 @@
+CREATE NODE TYPE
+( MetaType :(Meta & medulla7column_Meta) {
+  logo String,
+  postHighAccuracyThreshold Double,
+  preHPThreshold Double,
+  postHPThreshold Double,
+  meshHost String,
+  uuid String,
+  neuroglancerInfo String,
+  neuroglancerMeta String,
+  statusDefinitions String,
+  latestMutationId Long,
+  totalPreCount Long,
+  totalPostCount Long,
+  lastDatabaseEdit String,
+  superLevelRois StringArray,
+  primaryRois StringArray,
+  roiInfo String,
+  roiHierarchy String,
+  dataset String
+} );
+
+CREATE NODE TYPE
+( NeuronSegmentMedullaNeuronType :(Neuron & Segment & medulla7column_Neuron & medulla7column_Segment) {
+  roiInfo String,
+  OPTIONAL type String,
+  OPTIONAL distal Boolean,
+  OPTIONAL proximal Boolean,
+  bodyId Long,
+  pre Long,
+  post Long,
+  status String,
+  statusLabel String,
+  OPTIONAL cropped Boolean,
+  OPTIONAL instance String,
+  size Long
+} );
+
+CREATE NODE TYPE
+( NeuronSegmentMedullaSegmentType :(Neuron & Segment & medulla7column_Segment) {
+  roiInfo String,
+  OPTIONAL type String,
+  OPTIONAL distal Boolean,
+  OPTIONAL proximal Boolean,
+  bodyId Long,
+  pre Long,
+  post Long,
+  OPTIONAL status String,
+  OPTIONAL statusLabel String,
+  OPTIONAL cropped Boolean,
+  OPTIONAL instance String,
+  size Long
+} );
+
+CREATE NODE TYPE
+( SynapseSetType :(SynapseSet & medulla7column_SynapseSet));
+
+CREATE NODE TYPE
+( SynapseType :(Synapse & medulla7column_Synapse){
+  type String,
+  confidence Double,
+  location Point,
+  OPTIONAL distal Boolean,
+  OPTIONAL proximal Boolean
+} );
+
+
+CREATE EDGE TYPE
+( :( SynapseSet & medulla7column_SynapseSet )
+  | ( Neuron & Segment & medulla7column_Neuron & medulla7column_Segment )
+  | ( Neuron & Segment & medulla7column_Segment )
+) - [ CONNECTS_TO :CONNECTS_TO {
+  OPTIONAL roiInfo String,
+  OPTIONAL weight Long,
+  OPTIONAL weightHP Long
+} ] -> ( :( SynapseSet & medulla7column_SynapseSet )
+         | ( Neuron & Segment & medulla7column_Segment )
+         | ( Neuron & Segment & medulla7column_Neuron & medulla7column_Segment )
+);
+
+
+CREATE EDGE TYPE
+( :( SynapseSet & medulla7column_SynapseSet )
+  | ( Neuron & Segment & medulla7column_Neuron & medulla7column_Segment )
+  | ( Neuron & Segment & medulla7column_Segment )
+) - [ CONTAINS :CONTAINS ] -> ( :( Synapse & medulla7column_Synapse )
+                               | ( SynapseSet & medulla7column_SynapseSet ) );
+
+CREATE EDGE TYPE
+( :(Synapse & medulla7column_Synapse))
+- [ SYNAPSES_TO :SYNAPSES_TO ]
+-> ( :(Synapse & medulla7column_Synapse));
+
+
+CREATE GRAPH TYPE FIB25 LOOSE {
+  MetaType,
+  NeuronSegmentMedullaNeuronType,
+  NeuronSegmentMedullaSegmentType,
+  SynapseSetType,
+  SynapseType,
+  CONNECTS_TO,
+  CONTAINS,
+  SYNAPSES_TO
+};

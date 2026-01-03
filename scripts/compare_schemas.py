@@ -21,7 +21,7 @@ def find_best_match(name, target_list):
     best_match = None
     for target in target_list:
         score = similar(name, target)
-        if score > 0.8:
+        if score > 0.8:  # Fuzzy threshold
             if score > best_score:
                 best_score = score
                 best_match = target
@@ -31,6 +31,15 @@ def compare_properties(gt_props, inf_props):
     gt_names = {str(p['name']) for p in gt_props if p.get('name')}
     inf_names = {str(p['name']) for p in inf_props if p.get('name')}
     return gt_names.intersection(inf_names), gt_names - inf_names, inf_names - gt_names
+
+def calculate_real_score(matches, total_gt, total_extra):
+    """
+    Calculates accuracy by penalizing for over-inference (extra items).
+    True Score = Matches / (Actual GT Items + Extra False Positives)
+    """
+    denominator = total_gt + total_extra
+    if denominator == 0: return 0
+    return (matches / denominator) * 100
 
 def main():
     parser = argparse.ArgumentParser()
@@ -45,7 +54,7 @@ def main():
     gt = load_json(args.gt_file)
     inf = load_json(args.inferred_file)
     
-    print(f"\n==== SCHEMA COMPARISON REPORT ====")
+    print(f"\n==== REAL SCHEMA COMPARISON REPORT ====")
     print(f"GT: {os.path.basename(args.gt_file)}")
     print(f"Inferred: {os.path.basename(args.inferred_file)}")
     
@@ -54,43 +63,58 @@ def main():
     gt_nodes = {n.get('name') or n.get('labels')[0]: n for n in gt.get('node_types', [])}
     inf_nodes = {n.get('name') or n.get('labels', [''])[0]: n for n in inf.get('node_types', [])}
     
-    matches = []
+    node_matches = 0
+    matches_map = []
     for gt_name in gt_nodes:
         match_name = find_best_match(gt_name, inf_nodes.keys())
         if match_name:
             print(f" Match: GT '{gt_name}' <--> Inferred '{match_name}'")
-            matches.append((gt_name, match_name))
+            node_matches += 1
+            matches_map.append((gt_name, match_name))
         else:
             print(f" Missed: GT '{gt_name}' not found.")
             
-    # 2. Properties
-    print("\n--- 2. Property Accuracy ---")
-    total_props, total_matches = 0, 0
-    for gt_name, inf_name in matches:
-        print(f"\nNode: {gt_name}")
-        tp, fn, fp = compare_properties(gt_nodes[gt_name].get('properties', []), inf_nodes[inf_name].get('properties', []))
-        total_props += len(gt_nodes[gt_name].get('properties', []))
-        total_matches += len(tp)
-        if tp: print(f"    Correct: {len(tp)}")
-        if fn: print(f"    Missing: {', '.join(fn)}")
-        if fp: print(f"     Extra: {', '.join(fp)}")
+    extra_nodes = [n for n in inf_nodes if not find_best_match(n, gt_nodes.keys())]
+    if extra_nodes:
+        print(f" Extra Inferred Nodes (Penalty): {', '.join(extra_nodes)}")
 
-    # 3. Edges
-    print("\n--- 3. Edge Types ---")
+    # 2. Edges
+    print("\n--- 2. Edge Types ---")
     gt_edges = {e.get('type') or e.get('name'): e for e in gt.get('edge_types', [])}
     inf_edges = {e.get('type') or e.get('name'): e for e in inf.get('edge_types', [])}
     
+    edge_matches = 0
     for gt_name in gt_edges:
         match_name = find_best_match(gt_name, inf_edges.keys())
         if match_name:
             print(f" Match: Edge '{gt_name}' <--> '{match_name}'")
-            tp, fn, fp = compare_properties(gt_edges[gt_name].get('properties', []), inf_edges[match_name].get('properties', []))
-            if fn: print(f"    Edge missing props: {fn}")
+            edge_matches += 1
         else:
             print(f" Missed Edge: '{gt_name}'")
 
-    if total_props > 0:
-        print(f"\nFINAL PROPERTY SCORE: {(total_matches/total_props)*100:.2f}%")
+    extra_edges = [e for e in inf_edges if not find_best_match(e, gt_edges.keys())]
+    if extra_edges:
+        print(f" Extra Inferred Edges (Penalty): {', '.join(extra_edges)}")
+
+    # 3. Property Accuracy
+    print("\n--- 3. Property Accuracy ---")
+    total_props, prop_matches = 0, 0
+    for gt_name, inf_name in matches_map:
+        tp, fn, fp = compare_properties(gt_nodes[gt_name].get('properties', []), inf_nodes[inf_name].get('properties', []))
+        total_props += len(gt_nodes[gt_name].get('properties', []))
+        prop_matches += len(tp)
+
+    # FINAL REAL SCORES
+    real_node_score = calculate_real_score(node_matches, len(gt_nodes), len(extra_nodes))
+    real_edge_score = calculate_real_score(edge_matches, len(gt_edges), len(extra_edges))
+    real_prop_score = (prop_matches / total_props * 100) if total_props > 0 else 0
+
+    print("\n" + "="*30)
+    print(f"REAL NODE ACCURACY: {real_node_score:.2f}%")
+    print(f"REAL EDGE ACCURACY: {real_edge_score:.2f}%")
+    print(f"REAL PROPERTY ACCURACY: {real_prop_score:.2f}%")
+    print(f"OVERALL PERFORMANCE: {(real_node_score + real_edge_score + real_prop_score)/3:.2f}%")
+    print("="*30)
 
 if __name__ == "__main__":
     main()
