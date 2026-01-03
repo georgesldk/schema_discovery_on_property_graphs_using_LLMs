@@ -2,6 +2,7 @@
     "dataset_name": "gt_data_fib25",
     "node_types": [
         {
+            "type_name": "MetaType",
             "labels": [
                 "Meta",
                 "medulla7column_Meta"
@@ -101,6 +102,7 @@
             ]
         },
         {
+            "type_name": "NeuronSegmentMedullaNeuronType",
             "labels": [
                 "Neuron",
                 "Segment",
@@ -172,6 +174,7 @@
             ]
         },
         {
+            "type_name": "NeuronSegmentMedullaSegmentType",
             "labels": [
                 "Neuron",
                 "Segment",
@@ -242,20 +245,16 @@
             ]
         },
         {
+            "type_name": "SynapseSetType",
             "labels": [
                 "SynapseSet",
                 "medulla7column_SynapseSet"
             ],
             "raw_type_string": "SynapseSet:medulla7column_SynapseSet",
-            "properties": [
-                {
-                    "name": null,
-                    "type": "Unknown",
-                    "mandatory": false
-                }
-            ]
+            "properties": []
         },
         {
+            "type_name": "SynapseType",
             "labels": [
                 "Synapse",
                 "medulla7column_Synapse"
@@ -313,14 +312,12 @@
             "topology": [
                 {
                     "allowed_sources": [
-                        "SynapseSet:medulla7column_SynapseSet",
-                        "Neuron:Segment:medulla7column_Neuron:medulla7column_Segment",
-                        "Neuron:Segment:medulla7column_Segment"
+                        "Neuron",
+                        "SynapseSet"
                     ],
                     "allowed_targets": [
-                        "SynapseSet:medulla7column_SynapseSet",
-                        "Neuron:Segment:medulla7column_Segment",
-                        "Neuron:Segment:medulla7column_Neuron:medulla7column_Segment"
+                        "Neuron",
+                        "SynapseSet"
                     ]
                 }
             ]
@@ -331,13 +328,12 @@
             "topology": [
                 {
                     "allowed_sources": [
-                        "SynapseSet:medulla7column_SynapseSet",
-                        "Neuron:Segment:medulla7column_Neuron:medulla7column_Segment",
-                        "Neuron:Segment:medulla7column_Segment"
+                        "Neuron",
+                        "SynapseSet"
                     ],
                     "allowed_targets": [
-                        "Synapse:medulla7column_Synapse",
-                        "SynapseSet:medulla7column_SynapseSet"
+                        "Synapse",
+                        "SynapseSet"
                     ]
                 }
             ]
@@ -348,10 +344,10 @@
             "topology": [
                 {
                     "allowed_sources": [
-                        "Synapse:medulla7column_Synapse"
+                        "Synapse"
                     ],
                     "allowed_targets": [
-                        "Synapse:medulla7column_Synapse"
+                        "Synapse"
                     ]
                 }
             ]

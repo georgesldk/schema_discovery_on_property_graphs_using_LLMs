@@ -15,9 +15,39 @@
         </header>
 
         <div class="main-content">
-            <!-- Upload Section -->
-            <div class="card" id="uploadCard">
-                <h2>Upload CSV Files</h2>
+            <!-- Mode Selection -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="pocModeBtn" data-mode="proof_of_concept">
+                        🧪 Proof of Concept
+                    </button>
+                    <button class="mode-btn" id="newDatasetModeBtn" data-mode="new_dataset">
+                        📁 New Dataset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Proof of Concept Mode -->
+            <div class="card" id="pocCard">
+                <h2>Proof of Concept Mode</h2>
+                <p class="description">Select a dataset to run schema discovery and compare with ground truth. This mode includes full comparison metrics and validation.</p>
+                
+                <div id="datasetSelector" style="margin-top: 20px;">
+                    <label for="datasetSelect" style="display: block; margin-bottom: 10px; font-weight: 600;">Select Dataset:</label>
+                    <select id="datasetSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); font-size: 1rem;">
+                        <option value="">Loading datasets...</option>
+                    </select>
+                    <div id="datasetDescription" style="margin-top: 12px; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; color: var(--text-secondary); display: none;"></div>
+                </div>
+                
+                <button type="button" class="btn btn-primary" id="processDatasetBtn" style="margin-top: 20px; width: 100%;" disabled>
+                    <span>Process Dataset</span>
+                </button>
+            </div>
+
+            <!-- New Dataset Mode (Upload Section) -->
+            <div class="card hidden" id="uploadCard">
+                <h2>New Dataset Mode</h2>
                 <p class="description">Upload your CSV files containing node and edge data. The system will automatically detect node types, edge types, and properties.</p>
                 <p class="description" style="color: var(--primary-color); font-weight: 600; margin-top: -10px;">⚠️ IMPORTANT: Select ALL your CSV files at once (hold Ctrl/Cmd and click each file)</p>
                 

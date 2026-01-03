@@ -1,147 +1,18 @@
 {
     "node_types": [
         {
-            "label": "Meta",
+            "name": "Neurons",
             "properties": [
                 {
-                    "name": "dataset",
+                    "name": "ID",
                     "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "lastDatabaseEdit",
+                    "name": "LABEL",
                     "type": "String",
                     "mandatory": true
                 },
-                {
-                    "name": "latestMutationId",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "logo",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "meshHost",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "neuroglancerInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "neuroglancerMeta",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "postHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "postHighAccuracyThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "preHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "primaryRois",
-                    "type": "String[]",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiHierarchy",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "JSON String",
-                    "mandatory": true
-                },
-                {
-                    "name": "statusDefinitions",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "superLevelRois",
-                    "type": "String[]",
-                    "mandatory": true
-                },
-                {
-                    "name": "totalPostCount",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "totalPreCount",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "uuid",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
-            "label": "ROIs",
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
-            "label": "SynapseSet",
-            "properties": []
-        },
-        {
-            "label": "Synapses",
-            "properties": [
-                {
-                    "name": "confidence",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "location",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "type",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
-            "label": "Neurons",
-            "properties": [
                 {
                     "name": "bodyId",
                     "type": "Long",
@@ -218,35 +89,200 @@
                     "mandatory": true
                 }
             ]
+        },
+        {
+            "name": "Meta",
+            "properties": [
+                {
+                    "name": "LABEL",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "dataset",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "lastDatabaseEdit",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "latestMutationId",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "logo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "meshHost",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerMeta",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHPThreshold",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHighAccuracyThreshold",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "preHPThreshold",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryRois",
+                    "type": "Array<String>",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiHierarchy",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "JSON String",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusDefinitions",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "superLevelRois",
+                    "type": "Array<String>",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPostCount",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPreCount",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "uuid",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "ROIs",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "SynapseSet",
+            "properties": [
+                {
+                    "name": "ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "Label",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Synapses",
+            "properties": [
+                {
+                    "name": "ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "Label",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "confidence",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "location",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
         }
     ],
     "edge_types": [
         {
-            "label": "SYNAPSE_CONNECTS",
-            "from": "Synapses",
-            "to": "Synapses",
-            "properties": []
-        },
-        {
-            "label": "HAS_SYNAPSE_SET",
+            "name": "HAS_SYNAPSESET",
             "from": "Neurons",
             "to": "SynapseSet",
             "properties": []
         },
         {
-            "label": "NEURON_CONNECTS",
+            "name": "CONNECTS_TO",
             "from": "Neurons",
             "to": "Neurons",
             "properties": []
         },
         {
-            "label": "CONTAINS_SET",
+            "name": "SYNAPSESET_LINK",
             "from": "SynapseSet",
             "to": "SynapseSet",
             "properties": []
         },
         {
-            "label": "CONTAINS_SYNAPSE",
+            "name": "CONNECTS",
+            "from": "Synapses",
+            "to": "Synapses",
+            "properties": []
+        },
+        {
+            "name": "CONTAINS_SYNAPSE",
             "from": "SynapseSet",
             "to": "Synapses",
             "properties": []

@@ -5,6 +5,8 @@ let currentSchema = null;
 let inferredGraphNetwork = null;
 let groundTruthGraphNetwork = null;
 let groundTruthSchema = null;
+let currentMode = 'proof_of_concept'; // 'proof_of_concept' or 'new_dataset'
+let currentDatasetId = null;
 
 // File input handling
 const fileInput = document.getElementById('fileInput');
@@ -134,6 +136,14 @@ function startStatusCheck() {
             const response = await fetch(`/status/${currentJobId}`);
             const data = await response.json();
             
+            // Update mode and dataset_id from response
+            if (data.mode) {
+                currentMode = data.mode;
+            }
+            if (data.dataset_id) {
+                currentDatasetId = data.dataset_id;
+            }
+            
             updateProgress(data);
             
             if (data.status === 'completed' || data.status === 'error') {
@@ -164,6 +174,7 @@ function updateProgress(data) {
 // UI State Management
 function showProgress() {
     document.getElementById('uploadCard').classList.add('hidden');
+    document.getElementById('pocCard').classList.add('hidden');
     document.getElementById('progressCard').classList.remove('hidden');
     document.getElementById('resultsCard').classList.add('hidden');
     document.getElementById('errorCard').classList.add('hidden');
@@ -177,6 +188,14 @@ function showResults(schema) {
     currentSchema = schema;
     
     renderSchema(schema);
+    
+    // Show/hide comparison tab based on mode
+    const comparisonTabBtn = document.querySelector('[data-tab="comparison"]');
+    if (currentMode === 'proof_of_concept') {
+        comparisonTabBtn.style.display = '';
+    } else {
+        comparisonTabBtn.style.display = 'none';
+    }
     
     // Reset to schema tab
     switchTab('schema');
@@ -216,24 +235,42 @@ function resetForm() {
         groundTruthGraphNetwork = null;
     }
     
-    document.getElementById('uploadCard').classList.remove('hidden');
+    // Reset UI based on current mode
+    if (currentMode === 'proof_of_concept') {
+        document.getElementById('pocCard').classList.remove('hidden');
+        document.getElementById('uploadCard').classList.add('hidden');
+        // Reset dataset selector
+        document.getElementById('datasetSelect').value = '';
+        document.getElementById('datasetDescription').style.display = 'none';
+        const processBtn = document.getElementById('processDatasetBtn');
+        processBtn.disabled = true;
+        processBtn.innerHTML = '<span>Process Dataset</span>';
+    } else {
+        document.getElementById('uploadCard').classList.remove('hidden');
+        document.getElementById('pocCard').classList.add('hidden');
+        fileInput.value = '';
+        fileList.innerHTML = '';
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Start Schema Discovery</span>';
+    }
+    
     document.getElementById('errorCard').classList.add('hidden');
     document.getElementById('resultsCard').classList.add('hidden');
-    fileInput.value = '';
-    fileList.innerHTML = '';
     
     // Reset tabs
     switchTab('schema');
-    
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<span>Start Schema Discovery</span>';
 }
 
 // --- Helper: Robust Label Detection ---
 function getLabel(item) {
     // Checks multiple possible fields returned by different LLM versions or schemas
-    return item.name || item.label || (item.labels && item.labels[0]) || item.type || 'Unknown';
+    // For GT schemas with label arrays, use the first (primary) label
+    if (item.labels && Array.isArray(item.labels) && item.labels.length > 0) {
+        // Return the first label (primary label)
+        return item.labels[0];
+    }
+    return item.name || item.label || item.type || 'Unknown';
 }
 
 // --- Helper: Robust Edge Connection Finder ---
@@ -242,6 +279,24 @@ function getLabel(item) {
  * Checks all possible keys for source and target nodes.
  */
 function getEdgeNodes(edge) {
+    // First try direct from/to fields
+    if (edge.from && edge.to) {
+        return { from: edge.from, to: edge.to };
+    }
+    
+    // If topology is specified, extract first valid combination
+    if (edge.topology && edge.topology.length > 0) {
+        const topology = edge.topology[0];
+        const sources = topology.allowed_sources || [];
+        const targets = topology.allowed_targets || [];
+        if (sources.length > 0 && targets.length > 0) {
+            // Return first source/target combination for simple visualization
+            // The rendering logic should handle creating edges for all combinations
+            return { from: sources[0], to: targets[0] };
+        }
+    }
+    
+    // Fallback to other possible field names
     return {
         from: edge.from || edge.from_node || edge.source || edge.source_node || edge.start_node,
         to: edge.to || edge.to_node || edge.target || edge.target_node || edge.end_node
@@ -338,6 +393,112 @@ function createSchemaItem(name, properties, type) {
 // New Analysis button
 document.getElementById('newAnalysisBtn').addEventListener('click', resetForm);
 
+// Mode switching
+document.getElementById('pocModeBtn').addEventListener('click', () => switchMode('proof_of_concept'));
+document.getElementById('newDatasetModeBtn').addEventListener('click', () => switchMode('new_dataset'));
+
+// Proof of Concept mode - Load datasets on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadDatasets();
+});
+
+function switchMode(mode) {
+    currentMode = mode;
+    
+    // Update button states
+    document.getElementById('pocModeBtn').classList.toggle('active', mode === 'proof_of_concept');
+    document.getElementById('newDatasetModeBtn').classList.toggle('active', mode === 'new_dataset');
+    
+    // Show/hide cards
+    document.getElementById('pocCard').classList.toggle('hidden', mode !== 'proof_of_concept');
+    document.getElementById('uploadCard').classList.toggle('hidden', mode !== 'new_dataset');
+    
+    // Reset form if switching modes
+    if (currentJobId) {
+        resetForm();
+    }
+}
+
+async function loadDatasets() {
+    try {
+        const response = await fetch('/datasets');
+        const data = await response.json();
+        
+        const select = document.getElementById('datasetSelect');
+        select.innerHTML = '';
+        
+        if (data.datasets.length === 0) {
+            select.innerHTML = '<option value="">No datasets available</option>';
+            return;
+        }
+        
+        select.innerHTML = '<option value="">Select a dataset...</option>';
+        data.datasets.forEach(dataset => {
+            const option = document.createElement('option');
+            option.value = dataset.id;
+            option.textContent = dataset.name;
+            option.dataset.description = dataset.description || '';
+            select.appendChild(option);
+        });
+        
+        // Handle dataset selection
+        select.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const description = selectedOption.dataset.description;
+            const datasetId = e.target.value;
+            
+            currentDatasetId = datasetId;
+            
+            const descDiv = document.getElementById('datasetDescription');
+            const processBtn = document.getElementById('processDatasetBtn');
+            
+            if (datasetId) {
+                descDiv.textContent = description || `Process ${selectedOption.textContent} dataset`;
+                descDiv.style.display = 'block';
+                processBtn.disabled = false;
+            } else {
+                descDiv.style.display = 'none';
+                processBtn.disabled = true;
+            }
+        });
+    } catch (error) {
+        console.error('Error loading datasets:', error);
+        document.getElementById('datasetSelect').innerHTML = '<option value="">Error loading datasets</option>';
+    }
+}
+
+// Process dataset button handler
+document.getElementById('processDatasetBtn').addEventListener('click', async () => {
+    if (!currentDatasetId) {
+        alert('Please select a dataset first');
+        return;
+    }
+    
+    const processBtn = document.getElementById('processDatasetBtn');
+    processBtn.disabled = true;
+    processBtn.innerHTML = '<span>Processing...</span>';
+    
+    try {
+        const response = await fetch(`/process-dataset/${currentDatasetId}`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to start processing');
+        }
+        
+        currentJobId = data.job_id;
+        showProgress();
+        startStatusCheck();
+    } catch (error) {
+        showError(error.message);
+        processBtn.disabled = false;
+        processBtn.innerHTML = '<span>Process Dataset</span>';
+    }
+});
+
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -347,6 +508,11 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 function switchTab(tabName) {
+    // Don't switch to comparison tab if in new_dataset mode
+    if (tabName === 'comparison' && currentMode !== 'proof_of_concept') {
+        return;
+    }
+    
     // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -508,6 +674,63 @@ function renderGraph(schema) {
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
             const edgeName = getLabel(edgeType) || `Edge${index}`;
+            
+            // Handle topology-based edges (GT format)
+            if (edgeType.topology && edgeType.topology.length > 0) {
+                edgeType.topology.forEach(topologyEntry => {
+                    const sources = topologyEntry.allowed_sources || [];
+                    const targets = topologyEntry.allowed_targets || [];
+                    
+                    // Create edges for all valid source/target combinations
+                    sources.forEach(sourceNodeName => {
+                        targets.forEach(targetNodeName => {
+                            // Find node IDs
+                            let fromId = null;
+                            let toId = null;
+                            
+                            // Match by primary label (first part before colon if present)
+                            const sourcePrimary = sourceNodeName.split(':')[0];
+                            const targetPrimary = targetNodeName.split(':')[0];
+                            
+                            for (const [name, id] of nodeTypeMap.entries()) {
+                                const namePrimary = name.split(':')[0];
+                                if (!fromId && (name === sourcePrimary || namePrimary === sourcePrimary || 
+                                    name.toLowerCase() === sourcePrimary.toLowerCase())) {
+                                    fromId = id;
+                                }
+                                if (!toId && (name === targetPrimary || namePrimary === targetPrimary || 
+                                    name.toLowerCase() === targetPrimary.toLowerCase())) {
+                                    toId = id;
+                                }
+                                if (fromId && toId) break;
+                            }
+                            
+                            // Only create edge if both nodes found
+                            if (fromId && toId) {
+                                const isSelfLoop = fromId === toId;
+                                edges.push({
+                                    id: `edge_${index}_${sourceNodeName}_${targetNodeName}`,
+                                    from: fromId,
+                                    to: toId,
+                                    label: edgeName,
+                                    title: `${edgeName}: ${sourcePrimary} -> ${targetPrimary}`,
+                                    color: {
+                                        color: '#8b5cf6',
+                                        highlight: '#a78bfa'
+                                    },
+                                    arrows: { to: { enabled: true, scaleFactor: 1.2 } },
+                                    font: { color: '#94a3b8', size: 11, align: 'middle', multi: 'html', face: 'Arial' },
+                                    width: 2,
+                                    smooth: isSelfLoop ? { type: 'curvedCW', roundness: 0.8 } : { type: 'continuous', roundness: 0.5 }
+                                });
+                            }
+                        });
+                    });
+                });
+                return; // Skip normal edge processing for topology-based edges
+            }
+            
+            // Normal edge processing (inferred schema format)
             let { from: startNode, to: endNode } = getEdgeNodes(edgeType);
             
             // If start_node/end_node not found, try to infer from edge name or properties
@@ -811,8 +1034,9 @@ async function loadComparison() {
     document.getElementById('comparisonMetrics').innerHTML = '<div class="metric-item"><span class="metric-label">Loading comparison data...</span></div>';
     
     try {
-        // Load ground truth schema
-        const response = await fetch('/ground-truth');
+        // Load ground truth schema - use dataset_id if available, otherwise use default endpoint
+        const gtUrl = currentDatasetId ? `/ground-truth/${currentDatasetId}` : '/ground-truth';
+        const response = await fetch(gtUrl);
         if (!response.ok) {
             throw new Error('Failed to load ground truth schema');
         }
@@ -899,6 +1123,59 @@ function createGraphData(schema, prefix) {
     if (schema.edge_types && schema.edge_types.length > 0) {
         schema.edge_types.forEach((edgeType, index) => {
             const edgeName = getLabel(edgeType) || `Edge${index}`;
+            
+            // Handle topology-based edges (GT format)
+            if (edgeType.topology && edgeType.topology.length > 0) {
+                edgeType.topology.forEach(topologyEntry => {
+                    const sources = topologyEntry.allowed_sources || [];
+                    const targets = topologyEntry.allowed_targets || [];
+                    
+                    // Create edges for all valid source/target combinations
+                    sources.forEach(sourceNodeName => {
+                        targets.forEach(targetNodeName => {
+                            // Find node IDs
+                            let fromId = null;
+                            let toId = null;
+                            
+                            // Match by primary label (first part before colon if present)
+                            const sourcePrimary = sourceNodeName.split(':')[0];
+                            const targetPrimary = targetNodeName.split(':')[0];
+                            
+                            for (const [name, id] of nodeTypeMap.entries()) {
+                                const namePrimary = name.split(':')[0];
+                                if (!fromId && (name === sourcePrimary || namePrimary === sourcePrimary || 
+                                    name.toLowerCase() === sourcePrimary.toLowerCase())) {
+                                    fromId = id;
+                                }
+                                if (!toId && (name === targetPrimary || namePrimary === targetPrimary || 
+                                    name.toLowerCase() === targetPrimary.toLowerCase())) {
+                                    toId = id;
+                                }
+                                if (fromId && toId) break;
+                            }
+                            
+                            // Only create edge if both nodes found
+                            if (fromId && toId) {
+                                const isSelfLoop = fromId === toId;
+                                edges.push({
+                                    id: `${prefix}_edge_${index}_${sourceNodeName}_${targetNodeName}`,
+                                    from: fromId,
+                                    to: toId,
+                                    label: edgeName,
+                                    color: { color: '#8b5cf6', highlight: '#a78bfa' },
+                                    arrows: { to: { enabled: true, scaleFactor: 1.2 } },
+                                    font: { color: '#94a3b8', size: 10, align: 'middle', multi: 'html', face: 'Arial' },
+                                    width: 2,
+                                    smooth: isSelfLoop ? { type: 'curvedCW', roundness: 0.8 } : { type: 'continuous', roundness: 0.5 }
+                                });
+                            }
+                        });
+                    });
+                });
+                return; // Skip normal edge processing for topology-based edges
+            }
+            
+            // Normal edge processing (inferred schema format)
             let { from: startNode, to: endNode } = getEdgeNodes(edgeType);
             
             // Try to infer if not provided
@@ -1307,34 +1584,112 @@ async function calculateComparisonMetrics() {
         !Array.from(nodeMatchMap.values()).includes(name)
     );
 
-    // 3. Edge Matching & Discovery
+    // 3. Edge Matching & Discovery - Match by topology (node type pairs), not just names
     const gtEdges = new Map();
-    const infEdges = new Map();
+    const gtEdgeList = groundTruthSchema.edge_types || [];
+    const infEdgeList = currentSchema.edge_types || [];
     
-    (groundTruthSchema.edge_types || []).forEach(e => {
+    gtEdgeList.forEach(e => {
         const lbl = getLabel(e);
         if (lbl !== 'Unknown') gtEdges.set(lbl, e);
     });
     
-    (currentSchema.edge_types || []).forEach(e => {
-        const lbl = getLabel(e);
-        if (lbl !== 'Unknown') infEdges.set(lbl, e);
-    });
-
-    let edgeMatches = 0;
-    const edgeMatchMap = new Map();
-
-    gtEdges.forEach((_, gtName) => {
-        const match = findBestMatch(gtName, Array.from(infEdges.keys()), 0.65, true);
-        if (match) {
-            edgeMatches++;
-            edgeMatchMap.set(gtName, match);
+    // Build inferred edges index: (edge_name, start_node, end_node) -> edge
+    const infEdgeMap = new Map();
+    infEdgeList.forEach(infEdge => {
+        const edgeName = getLabel(infEdge);
+        const startNode = infEdge.start_node || infEdge.from;
+        const endNode = infEdge.end_node || infEdge.to;
+        if (edgeName && startNode && endNode) {
+            const key = `${edgeName}|${startNode}|${endNode}`;
+            if (!infEdgeMap.has(key)) {
+                infEdgeMap.set(key, []);
+            }
+            infEdgeMap.get(key).push(infEdge);
         }
     });
-
-    const extraEdges = Array.from(infEdges.keys()).filter(name => 
-        !Array.from(edgeMatchMap.values()).includes(name)
-    );
+    
+    // Expand GT edges into topology combinations (source, target, edge_name)
+    const gtTopologyCombinations = [];
+    gtEdges.forEach((gtEdge, gtEdgeName) => {
+        const topology = gtEdge.topology || [];
+        if (topology.length > 0) {
+            topology.forEach(rule => {
+                const sources = rule.allowed_sources || [];
+                const targets = rule.allowed_targets || [];
+                sources.forEach(source => {
+                    targets.forEach(target => {
+                        gtTopologyCombinations.push({
+                            source: source,
+                            target: target,
+                            edgeName: gtEdgeName,
+                            edge: gtEdge
+                        });
+                    });
+                });
+            });
+        }
+    });
+    
+    // Match each GT topology combination to inferred edges
+    let topologyMatches = 0;
+    const matchedInfEdgeNames = new Set();
+    
+    gtTopologyCombinations.forEach(combo => {
+        const {source: gtSource, target: gtTarget, edgeName: gtEdgeName} = combo;
+        
+        // Map GT node names to inferred node names
+        const infSourceCandidates = [];
+        if (nodeMatchMap.has(gtSource)) {
+            infSourceCandidates.push(nodeMatchMap.get(gtSource));
+        }
+        infSourceCandidates.push(gtSource); // Also try direct match
+        
+        const infTargetCandidates = [];
+        if (nodeMatchMap.has(gtTarget)) {
+            infTargetCandidates.push(nodeMatchMap.get(gtTarget));
+        }
+        infTargetCandidates.push(gtTarget); // Also try direct match
+        
+        // Try to find matching inferred edge
+        let foundMatch = false;
+        for (const infSource of infSourceCandidates) {
+            for (const infTarget of infTargetCandidates) {
+                // Try exact edge name match first
+                const exactKey = `${gtEdgeName}|${infSource}|${infTarget}`;
+                if (infEdgeMap.has(exactKey)) {
+                    foundMatch = true;
+                    matchedInfEdgeNames.add(gtEdgeName);
+                    break;
+                }
+                // Try fuzzy edge name match
+                for (const infEdgeName of new Set(infEdgeList.map(e => getLabel(e)).filter(l => l !== 'Unknown'))) {
+                    if (findBestMatch(gtEdgeName, [infEdgeName], 0.8, true)) {
+                        const fuzzyKey = `${infEdgeName}|${infSource}|${infTarget}`;
+                        if (infEdgeMap.has(fuzzyKey)) {
+                            foundMatch = true;
+                            matchedInfEdgeNames.add(infEdgeName);
+                            break;
+                        }
+                    }
+                }
+                if (foundMatch) break;
+            }
+            if (foundMatch) break;
+        }
+        
+        if (foundMatch) {
+            topologyMatches++;
+        }
+    });
+    
+    // Count unique edge names in inferred that don't match GT
+    const allInfEdgeNames = new Set(infEdgeList.map(e => getLabel(e)).filter(l => l !== 'Unknown'));
+    const extraEdgeNames = Array.from(allInfEdgeNames).filter(name => !matchedInfEdgeNames.has(name));
+    
+    const edgeMatches = topologyMatches;
+    const totalGtCombinations = gtTopologyCombinations.length;
+    const extraEdges = extraEdgeNames;
 
     // 4. Property Matching (for Matched Nodes)
     let totalProps = 0;
@@ -1353,7 +1708,7 @@ async function calculateComparisonMetrics() {
 
     // 5. Calculate Weighted Final Scores
     const nodeAccuracy = calculateRealScore(nodeMatches, gtNodes.size, extraNodes.length);
-    const edgeAccuracy = calculateRealScore(edgeMatches, gtEdges.size, extraEdges.length);
+    const edgeAccuracy = calculateRealScore(edgeMatches, totalGtCombinations, extraEdges.length);
     const propAccuracy = totalProps > 0 ? (matchedProps / totalProps * 100) : 0;
     
     const overallAccuracy = (nodeAccuracy + edgeAccuracy + propAccuracy) / 3;
@@ -1381,16 +1736,62 @@ async function calculateComparisonMetrics() {
         </div>
     `;
     
+    // Build edge match map for display (map GT edge names to matched inferred edge names)
+    const edgeMatchMapForDisplay = new Map();
+    gtEdges.forEach((gtEdge, gtEdgeName) => {
+        const matchedNames = Array.from(matchedInfEdgeNames).filter(infName => 
+            findBestMatch(gtEdgeName, [infName], 0.8, true)
+        );
+        if (matchedNames.length > 0) {
+            edgeMatchMapForDisplay.set(gtEdgeName, matchedNames[0]);
+        }
+    });
+    
+    // Build missing edges list (unmatched topology combinations)
+    const missingEdgeCombinations = [];
+    gtTopologyCombinations.forEach(c => {
+        let found = false;
+        const infSourceCandidates = [];
+        if (nodeMatchMap.has(c.source)) infSourceCandidates.push(nodeMatchMap.get(c.source));
+        infSourceCandidates.push(c.source);
+        const infTargetCandidates = [];
+        if (nodeMatchMap.has(c.target)) infTargetCandidates.push(nodeMatchMap.get(c.target));
+        infTargetCandidates.push(c.target);
+        for (const infSource of infSourceCandidates) {
+            for (const infTarget of infTargetCandidates) {
+                const exactKey = `${c.edgeName}|${infSource}|${infTarget}`;
+                if (infEdgeMap.has(exactKey)) {
+                    found = true;
+                    break;
+                }
+                for (const infEdgeName of matchedInfEdgeNames) {
+                    if (findBestMatch(c.edgeName, [infEdgeName], 0.8, true)) {
+                        const fuzzyKey = `${infEdgeName}|${infSource}|${infTarget}`;
+                        if (infEdgeMap.has(fuzzyKey)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+        if (!found) {
+            missingEdgeCombinations.push(`${c.source} --[${c.edgeName}]--> ${c.target}`);
+        }
+    });
+    
     // Update the detailed breakdown lists
     displayComparisonDetails(
         Array.from(nodeMatchMap.keys()), 
         Array.from(gtNodes.keys()).filter(n => !nodeMatchMap.has(n)), 
         extraNodes, 
-        Array.from(edgeMatchMap.keys()), 
-        Array.from(gtEdges.keys()).filter(e => !edgeMatchMap.has(e)), 
+        Array.from(edgeMatchMapForDisplay.keys()), 
+        missingEdgeCombinations, 
         extraEdges, 
         nodeMatchMap, 
-        edgeMatchMap
+        edgeMatchMapForDisplay
     );
 }
 

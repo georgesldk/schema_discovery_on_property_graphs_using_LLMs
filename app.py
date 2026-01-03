@@ -30,6 +30,7 @@ spec.loader.exec_module(main_module)
 profile_node_type = main_module.profile_node_type
 profile_edge_type = main_module.profile_edge_type
 extract_json = main_module.extract_json
+generate_logical_relationship_summary = main_module.generate_logical_relationship_summary
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -236,26 +237,86 @@ def process_schema_discovery(data_dir, output_dir, job_id):
         for nt in node_types: context_report += profile_node_type(G, nt)
         for et in edge_types: context_report += profile_edge_type(G, et)
         
+        # Add logical relationship analysis
+        logical_summary = generate_logical_relationship_summary(G)
+        if logical_summary:
+            context_report += logical_summary
+        
         jobs[job_id]['progress'] = 60
         jobs[job_id]['status'] = 'generating_prompt'
         jobs[job_id]['message'] = 'Generating schema inference prompt...'
         
-        # Ask API - same prompt as main.py
+        # Enhanced prompt - same as main.py (dataset-agnostic Property Graph standards)
         prompt = f"""
-    You are a Data Architect. Reverse-engineer the schema from this profile.
+    You are a Senior Property Graph Schema Architect. Your mission is to infer a logical Property Graph schema from raw physical data structures, following industry-standard Property Graph principles.
     
     DATA PROFILE:
     {context_report}
     
-    INSTRUCTIONS:
-    1. Identify Node Types and Edge Types.
-    2. Infer properties and valid data types (String, Long, Double, Boolean).
-    3. Determine 'mandatory' (true if property found in >90% of nodes/edges).
-    4. Generalize names (e.g. 'Neuron_Connections' -> 'CONNECTS_TO').
-    5. 'roiInfo' is a JSON String.
+    STRICT DATASET-AGNOSTIC PROPERTY GRAPH HEURISTICS:
     
-    OUTPUT JSON:
-    {{ "node_types": [...], "edge_types": [...] }}
+    1. LOGICAL BYPASS RULE (Collapse Technical Intermediaries) - HIGHEST PRIORITY:
+       - Technical Container nodes are grouping/collection mechanisms with minimal properties (typically < 3 meaningful properties beyond IDs).
+       - Patterns: names containing "Set", "Collection", "Group", "Container", "Link", "Join", "Mapping", "Association".
+       - MANDATORY ACTION: If the profile shows "Entity A -> TechnicalContainer -> Entity C" paths, you MUST:
+         * Create a direct edge type: Entity A -> Entity C
+         * Use appropriate edge label (CONNECTS_TO, CONTAINS, or SYNAPSES_TO based on semantic meaning)
+         * DO NOT create edges that go through the technical container in your schema
+       - If the profile includes "[LOGICAL RELATIONSHIP ANALYSIS]", those direct relationships are REQUIRED in your output.
+       - The logical schema represents functional relationships, not physical storage artifacts.
+       - Property Graphs prioritize direct semantic connections over intermediate technical structures.
+    
+    2. ENTITY CONSOLIDATION (Deduplicate Semantic Equivalents):
+       - If multiple node types represent the same logical entity with different attribute sets, merge them into a single node type.
+       - Properties from all variants should be merged, with "mandatory" set based on > 98% fill density.
+       - Only keep truly distinct entity types that represent different concepts.
+    
+    3. STANDARDIZED EDGE LABELS (Property Graph Convention):
+       - MANDATORY: Use ONLY these three edge labels - no exceptions:
+         * CONNECTS_TO: For high-level structural/functional connections between major entities
+         * CONTAINS: For parent-child or containment relationships (hierarchical)
+         * SYNAPSES_TO: For fine-grained functional/operational links (use sparingly, only when CONNECTS_TO is too coarse)
+       - DO NOT use: technical names (HAS_SET, LINKS_TO), action verbs (CREATES, DELETES), file-based names (FROM_CSV, TO_TABLE), or generic verbs (ASSOCIATED_WITH, DEPENDS_ON).
+       - Consolidate all edges between the same two node types into ONE edge type using the appropriate standard label.
+    
+    4. SCHEMA NORMALIZATION:
+       - NODE NAMING: Singular PascalCase (e.g., "Entity", "Item", "Category" - NOT "Entities", "EntityType").
+       - PROPERTY TYPES: Use "String", "Long", "Double", "Boolean", "StringArray", "Point" (for spatial data).
+       - MANDATORY FLAGS: Set "mandatory: true" ONLY for properties with > 98% fill density across all instances.
+       - EDGE PROPERTIES: Include edge properties (e.g., weight, confidence, count) when they carry semantic meaning.
+    
+    5. TOPOLOGY REQUIREMENTS:
+       - Each edge_type MUST specify "start_node" and "end_node" fields with the exact node type names.
+       - Self-loops (same node type as source and target) are allowed and valid.
+       - The schema should represent a logical graph, not a physical data model.
+    
+    CRITICAL: This is a Property Graph schema, not a relational model. Focus on:
+    - Direct entity-to-entity relationships
+    - Logical, not physical, structure  
+    - Semantic clarity over technical accuracy
+    - Standard naming conventions
+    
+    OUTPUT JSON FORMAT:
+    {{
+      "node_types": [
+        {{
+          "name": "NodeLabel",
+          "properties": [
+            {{"name": "propertyName", "type": "String|Long|Double|Boolean|StringArray|Point", "mandatory": true|false}}
+          ]
+        }}
+      ],
+      "edge_types": [
+        {{
+          "name": "CONNECTS_TO|CONTAINS|SYNAPSES_TO",
+          "start_node": "SourceNodeLabel",
+          "end_node": "TargetNodeLabel",
+          "properties": [
+            {{"name": "propertyName", "type": "String|Long|Double|Boolean", "mandatory": true|false}}
+          ]
+        }}
+      ]
+    }}
     """
         
         jobs[job_id]['progress'] = 70
@@ -301,8 +362,46 @@ def index():
 def request_entity_too_large(error):
     return jsonify({'error': 'File size too large. Total upload size must be less than 500MB. Please upload fewer files or compress them.'}), 413
 
+@app.route('/process-dataset/<dataset_id>', methods=['POST'])
+def process_dataset(dataset_id):
+    """Process a proof-of-concept dataset"""
+    # Map dataset_id to data directory
+    dataset_map = {
+        'fib25': 'pg_data_fib25'
+    }
+    
+    data_dir = dataset_map.get(dataset_id)
+    if not data_dir or not os.path.exists(data_dir):
+        return jsonify({'error': f'Dataset {dataset_id} not found'}), 404
+    
+    # Create a unique job ID
+    job_id = f"poc_{dataset_id}_{int(time.time() * 1000)}"
+    
+    # Initialize job (no upload_dir needed for POC)
+    jobs[job_id] = {
+        'status': 'queued',
+        'message': 'Job queued',
+        'progress': 0,
+        'dataset_id': dataset_id,
+        'mode': 'proof_of_concept'
+    }
+    
+    # Start processing in background thread (use existing data directory)
+    output_dir = os.path.join('schema_found', job_id)
+    os.makedirs(output_dir, exist_ok=True)
+    thread = threading.Thread(target=process_schema_discovery, args=(data_dir, output_dir, job_id))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({
+        'job_id': job_id,
+        'message': f'Processing dataset {dataset_id}...',
+        'dataset_id': dataset_id
+    })
+
 @app.route('/upload', methods=['POST'])
 def upload_files():
+    """Upload and process a new dataset (New Dataset mode)"""
     if 'files[]' not in request.files:
         return jsonify({'error': 'No files provided'}), 400
     
@@ -332,7 +431,8 @@ def upload_files():
         'status': 'queued',
         'message': 'Job queued',
         'progress': 0,
-        'upload_dir': upload_dir
+        'upload_dir': upload_dir,
+        'mode': 'new_dataset'
     }
     
     # Start processing in background thread
@@ -360,7 +460,9 @@ def get_status(job_id):
     response = {
         'status': job['status'],
         'message': job.get('message', ''),
-        'progress': job.get('progress', 0)
+        'progress': job.get('progress', 0),
+        'mode': job.get('mode', 'new_dataset'),  # Include mode information
+        'dataset_id': job.get('dataset_id')  # Include dataset_id for POC mode
     }
     
     if job['status'] == 'completed' and 'result' in job:
@@ -380,9 +482,53 @@ def download_result(job_id):
     
     return send_file(output_file, as_attachment=True, download_name='inferred_schema.json')
 
+@app.route('/datasets')
+def list_datasets():
+    """List available proof-of-concept datasets"""
+    # Currently hardcoded to fib25, but can be extended to scan directories
+    datasets = []
+    
+    # Check if fib25 data exists
+    if os.path.exists('pg_data_fib25') and os.path.exists('gt_data_fib25'):
+        datasets.append({
+            'id': 'fib25',
+            'name': 'Fib25',
+            'description': 'Neuprint Fib25 dataset with neurons and synapses'
+        })
+    
+    return jsonify({'datasets': datasets})
+
+@app.route('/ground-truth/<dataset_id>')
+def get_ground_truth(dataset_id):
+    """Get ground truth schema for a specific dataset"""
+    gt_dir = 'gt_schema'
+    if not os.path.exists(gt_dir):
+        return jsonify({'error': 'Ground truth schema not found'}), 404
+    
+    # Map dataset_id to ground truth file
+    # For fib25, the file is golden_truth_gt_data_fib25.json
+    dataset_map = {
+        'fib25': 'golden_truth_gt_data_fib25.json'
+    }
+    
+    gt_filename = dataset_map.get(dataset_id)
+    if not gt_filename:
+        return jsonify({'error': f'Unknown dataset: {dataset_id}'}), 404
+    
+    gt_file = os.path.join(gt_dir, gt_filename)
+    if not os.path.exists(gt_file):
+        return jsonify({'error': f'Ground truth file not found for {dataset_id}'}), 404
+    
+    try:
+        with open(gt_file, 'r', encoding='utf-8') as f:
+            gt_schema = json.load(f)
+        return jsonify(gt_schema)
+    except Exception as e:
+        return jsonify({'error': f'Error loading ground truth: {str(e)}'}), 500
+
 @app.route('/ground-truth')
-def get_ground_truth():
-    """Get ground truth schema for comparison"""
+def get_ground_truth_default():
+    """Get ground truth schema for comparison (backwards compatibility)"""
     # Look for ground truth files in gt_schema directory
     gt_dir = 'gt_schema'
     if not os.path.exists(gt_dir):
