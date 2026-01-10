@@ -4,11 +4,6 @@
             "name": "Meta",
             "properties": [
                 {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "dataset",
                     "type": "String",
                     "mandatory": true
@@ -104,11 +99,6 @@
             "name": "Neuron",
             "properties": [
                 {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "bodyId",
                     "type": "Long",
                     "mandatory": true
@@ -196,13 +186,12 @@
             ]
         },
         {
+            "name": "SynapseSet",
+            "properties": []
+        },
+        {
             "name": "Synapse",
             "properties": [
-                {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
                 {
                     "name": "confidence",
                     "type": "Double",
@@ -235,17 +224,11 @@
         {
             "name": "CONNECTS_TO",
             "start_node": "Neuron",
-            "end_node": "Synapse",
-            "properties": []
-        },
-        {
-            "name": "CONNECTS_TO",
-            "start_node": "Neuron",
             "end_node": "Neuron",
             "properties": [
                 {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "name": "weightHP",
+                    "type": "Long",
                     "mandatory": true
                 },
                 {
@@ -254,28 +237,34 @@
                     "mandatory": true
                 },
                 {
-                    "name": "weightHP",
-                    "type": "Long",
+                    "name": "roiInfo",
+                    "type": "String",
                     "mandatory": true
                 }
             ]
         },
         {
+            "name": "CONTAINS",
+            "start_node": "Neuron",
+            "end_node": "SynapseSet",
+            "properties": []
+        },
+        {
             "name": "CONNECTS_TO",
-            "start_node": "Synapse",
+            "start_node": "SynapseSet",
+            "end_node": "SynapseSet",
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "start_node": "SynapseSet",
             "end_node": "Synapse",
             "properties": []
         },
         {
-            "name": "CONNECTS_TO",
-            "start_node": "Meta",
-            "end_node": "ROI",
-            "properties": []
-        },
-        {
-            "name": "CONNECTS_TO",
-            "start_node": "Neuron",
-            "end_node": "ROI",
+            "name": "SYNAPSES_TO",
+            "start_node": "Synapse",
+            "end_node": "Synapse",
             "properties": []
         }
     ]
