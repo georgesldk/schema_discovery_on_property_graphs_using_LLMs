@@ -96,7 +96,7 @@
             ]
         },
         {
-            "name": "Neuron",
+            "name": "Neurons",
             "properties": [
                 {
                     "name": "bodyId",
@@ -176,22 +176,33 @@
             ]
         },
         {
-            "name": "ROI",
+            "name": "SynapseSet",
             "properties": [
                 {
-                    "name": "name",
+                    "name": "ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "Label",
                     "type": "String",
                     "mandatory": true
                 }
             ]
         },
         {
-            "name": "SynapseSet",
-            "properties": []
-        },
-        {
-            "name": "Synapse",
+            "name": "Synapses",
             "properties": [
+                {
+                    "name": "ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "Label",
+                    "type": "String",
+                    "mandatory": true
+                },
                 {
                     "name": "confidence",
                     "type": "Double",
@@ -223,16 +234,16 @@
     "edge_types": [
         {
             "name": "CONNECTS_TO",
-            "start_node": "Neuron",
-            "end_node": "Neuron",
+            "start_node": "Neurons",
+            "end_node": "Neurons",
             "properties": [
                 {
-                    "name": "weightHP",
+                    "name": "weight",
                     "type": "Long",
                     "mandatory": true
                 },
                 {
-                    "name": "weight",
+                    "name": "weightHP",
                     "type": "Long",
                     "mandatory": true
                 },
@@ -245,7 +256,7 @@
         },
         {
             "name": "CONTAINS",
-            "start_node": "Neuron",
+            "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
@@ -258,13 +269,13 @@
         {
             "name": "CONTAINS",
             "start_node": "SynapseSet",
-            "end_node": "Synapse",
+            "end_node": "Synapses",
             "properties": []
         },
         {
             "name": "SYNAPSES_TO",
-            "start_node": "Synapse",
-            "end_node": "Synapse",
+            "start_node": "Synapses",
+            "end_node": "Synapses",
             "properties": []
         }
     ]

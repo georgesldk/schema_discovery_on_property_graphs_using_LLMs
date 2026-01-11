@@ -425,50 +425,45 @@ def infer_schema_from_folder(data_dir):
     DATA PROFILE:
     {profile_text}
 
-    STRICT DATASET-AGNOSTIC PROPERTY GRAPH HEURISTICS:
+    This revamped prompt is designed to eliminate the specific mismatches you are seeing (the missing Segment node and the incomplete Topology Matrix) while remaining strictly dataset-agnostic.
 
-    1. PHYSICAL SCHEMA RULE (Match Observed Graph Structure) - HIGHEST PRIORITY:
-        - Do NOT bypass or remove intermediary/container node types.
-        - If edges exist in the observed data profile, represent them explicitly in the schema.
-        - Your goal is to match the physical structure implied by the DATA PROFILE.
-       - Property Graphs prioritize direct semantic connections over intermediate technical structures.
+It uses "Pattern Density" and "Polymorphic Exhaustion" as the primary drivers for the LLM's reasoning.
 
-    2. ENTITY CONSOLIDATION (Deduplicate Semantic Equivalents):
-        - If multiple node types represent the same logical entity with different attribute sets, merge them into a single node type.
-        - Properties from all variants should be merged, with "mandatory" set based on > 98% fill density.
-        - Only keep truly distinct entity types that represent different concepts.
-        - IMPORTANT: Do NOT invent or rename node types.
-        - Use ONLY the node type names that appear in the DATA PROFILE "[Detected Node Group]" headers.
-        - Keep names EXACTLY as shown (no ROI/RegionOfInterest renaming, no abbreviations).
+STRICT DATASET-AGNOSTIC PROPERTY GRAPH HEURISTICS:
 
+    1. PHYSICAL SCHEMA RULE (Structural Fidelity):
+    - Match the physical structure implied by the DATA PROFILE exactly; do NOT skip intermediary nodes.
+    - If a node group exists in the profile, it must be represented unless it qualifies as a "Tag" (see Rule 2).
+    - Your goal is to mirror the actual connectivity matrix discovered in the raw data.
 
-    3. STANDARDIZED EDGE LABELS (Property Graph Convention):
-       - MANDATORY: Use ONLY these three edge labels - no exceptions:
-         * CONNECTS_TO: For high-level structural/functional connections between major entities. Use when edges have properties like weight, strength, distance, or represent general connectivity.
-         * CONTAINS: For parent-child or containment relationships (hierarchical). Use when one entity logically contains or groups another, or when relationships suggest membership/hierarchy.
-         * SYNAPSES_TO: For fine-grained functional/operational links. Use sparingly, only when CONNECTS_TO is too coarse and the relationship represents a specific operational/junctional connection.
-       - If the profile suggests an edge label, use that suggestion (it's based on semantic analysis of properties and patterns).
-       - DO NOT use: technical names (HAS_SET, LINKS_TO), action verbs (CREATES, DELETES), file-based names (FROM_CSV, TO_TABLE), or generic verbs (ASSOCIATED_WITH, DEPENDS_ON).
-        - Do NOT collapse distinct observed (start_node -> end_node) patterns into one generic edge.
-        - If multiple (start_node -> end_node) pairs exist for the same label, include each pair explicitly in topology.
-       - Bidirectional relationships: If the profile indicates bidirectional patterns between two node types, you may need to create edges in both directions using the same edge label, OR create a single edge type that can be traversed in both directions (depending on the semantic meaning).
+    2. ENTITY RESOLUTION & SPLITTING (Fixes Node Accuracy):
+    - The Structural Signature Rule: Do NOT merge node groups based on name similarity. If the "Top patterns" show different incoming/outgoing edge types or different property counts, they represent distinct logical roles and MUST be separate node types.
+    - The Subset/Superset Rule: If one pattern in a group is a property-subset of another (e.g., Pattern A has 12 properties, Pattern B has 5 of those same properties), do NOT merge them. Treat them as a Base Type and an Extended Type (e.g., "Item" and "DetailItem").
+    - The Tag Heuristic: Identify "Sink" groups that have only 1 descriptive property (e.g., a name) and NO outgoing edges to other nodes. Flatten these into a StringArray property on the primary entities they describe; do NOT create a separate node type for them.
+    - Use ONLY the exact node type names from the DATA PROFILE headers; do NOT abbreviate or rename.
 
-    4. SCHEMA NORMALIZATION:
-       - NODE NAMING: Singular PascalCase (e.g., "Entity", "Item", "Category" - NOT "Entities", "EntityType").
-       - PROPERTY TYPES: Use "String", "Long", "Double", "Boolean", "StringArray", "Point" (for spatial data).
-       - MANDATORY FLAGS: Set "mandatory: true" ONLY for properties with > 98% fill density across all instances.
-       - EDGE PROPERTIES: Include edge properties (e.g., weight, confidence, count) when they carry semantic meaning.
+    3. STANDARDIZED EDGE LABELS (Label Mapping):
+    - MANDATORY: Use ONLY these three edge labels—no exceptions:
+    - CONNECTS_TO: For structural/functional links (especially if properties like "weight" or "count" exist).
+    - CONTAINS: For parent-child, membership, or containment hierarchies.
+    - SYNAPSES_TO: For fine-grained functional junctions or specific operation links.
+    - If multiple (Source) -> (Target) pairs share the same label, you MUST list each unique permutation explicitly in the topology list.
 
-    5. TOPOLOGY REQUIREMENTS:
-       - Each edge_type MUST specify "start_node" and "end_node" fields with the exact node type names.
-       - Self-loops (same node type as source and target) are allowed and valid.
-       - The schema should represent a logical graph, not a physical data model.
+    4. SCHEMA NORMALIZATION (Property Integrity):
+    - Literal Properties Only: Output ONLY property names found in the DATA PROFILE. Do NOT add technical prefixes, Neo4j-style headers (e.g., :LABEL, :ID), or placeholder properties (e.g., name, label).
+    - Property Types: Use ONLY: String, Long, Double, Boolean, StringArray, Point.
+    - Set mandatory: true ONLY for properties with > 98% fill density.
 
-    CRITICAL: This is a Property Graph schema, not a relational model. Focus on:
-    - Direct entity-to-entity relationships
-    - Logical, not physical, structure
-    - Semantic clarity over technical accuracy
-    - Standard naming conventions
+    5. POLYMORPHIC TOPOLOGY EXHAUSTION (Fixes Edge Accuracy):
+    - The Permutation Rule: You MUST iterate through EVERY unique combination in the "Observed Edge Topology Patterns" for every edge group.
+    - Exhaustive Mapping: If the data shows A -> A, A -> B, B -> A, and B -> B, you MUST produce four separate objects in the edge_types array.
+    - Directional Integrity: Trust the data profile over common sense. If a connection is listed from Group B -> Group A, you must include it even if Group A -> Group B already exists.
+    - Never Consolidate: Accuracy is measured by the completeness of this exhaustive list. Every unique source-target pairing found in the profile must have its own entry in the schema.
+
+    CRITICAL ARCHITECTURAL FOCUS:
+    - This is a Property Graph, not a relational model.
+    - Prioritize Topological Completeness: Every valid "legal" connection observed in the data profile must be explicitly defined.
+    - Prioritize Structural Patterns: Use property density and edge types to distinguish between similar-looking entities.
 
     OUTPUT JSON FORMAT:
     {{

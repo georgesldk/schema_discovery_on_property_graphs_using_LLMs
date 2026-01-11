@@ -10,8 +10,8 @@ def profile_edge_type(G, target_type):
         f"({G.nodes[u].get('node_type', 'Unknown')})->({G.nodes[v].get('node_type', 'Unknown')})"
         for u, v, _ in edges[:100]
     ]
-    top_conns = Counter(conns).most_common(2)
-
+    # top_conns = Counter(conns).most_common(2)
+    top_conns = Counter(conns).most_common()
     # Analyze edge properties for semantic hints
     sample_edges = edges[:min(500, len(edges))]
     all_properties = {}

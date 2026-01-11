@@ -141,29 +141,61 @@ def run_compare(gt_file, inferred_file, verbose=True):
     for e in inf_edges:
         inf_edge_by_name.setdefault(e.get("name"), []).append(e)
 
+    # edge_matches = 0
+    # used_inf_edge_names = set()
+    # topology_misses = []
+
+    # for gt_edge in gt_edges:
+    #     gt_edge_name = gt_edge.get("type") or gt_edge.get("name")
+
+    #     # find inferred edge label match (exact or fuzzy)
+    #     inf_edge_name = gt_edge_name if gt_edge_name in inf_edge_by_name else find_best_match(gt_edge_name, list(inf_edge_by_name.keys()))
+    #     if not inf_edge_name:
+    #         continue
+
+    #     # for each inferred edge with that name, check topology
+    #     found = False
+    #     for inf_edge in inf_edge_by_name.get(inf_edge_name, []):
+    #         if check_edge_topology(gt_edge, inf_edge, node_matches_map):
+    #             edge_matches += 1
+    #             used_inf_edge_names.add(inf_edge_name)
+    #             found = True
+    #             break
+
+    #     if not found:
+    #         topology_misses.append(gt_edge_name)
+
     edge_matches = 0
     used_inf_edge_names = set()
     topology_misses = []
 
-    for gt_edge in gt_edges:
-        gt_edge_name = gt_edge.get("type") or gt_edge.get("name")
-
+    # CHANGE: Iterate over every unique topology combo instead of just edge names (3 total)
+    for gt_name, gt_s, gt_t in gt_edge_combos:
+        
         # find inferred edge label match (exact or fuzzy)
-        inf_edge_name = gt_edge_name if gt_edge_name in inf_edge_by_name else find_best_match(gt_edge_name, list(inf_edge_by_name.keys()))
+        inf_edge_name = gt_name if gt_name in inf_edge_by_name else find_best_match(gt_name, list(inf_edge_by_name.keys()))
+        
         if not inf_edge_name:
+            topology_misses.append(f"{gt_name} (Label Missing)")
             continue
 
-        # for each inferred edge with that name, check topology
+        # For this specific GT pair (e.g., Neuron -> Neuron), check if LLM produced a match
         found = False
+        mapped_gt_s = node_matches_map.get(gt_s)
+        mapped_gt_t = node_matches_map.get(gt_t)
+
         for inf_edge in inf_edge_by_name.get(inf_edge_name, []):
-            if check_edge_topology(gt_edge, inf_edge, node_matches_map):
+            inf_src = inf_edge.get("start_node")
+            inf_tgt = inf_edge.get("end_node")
+
+            if inf_src == mapped_gt_s and inf_tgt == mapped_gt_t:
                 edge_matches += 1
                 used_inf_edge_names.add(inf_edge_name)
                 found = True
                 break
 
         if not found:
-            topology_misses.append(gt_edge_name)
+            topology_misses.append(f"{gt_name}: {gt_s} -> {gt_t}")
 
     extra_edges = [e for e in inf_edge_by_name.keys() if e not in used_inf_edge_names]
 
