@@ -1,9 +1,10 @@
 def build_inference_prompt(profile_text):
     """
     Build the Gemini prompt for logical Property Graph schema inference.
-
-    This is a direct extraction of the prompt string from scripts/main.py.
-    No logic or wording has been changed.
+    
+    UPDATED: Now strictly dataset-agnostic for Edge Types. 
+    Removes hardcoded 'CONNECTS_TO/CONTAINS/SYNAPSES_TO' constraints 
+    and enforces semantic verb inference.
     """
 
     prompt = f"""
@@ -19,27 +20,28 @@ def build_inference_prompt(profile_text):
        - Patterns: names containing "Set", "Collection", "Group", "Container", "Link", "Join", "Mapping", "Association".
        - MANDATORY ACTION: If the profile shows "Entity A -> TechnicalContainer -> Entity C" paths, you MUST:
          * Create a direct edge type: Entity A -> Entity C
-         * Use the suggested edge label from the "[LOGICAL RELATIONSHIP ANALYSIS]" section if provided, OR determine appropriate label (CONNECTS_TO, CONTAINS, or SYNAPSES_TO) based on semantic meaning
-         * Analyze edge properties to determine semantics: properties like "weight", "strength", "distance" suggest CONNECTS_TO; properties suggesting membership/hierarchy suggest CONTAINS
-         * DO NOT create edges that go through the technical container in your schema
+         * Use the suggested edge label from the "[LOGICAL RELATIONSHIP ANALYSIS]" section if provided.
+         * If not provided, determine the appropriate SEMANTIC VERB (e.g., MEMBERS, CONTAINS, LINKED_TO) based on the context.
+         * Analyze edge properties to determine semantics: properties like "weight" suggest connectivity strength; properties suggesting hierarchy suggest containment.
+         * DO NOT create edges that go through the technical container in your schema.
        - If the profile includes "[LOGICAL RELATIONSHIP ANALYSIS]", those direct relationships are REQUIRED in your output.
        - The logical schema represents functional relationships, not physical storage artifacts.
-       - Property Graphs prioritize direct semantic connections over intermediate technical structures.
     
     2. ENTITY CONSOLIDATION (Deduplicate Semantic Equivalents):
        - If multiple node types represent the same logical entity with different attribute sets, merge them into a single node type.
        - Properties from all variants should be merged, with "mandatory" set based on > 98% fill density.
        - Only keep truly distinct entity types that represent different concepts.
     
-    3. STANDARDIZED EDGE LABELS (Property Graph Convention):
-       - MANDATORY: Use ONLY these three edge labels - no exceptions:
-         * CONNECTS_TO: For high-level structural/functional connections between major entities. Use when edges have properties like weight, strength, distance, or represent general connectivity.
-         * CONTAINS: For parent-child or containment relationships (hierarchical). Use when one entity logically contains or groups another, or when relationships suggest membership/hierarchy.
-         * SYNAPSES_TO: For fine-grained functional/operational links. Use sparingly, only when CONNECTS_TO is too coarse and the relationship represents a specific operational/junctional connection.
-       - If the profile suggests an edge label, use that suggestion (it's based on semantic analysis of properties and patterns).
-       - DO NOT use: technical names (HAS_SET, LINKS_TO), action verbs (CREATES, DELETES), file-based names (FROM_CSV, TO_TABLE), or generic verbs (ASSOCIATED_WITH, DEPENDS_ON).
-       - Consolidate all edges between the same two node types into ONE edge type using the appropriate standard label.
-       - Bidirectional relationships: If the profile indicates bidirectional patterns between two node types, you may need to create edges in both directions using the same edge label, OR create a single edge type that can be traversed in both directions (depending on the semantic meaning).
+    3. SEMANTIC EDGE NAMING (Dynamic Contextual Inference):
+       - MANDATORY: You must infer specific, descriptive relationship verbs based on the Source and Target node context.
+       - DO NOT use generic/lazy labels (e.g., "RELATED_TO", "HAS", "EDGE") unless the data is completely abstract.
+       - INFERENCE LOGIC:
+         * **Action-Based:** If Source is an Actor (User) and Target is an Action (Order), use the verb (e.g., "PLACED", "EXECUTED").
+         * **Hierarchy-Based:** If Target is a sub-component of Source, use "CONTAINS" or "INCLUDES".
+         * **Ownership-Based:** If Source possesses Target, use specific ownership verbs (e.g., "OWNS", "MAINTAINS").
+         * **Spatial:** If properties involve coordinates/location, use "LOCATED_AT" or "NEAR".
+       - Consolidate all edges between the same two node types into ONE edge type using the most descriptive label.
+       - Bidirectional relationships: If appropriate, create a single edge type that implies the connection, or explicit directional edges if the semantics differ (e.g., "FOLLOWS" vs "FOLLOWED_BY").
     
     4. SCHEMA NORMALIZATION:
        - NODE NAMING: Singular PascalCase (e.g., "Entity", "Item", "Category" - NOT "Entities", "EntityType").
@@ -55,7 +57,7 @@ def build_inference_prompt(profile_text):
     CRITICAL: This is a Property Graph schema, not a relational model. Focus on:
     - Direct entity-to-entity relationships
     - Logical, not physical, structure  
-    - Semantic clarity over technical accuracy
+    - Semantic clarity (Specific Verbs) over technical accuracy
     - Standard naming conventions
     
     OUTPUT JSON FORMAT:
@@ -70,7 +72,7 @@ def build_inference_prompt(profile_text):
       ],
       "edge_types": [
         {{
-          "name": "CONNECTS_TO|CONTAINS|SYNAPSES_TO",
+          "name": "INFERRED_SEMANTIC_VERB",
           "start_node": "SourceNodeLabel",
           "end_node": "TargetNodeLabel",
           "properties": [

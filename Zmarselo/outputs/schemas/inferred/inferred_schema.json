@@ -20,7 +20,7 @@
                 },
                 {
                     "name": "logo",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -177,32 +177,11 @@
         },
         {
             "name": "SynapseSet",
-            "properties": [
-                {
-                    "name": "ID",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "Label",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "Synapses",
             "properties": [
-                {
-                    "name": "ID",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "Label",
-                    "type": "String",
-                    "mandatory": true
-                },
                 {
                     "name": "confidence",
                     "type": "Double",
@@ -238,24 +217,24 @@
             "end_node": "Neurons",
             "properties": [
                 {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
                     "name": "weight",
                     "type": "Long",
-                    "mandatory": true
+                    "mandatory": false
                 },
                 {
                     "name": "weightHP",
                     "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
+                    "mandatory": false
                 }
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "CONNECTS_TO",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
