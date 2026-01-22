@@ -1,0 +1,4 @@
+﻿relType,sources,targets,properties
+CONNECTS_TO,"[SynapseSet:mushroombody_SynapseSet, Neuron:Segment:mushroombody_Neuron:mushroombody_Segment, Neuron:Segment:mushroombody_Segment]","[SynapseSet:mushroombody_SynapseSet, Neuron:Segment:mushroombody_Neuron:mushroombody_Segment, Neuron:Segment:mushroombody_Segment]","[weight, weightHP, roiInfo]"
+CONTAINS,"[SynapseSet:mushroombody_SynapseSet, Neuron:Segment:mushroombody_Neuron:mushroombody_Segment, Neuron:Segment:mushroombody_Segment]","[Synapse:mushroombody_Synapse, SynapseSet:mushroombody_SynapseSet]",[]
+SYNAPSES_TO,[Synapse:mushroombody_Synapse],[Synapse:mushroombody_Synapse],[]

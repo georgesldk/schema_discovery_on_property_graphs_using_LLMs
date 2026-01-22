@@ -495,12 +495,18 @@ STRICT DATASET-AGNOSTIC PROPERTY GRAPH HEURISTICS:
     return None
 
 
-def run_infer_schema(data_dir, output_dir):
+def run_infer_schema(data_dir, output_path):
+    # 1. Generate Schema using your existing logic
     schema = infer_schema_from_folder(data_dir)
-    os.makedirs(output_dir, exist_ok=True)
+    
+    # 2. FIX: Create the PARENT directory, not the file itself as a folder
+    # 'output_path' is the full path including filename (e.g., .../inferred_schema.json)
+    parent_dir = os.path.dirname(output_path)
+    if parent_dir:
+        os.makedirs(parent_dir, exist_ok=True)
 
-    out_path = os.path.join(output_dir, "inferred_schema.json")
-    with open(out_path, "w") as f:
+    # 3. Save the file
+    with open(output_path, "w") as f:
         json.dump(schema, f, indent=4)
 
-    return out_path
+    return output_path

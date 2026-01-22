@@ -1,0 +1,118 @@
+CREATE NODE TYPE
+( Meta_medulla7column_Meta : Meta & medulla7column_Meta {
+  logo                      String,
+  postHighAccuracyThreshold Double,
+  preHPThreshold            Double,
+  postHPThreshold           Double,
+  meshHost                  String,
+  uuid                      String,
+  neuroglancerInfo          String,
+  neuroglancerMeta          String,
+  statusDefinitions         String,
+  latestMutationId          Long,
+  totalPreCount             Long,
+  totalPostCount            Long,
+  lastDatabaseEdit          String,
+  superLevelRois            StringArray,
+  primaryRois               StringArray,
+  roiInfo                   String,
+  roiHierarchy              String,
+  dataset                   String
+} );
+
+CREATE NODE TYPE
+( NeuronSegment_mushroombody_Neuron_mushroombody_Segment
+  : Neuron & Segment & mushroombody_Neuron & mushroombody_Segment {
+
+  roiInfo      String,
+  bodyId       Long,
+  pre          Long,
+  post         Long,
+  status       String,
+  statusLabel  String,
+  size         Long,
+
+  OPTIONAL type     String,
+  OPTIONAL alpha3   Boolean,
+  OPTIONAL alpha2   Boolean,
+  OPTIONAL alpha1   Boolean,
+  OPTIONAL instance String,
+  OPTIONAL cropped  Boolean
+} );
+
+CREATE NODE TYPE
+( NeuronSegment_mushroombody_Segment
+  : Neuron & Segment & mushroombody_Segment {
+
+  roiInfo String,
+  bodyId  Long,
+  pre     Long,
+  post    Long,
+  size    Long,
+
+  OPTIONAL type        String,
+  OPTIONAL alpha3      Boolean,
+  OPTIONAL alpha2      Boolean,
+  OPTIONAL alpha1      Boolean,
+  OPTIONAL status      String,
+  OPTIONAL statusLabel String,
+  OPTIONAL instance    String,
+  OPTIONAL cropped     Boolean
+} );
+
+CREATE NODE TYPE
+( Synapse_mushroombody_Synapse : Synapse & mushroombody_Synapse {
+  type       String,
+  confidence Double,
+  location   Point,
+
+  OPTIONAL alpha3 Boolean,
+  OPTIONAL alpha2 Boolean,
+  OPTIONAL alpha1 Boolean
+} );
+
+CREATE NODE TYPE
+( SynapseSet_mushroombody_SynapseSet : SynapseSet & mushroombody_SynapseSet {
+  -- no properties
+} );
+
+
+CREATE EDGE TYPE
+( : SynapseSet & mushroombody_SynapseSet
+| : Neuron & Segment & mushroombody_Neuron & mushroombody_Segment
+| : Neuron & Segment & mushroombody_Segment )
+- [ :CONNECTS_TO {
+      OPTIONAL roiInfo  String,
+      OPTIONAL weight   Long,
+      OPTIONAL weightHP Long
+  } ]
+-> ( : SynapseSet & mushroombody_SynapseSet
+   | : Neuron & Segment & mushroombody_Neuron & mushroombody_Segment
+   | : Neuron & Segment & mushroombody_Segment );
+
+
+CREATE EDGE TYPE
+( : SynapseSet & mushroombody_SynapseSet
+| : Neuron & Segment & mushroombody_Neuron & mushroombody_Segment
+| : Neuron & Segment & mushroombody_Segment )
+- [ :CONTAINS ]
+-> ( : Synapse & mushroombody_Synapse
+   | : SynapseSet & mushroombody_SynapseSet );
+
+
+CREATE EDGE TYPE
+( : Synapse & mushroombody_Synapse )
+- [ :SYNAPSES_TO ]
+-> ( : Synapse & mushroombody_Synapse );
+
+
+CREATE GRAPH TYPE MB6 LOOSE {
+  Meta_medulla7column_Meta,
+  NeuronSegment_mushroombody_Neuron_mushroombody_Segment,
+  NeuronSegment_mushroombody_Segment,
+  Synapse_mushroombody_Synapse,
+  SynapseSet_mushroombody_SynapseSet,
+  CONNECTS_TO,
+  CONTAINS,
+  SYNAPSES_TO
+};
