@@ -2,6 +2,7 @@
     "dataset_name": "gt_data_fib25",
     "node_types": [
         {
+            "name": "Meta",
             "type_name": "MetaType",
             "labels": [
                 "Meta",
@@ -101,6 +102,7 @@
             ]
         },
         {
+            "name": "Neuron",
             "type_name": "NeuronSegmentMedullaNeuronType",
             "labels": [
                 "Neuron",
@@ -172,6 +174,7 @@
             ]
         },
         {
+            "name": "Segment",
             "type_name": "NeuronSegmentMedullaSegmentType",
             "labels": [
                 "Neuron",
@@ -242,6 +245,7 @@
             ]
         },
         {
+            "name": "SynapseSet",
             "type_name": "SynapseSetType",
             "labels": [
                 "SynapseSet",
@@ -250,6 +254,7 @@
             "properties": []
         },
         {
+            "name": "Synapse",
             "type_name": "SynapseType",
             "labels": [
                 "Synapse",
@@ -287,7 +292,6 @@
     "edge_types": [
         {
             "name": "CONNECTS_TO",
-            "type": "CONNECTS_TO",
             "properties": [
                 {
                     "name": "roiInfo",
@@ -320,7 +324,6 @@
         },
         {
             "name": "CONTAINS",
-            "type": "CONTAINS",
             "properties": [],
             "topology": [
                 {
@@ -337,7 +340,6 @@
         },
         {
             "name": "SYNAPSES_TO",
-            "type": "SYNAPSES_TO",
             "properties": [],
             "topology": [
                 {

@@ -8,7 +8,7 @@ def profile_edge_type(G, target_type):
 
     conns = [
         f"({G.nodes[u].get('node_type', 'Unknown')})->({G.nodes[v].get('node_type', 'Unknown')})"
-        for u, v, _ in edges[:100]
+        for u, v, _ in edges[:1000]
     ]
     # top_conns = Counter(conns).most_common(2)
     top_conns = Counter(conns).most_common()

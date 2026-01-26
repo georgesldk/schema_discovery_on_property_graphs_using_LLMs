@@ -4,6 +4,11 @@
             "name": "Meta",
             "properties": [
                 {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
                     "name": "dataset",
                     "type": "String",
                     "mandatory": true
@@ -65,7 +70,7 @@
                 },
                 {
                     "name": "roiInfo",
-                    "type": "StringArray",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -98,6 +103,11 @@
         {
             "name": "Neurons",
             "properties": [
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
                 {
                     "name": "alpha1",
                     "type": "Boolean",
@@ -145,7 +155,7 @@
                 },
                 {
                     "name": "roiInfo",
-                    "type": "StringArray",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -181,12 +191,43 @@
             ]
         },
         {
+            "name": "ROIs",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
             "name": "SynapseSet",
-            "properties": []
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
         },
         {
             "name": "Synapses",
             "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
                 {
                     "name": "alpha1",
                     "type": "Boolean",
@@ -222,18 +263,18 @@
     ],
     "edge_types": [
         {
-            "name": "CONNECTS_TO",
+            "name": "CONNECTS",
             "start_node": "Neurons",
             "end_node": "Neurons",
             "properties": [
                 {
-                    "name": "weight",
-                    "type": "Long",
+                    "name": "roiInfo",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "name": "weight",
+                    "type": "Long",
                     "mandatory": true
                 },
                 {
@@ -244,13 +285,13 @@
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "HAS",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "CONNECTS_TO",
+            "name": "LINKS_TO",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
             "properties": []
@@ -262,7 +303,7 @@
             "properties": []
         },
         {
-            "name": "SYNAPSES_TO",
+            "name": "CONNECTS",
             "start_node": "Synapses",
             "end_node": "Synapses",
             "properties": []

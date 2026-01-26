@@ -4,6 +4,11 @@
             "name": "Meta",
             "properties": [
                 {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
                     "name": "dataset",
                     "type": "String",
                     "mandatory": true
@@ -20,7 +25,7 @@
                 },
                 {
                     "name": "logo",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -99,13 +104,23 @@
             "name": "Neurons",
             "properties": [
                 {
+                    "name": "bodyId_ID",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
                     "name": "bodyId",
                     "type": "Long",
                     "mandatory": true
                 },
                 {
                     "name": "cropped",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -115,7 +130,7 @@
                 },
                 {
                     "name": "instance",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -130,12 +145,12 @@
                 },
                 {
                     "name": "primaryNeurite",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -160,16 +175,26 @@
                 },
                 {
                     "name": "status",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "statusLabel",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "type",
+                    "type": "Double",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "ROIs",
+            "properties": [
+                {
+                    "name": "name",
                     "type": "String",
                     "mandatory": true
                 }
@@ -177,11 +202,32 @@
         },
         {
             "name": "SynapseSet",
-            "properties": []
+            "properties": [
+                {
+                    "name": "synapseSetId",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
         },
         {
             "name": "Synapses",
             "properties": [
+                {
+                    "name": "synId",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "label",
+                    "type": "String",
+                    "mandatory": true
+                },
                 {
                     "name": "confidence",
                     "type": "Double",
@@ -189,7 +235,7 @@
                 },
                 {
                     "name": "distal",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -212,10 +258,15 @@
     ],
     "edge_types": [
         {
-            "name": "CONNECTS_TO",
+            "name": "CONNECTS",
             "start_node": "Neurons",
             "end_node": "Neurons",
             "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
                 {
                     "name": "weight",
                     "type": "Long",
@@ -225,22 +276,17 @@
                     "name": "weightHP",
                     "type": "Long",
                     "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
                 }
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "HAS",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "CONNECTS_TO",
+            "name": "LINKS",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
             "properties": []
@@ -252,8 +298,14 @@
             "properties": []
         },
         {
-            "name": "SYNAPSES_TO",
+            "name": "CONNECTS",
             "start_node": "Synapses",
+            "end_node": "Synapses",
+            "properties": []
+        },
+        {
+            "name": "SYNAPTICALLY_CONNECTS",
+            "start_node": "Neurons",
             "end_node": "Synapses",
             "properties": []
         }

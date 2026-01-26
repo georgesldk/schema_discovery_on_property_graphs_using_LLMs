@@ -1,66 +1,52 @@
 def build_inference_prompt(profile_text):
-    """
-    Build the Gemini prompt for logical Property Graph schema inference.
-    
-    UPDATED: Now strictly dataset-agnostic for Edge Types. 
-    Removes hardcoded 'CONNECTS_TO/CONTAINS/SYNAPSES_TO' constraints 
-    and enforces semantic verb inference.
-    """
-
-    prompt = f"""
-    You are a Senior Property Graph Schema Architect. Your mission is to infer a logical Property Graph schema from raw physical data structures, following industry-standard Property Graph principles.
-    
+    return f"""
+    You are a Senior Property Graph Schema Architect. Your mission is to infer a high-fidelity Property Graph schema that mirrors the EXACT physical structure of the data provided in the profile.
     DATA PROFILE:
     {profile_text}
     
-    STRICT DATASET-AGNOSTIC PROPERTY GRAPH HEURISTICS:
-    
-    1. LOGICAL BYPASS RULE (Collapse Technical Intermediaries) - HIGHEST PRIORITY:
-       - Technical Container nodes are grouping/collection mechanisms with minimal properties (typically < 3 meaningful properties beyond IDs).
-       - Patterns: names containing "Set", "Collection", "Group", "Container", "Link", "Join", "Mapping", "Association".
-       - MANDATORY ACTION: If the profile shows "Entity A -> TechnicalContainer -> Entity C" paths, you MUST:
-         * Create a direct edge type: Entity A -> Entity C
-         * Use the suggested edge label from the "[LOGICAL RELATIONSHIP ANALYSIS]" section if provided.
-         * If not provided, determine the appropriate SEMANTIC VERB (e.g., MEMBERS, CONTAINS, LINKED_TO) based on the context.
-         * Analyze edge properties to determine semantics: properties like "weight" suggest connectivity strength; properties suggesting hierarchy suggest containment.
-         * DO NOT create edges that go through the technical container in your schema.
-       - If the profile includes "[LOGICAL RELATIONSHIP ANALYSIS]", those direct relationships are REQUIRED in your output.
-       - The logical schema represents functional relationships, not physical storage artifacts.
-    
-    2. ENTITY CONSOLIDATION (Deduplicate Semantic Equivalents):
-       - If multiple node types represent the same logical entity with different attribute sets, merge them into a single node type.
-       - Properties from all variants should be merged, with "mandatory" set based on > 98% fill density.
-       - Only keep truly distinct entity types that represent different concepts.
-    
-    3. SEMANTIC EDGE NAMING (Dynamic Contextual Inference):
-       - MANDATORY: You must infer specific, descriptive relationship verbs based on the Source and Target node context.
-       - DO NOT use generic/lazy labels (e.g., "RELATED_TO", "HAS", "EDGE") unless the data is completely abstract.
-       - INFERENCE LOGIC:
-         * **Action-Based:** If Source is an Actor (User) and Target is an Action (Order), use the verb (e.g., "PLACED", "EXECUTED").
-         * **Hierarchy-Based:** If Target is a sub-component of Source, use "CONTAINS" or "INCLUDES".
-         * **Ownership-Based:** If Source possesses Target, use specific ownership verbs (e.g., "OWNS", "MAINTAINS").
-         * **Spatial:** If properties involve coordinates/location, use "LOCATED_AT" or "NEAR".
-       - Consolidate all edges between the same two node types into ONE edge type using the most descriptive label.
-       - Bidirectional relationships: If appropriate, create a single edge type that implies the connection, or explicit directional edges if the semantics differ (e.g., "FOLLOWS" vs "FOLLOWED_BY").
-    
-    4. SCHEMA NORMALIZATION:
-       - NODE NAMING: Singular PascalCase (e.g., "Entity", "Item", "Category" - NOT "Entities", "EntityType").
-       - PROPERTY TYPES: Use "String", "Long", "Double", "Boolean", "StringArray", "Point" (for spatial data).
-       - MANDATORY FLAGS: Set "mandatory: true" ONLY for properties with > 98% fill density across all instances.
-       - EDGE PROPERTIES: Include edge properties (e.g., weight, confidence, count) when they carry semantic meaning.
-    
-    5. TOPOLOGY REQUIREMENTS:
-       - Each edge_type MUST specify "start_node" and "end_node" fields with the exact node type names.
-       - Self-loops (same node type as source and target) are allowed and valid.
-       - The schema should represent a logical graph, not a physical data model.
-    
-    CRITICAL: This is a Property Graph schema, not a relational model. Focus on:
-    - Direct entity-to-entity relationships
-    - Logical, not physical, structure  
-    - Semantic clarity (Specific Verbs) over technical accuracy
-    - Standard naming conventions
-    
-    OUTPUT JSON FORMAT:
+    TARGET:
+    The user needs a schema that preserves 100% of the nodes and edge properties found in the data. Do NOT simplify, "clean up", or "collapse" the structure.
+
+    STRICT DATASET-AGNOSTIC HEURISTICS:
+
+    1. STRUCTURAL FIDELITY (NO LOGICAL BYPASS):
+       - **Preserve Intermediaries:** Do NOT "collapse" or "bypass" nodes based on names like "Set" or "Group".
+       - **Quantitative Data Rule:** If a node group contains ANY quantitative properties (e.g., counts, weights, scores, thresholds) or metadata (e.g., timestamps, user info), it is a **FUNCTIONAL ENTITY**. You MUST keep it as a Node Type.
+       - **Topology Rule:** If the data profile shows `Entity A -> Group B -> Entity C`, you MUST define Edges `A->B` and `B->C`. Do not create a fake `A->C` edge unless it physically exists in the data.
+
+    2. NODE DISTINCTNESS (NO MERGING):
+       - **Structural Role Check:** Do NOT merge two node groups if they connect to different things. (e.g., If Group A connects to X, but Group B connects to Y, they are different).
+       - **Source Distinctness:** If the profile lists two groups with different source file origins or distinct label sets, keep them separate.
+       - **Metadata Nodes:** Nodes that store system info or metadata (often singular, high-connectivity nodes) must be preserved, not merged into others.
+       - **ATTRIBUTE FLATTENING (CRITICAL):** If a node group (e.g. "Tags", "Status") has NO outgoing connections and acts only as a dictionary of definitions, **FLATTEN IT** into a property. Do NOT create a Node Type for it.
+       - **If a node has < 2 meaningful properties AND no outgoing edges (like "Tags"), delete the node and make it a property of its parent.
+
+    3. MANDATORY EDGE PROPERTIES (CRITICAL):
+       - **Look at the 'Edge Properties' list in the profile for every edge.**
+       - If an edge has extra columns (e.g., "weight", "score", "timestamp", "confidence"), you **MUST** include them in the `properties` list of that Edge Type.
+       - Do NOT output `"properties": []` if the profile shows data columns for that edge.
+
+    4. EDGE NAMING METHODOLOGY (SEMANTIC DERIVATION):
+       - **Constraint:** Do not use a pre-set list of verbs. Deriving the name must follow this 3-step logic:
+       
+       * **STEP 1: ANALYZE SIGNAL:** Look at the edge properties and the Source/Target types.
+           * *Signal A:* Properties imply measurement (weight, distance, score).
+           * *Signal B:* Properties imply sequence or action (time, duration, flow).
+           * *Signal C:* Relationship implies ownership or composition (part-of, member-of).
+           
+       * **STEP 2: DETERMINE CATEGORY:**
+           * If *Signal A* (Measurement) -> The Category is **TOPOLOGICAL**. Use verbs describing linkage or connection strength (e.g., LINKS, CONNECTS).
+           * If *Signal B* (Action) -> The Category is **FUNCTIONAL**. Use specific active verbs describing the process (e.g., PROCESSES, TRIGGERS).
+           * If *Signal C* (Ownership) -> The Category is **STRUCTURAL**. Use verbs describing containment or hierarchy (e.g., CONTAINS, INCLUDES).
+
+       * **STEP 3: GRAMMAR FILTER (REDUNDANCY REMOVAL):**
+           * **Rule:** The Edge Name MUST NOT repeat the Target Node's name.
+           * *Bad:* `Parent` -> `HAS_PARENT_GROUP` -> `Group` (Redundant).
+           * *Good:* `Parent` -> `INCLUDES` -> `Group`.
+           * *Bad:* `System` -> `LINKS_TO_SYSTEM` -> `System` (Redundant).
+           * *Good:* `System` -> `CONNECTS` -> `System` (if topological) or `INTERACTS` -> `System` (if functional).
+   
+   OUTPUT JSON FORMAT:
     {{
       "node_types": [
         {{
@@ -82,5 +68,3 @@ def build_inference_prompt(profile_text):
       ]
     }}
     """
-
-    return prompt
