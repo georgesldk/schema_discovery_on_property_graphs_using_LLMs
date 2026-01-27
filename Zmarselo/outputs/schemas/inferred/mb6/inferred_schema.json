@@ -104,6 +104,11 @@
             "name": "Neurons",
             "properties": [
                 {
+                    "name": "bodyId",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
                     "name": "label",
                     "type": "String",
                     "mandatory": true
@@ -121,11 +126,6 @@
                 {
                     "name": "alpha3",
                     "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "bodyId",
-                    "type": "Long",
                     "mandatory": true
                 },
                 {
@@ -165,7 +165,7 @@
                 },
                 {
                     "name": "somaLocation",
-                    "type": "Point",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -191,16 +191,6 @@
             ]
         },
         {
-            "name": "ROIs",
-            "properties": [
-                {
-                    "name": "name",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
             "name": "SynapseSet",
             "properties": [
                 {
@@ -219,7 +209,7 @@
             "name": "Synapses",
             "properties": [
                 {
-                    "name": "id",
+                    "name": "synId",
                     "type": "String",
                     "mandatory": true
                 },
@@ -250,7 +240,7 @@
                 },
                 {
                     "name": "location",
-                    "type": "Point",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -291,13 +281,13 @@
             "properties": []
         },
         {
-            "name": "LINKS_TO",
+            "name": "RELATES_TO",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "CONTAINS",
+            "name": "INCLUDES",
             "start_node": "SynapseSet",
             "end_node": "Synapses",
             "properties": []
@@ -307,6 +297,28 @@
             "start_node": "Synapses",
             "end_node": "Synapses",
             "properties": []
+        },
+        {
+            "name": "SYNAPTICALLY_CONNECTS",
+            "start_node": "Neurons",
+            "end_node": "Synapses",
+            "properties": [
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
         }
     ]
 }

@@ -2,6 +2,7 @@
     "dataset_name": "gt_data_mb6",
     "node_types": [
         {
+            "name": "Meta",
             "type_name": "Meta_medulla7column_Meta",
             "labels": [
                 "Meta",
@@ -101,6 +102,7 @@
             ]
         },
         {
+            "name": "Neuron",
             "type_name": "NeuronSegment_mushroombody_Neuron_mushroombody_Segment",
             "labels": [
                 "Neuron",
@@ -177,6 +179,7 @@
             ]
         },
         {
+            "name": "Segment",
             "type_name": "NeuronSegment_mushroombody_Segment",
             "labels": [
                 "Neuron",
@@ -252,6 +255,7 @@
             ]
         },
         {
+            "name": "Synapse",
             "type_name": "Synapse_mushroombody_Synapse",
             "labels": [
                 "Synapse",
@@ -291,6 +295,7 @@
             ]
         },
         {
+            "name": "SynapseSet",
             "type_name": "SynapseSet_mushroombody_SynapseSet",
             "labels": [
                 "SynapseSet",
@@ -302,7 +307,6 @@
     "edge_types": [
         {
             "name": "CONNECTS_TO",
-            "type": "CONNECTS_TO",
             "properties": [
                 {
                     "name": "roiInfo",
@@ -335,7 +339,6 @@
         },
         {
             "name": "CONTAINS",
-            "type": "CONTAINS",
             "properties": [],
             "topology": [
                 {
@@ -352,7 +355,6 @@
         },
         {
             "name": "SYNAPSES_TO",
-            "type": "SYNAPSES_TO",
             "properties": [],
             "topology": [
                 {

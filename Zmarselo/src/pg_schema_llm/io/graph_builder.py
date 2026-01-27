@@ -58,7 +58,7 @@ def clean_type_name(filename):
 # --- MAIN GRAPH BUILDER ---
 def build_graph(data_folder):
     print(f"--- Building Graph from: {data_folder} ---")
-    G = nx.DiGraph()
+    G = nx.MultiDiGraph() 
 
     if not os.path.isdir(data_folder):
         print(f" Error: Folder '{data_folder}' does not exist.")

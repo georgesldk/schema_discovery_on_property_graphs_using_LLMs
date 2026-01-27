@@ -13,7 +13,7 @@ def run_command(cmd):
 
 def main():
     parser = argparse.ArgumentParser(description="Master Switch for Schema Discovery")
-    parser.add_argument("dataset", help="Dataset name (e.g., 'fib25' or 'mb6')")
+    parser.add_argument("dataset", help="Dataset name (e.g., 'fib25', 'mb6', or 'ldbc')")
     parser.add_argument("--skip-gt", action="store_true", help="Skip Ground Truth extraction")
     args = parser.parse_args()
 

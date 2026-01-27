@@ -5,6 +5,36 @@ import re
 import csv
 
 # ==========================================
+# 0. HELPER: LOAD VALIDATION LISTS
+# ==========================================
+
+def load_validation_lists(input_dir):
+    """
+    Loads dataset-specific ground truth lists if they exist.
+    Returns sets of valid names for filtering.
+    """
+    valid_data = {
+        "node_labels": None
+    }
+    
+    path = os.path.join(input_dir, "node_labels.csv")
+    if os.path.exists(path):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                valid_set = set()
+                for row in reader:
+                    # Robust column fetching
+                    val = row.get('label') or row.get('property') or list(row.values())[0]
+                    if val:
+                        valid_set.add(val.strip())
+                valid_data["node_labels"] = valid_set
+        except Exception as e:
+            print(f"[WARN] Failed to load node_labels.csv: {e}")
+    
+    return valid_data
+
+# ==========================================
 # 1. CLEANING & STANDARDIZATION
 # ==========================================
 
@@ -47,44 +77,76 @@ def parse_props_block(prop_str):
     return props
 
 # ==========================================
-# 2. INTELLIGENT NAMING
+# 2. INTELLIGENT NAMING (ROBUST HEURISTIC)
 # ==========================================
 
-def derive_node_name(type_name, labels):
+def derive_node_name(type_name, labels, valid_labels=None):
+    """
+    Derives the canonical Node Name agnostically.
+    """
+    # 1. Validation Filter (Safety Net)
+    # Only restrict candidates if we find a valid intersection.
+    # This prevents breaking if the user uploads LDBC labels for MB6.
+    candidates = labels
+    if valid_labels:
+        intersection = [l for l in labels if l in valid_labels]
+        if intersection:
+            candidates = intersection
+
     tn = type_name.lower()
     
-    # Priority 1: Check Variable Name for distinct keywords
-    if "segment" in tn and "neuron" in tn:
-        if "segmenttype" in tn or "_segment" in tn: return "Segment"
-        if "neurontype" in tn or "_neuron" in tn: return "Neuron"
-            
-    # Priority 2: Single keywords
-    if "segment" in tn: return "Segment"
-    if "neuron" in tn: return "Neuron"
-    if "synapseset" in tn: return "SynapseSet"
-    if "synapse" in tn: return "Synapse"
-    if "meta" in tn: return "Meta"
+    # 2. Separation: Clean (Alphanumeric) vs Dirty (Underscores)
+    clean = [l for l in candidates if l.isalnum()]
+    dirty = [l for l in candidates if not l.isalnum()]
+    
+    # 3. Sort by Length Descending (Catch 'SynapseSet' before 'Synapse')
+    clean.sort(key=len, reverse=True)
+    dirty.sort(key=len, reverse=True)
+    
+    def check_strategies(lbl_list):
+        # Pass 1: Middle Token (_{label}_)
+        # Strongest signal: Matches 'Neuron' in '..._Neuron_...'
+        for l in lbl_list:
+            if f"_{l.lower()}_" in tn:
+                return l
+        
+        # Pass 2: Boundary Token (_{label} or {label}_)
+        # Matches 'Segment' in '..._Segment'
+        for l in lbl_list:
+            if tn.startswith(f"{l.lower()}_") or tn.endswith(f"_{l.lower()}"):
+                return l
+        
+        # Pass 3: Suffix Match (Standard)
+        # Matches 'Comment' in 'CommentType'
+        for l in lbl_list:
+             if tn.endswith(l.lower()) or tn.endswith(f"{l.lower()}type"):
+                 return l
+        return None
 
-    # Priority 3: First label
-    if labels: return labels[0]
-    return type_name
+    # Priority 1: Check Clean Labels
+    res = check_strategies(clean)
+    if res: return res
+    
+    # Priority 2: Check Dirty Labels
+    res = check_strategies(dirty)
+    if res: return res
+    
+    # Fallback
+    return candidates[0] if candidates else type_name
 
 # ==========================================
 # 3. ROBUST PARSING LOGIC
 # ==========================================
 
-def parse_pgs_file(file_path):
+def parse_pgs_file(file_path, valid_node_labels=None):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
     content = clean_comments(content)
     
     node_types = []
-    # Store raw definitions to help edge matching later
-    # Format: { "NodeName": set([label1, label2, ...]) }
     node_label_map = {} 
-
-    edge_definitions = [] # Temporary storage for edges before resolving
+    edge_definitions = [] 
 
     statements = content.split(';')
 
@@ -100,7 +162,6 @@ def parse_pgs_file(file_path):
             
             body = stmt[start+1 : end].strip()
             
-            # Extract Props
             prop_str = ""
             p_start = body.find('{')
             p_end = body.rfind('}')
@@ -118,7 +179,7 @@ def parse_pgs_file(file_path):
                 label_part = label_part.replace('(', '').replace(')', '')
                 labels = [l.strip() for l in label_part.split('&') if l.strip()]
                 
-                clean_name = derive_node_name(type_name, labels)
+                clean_name = derive_node_name(type_name, labels, valid_node_labels)
 
                 node_types.append({
                     "name": clean_name,
@@ -127,7 +188,6 @@ def parse_pgs_file(file_path):
                     "properties": parse_props_block(prop_str)
                 })
                 
-                # Register labels for this node type
                 node_label_map[clean_name] = set(labels)
 
         # --- EDGE PARSING ---
@@ -169,14 +229,10 @@ def parse_pgs_file(file_path):
     return node_types, edge_definitions, node_label_map
 
 # ==========================================
-# 4. TOPOLOGY RESOLUTION (THE FIX)
+# 4. TOPOLOGY RESOLUTION
 # ==========================================
 
 def resolve_node_type(label_expression, node_label_map):
-    """
-    Matches an edge's label expression (e.g., 'Neuron & Segment & medulla7column_Segment')
-    to the correct Node Type Name (e.g., 'Segment').
-    """
     clean_expr = label_expression.replace('(', '').replace(')', '')
     if ':' in clean_expr: clean_expr = clean_expr.split(':', 1)[1]
     
@@ -186,9 +242,7 @@ def resolve_node_type(label_expression, node_label_map):
     best_overlap = 0
 
     for node_name, node_labels in node_label_map.items():
-        # Check if the Node satisfies ALL required labels in the expression
         if required_labels.issubset(node_labels):
-            # Prefer the most specific match (highest number of shared labels)
             if len(required_labels) > best_overlap:
                 best_match = node_name
                 best_overlap = len(required_labels)
@@ -207,13 +261,11 @@ def build_edge_map(edge_definitions, node_label_map):
                 "topology": []
             }
 
-        # Resolve Sources
         sources = set()
         for opt in e_def["raw_source"].split('|'):
             resolved = resolve_node_type(opt, node_label_map)
             if resolved: sources.add(resolved)
         
-        # Resolve Targets
         targets = set()
         for opt in e_def["raw_target"].split('|'):
             resolved = resolve_node_type(opt, node_label_map)
@@ -225,7 +277,6 @@ def build_edge_map(edge_definitions, node_label_map):
                 "allowed_targets": sorted(list(targets))
             })
 
-    # Merge Topologies
     for e_name, e_data in edge_map.items():
         all_s = set()
         all_t = set()
@@ -243,7 +294,6 @@ def build_edge_map(edge_definitions, node_label_map):
 def add_topology_from_csv(csv_path, edge_types):
     if not os.path.exists(csv_path): return
 
-    # Convert list to dict for easier update
     edge_map = {e["name"]: e for e in edge_types}
 
     with open(csv_path, 'r', encoding='utf-8-sig') as f:
@@ -252,8 +302,7 @@ def add_topology_from_csv(csv_path, edge_types):
             rel_type = row.get('relType', '').strip()
             if rel_type not in edge_map: continue
             
-            # If topology exists from PGS, skip CSV (trust PGS more)
-            if edge_map[rel_type]["topology"][0]["allowed_sources"]: continue
+            if edge_map[rel_type]["topology"] and edge_map[rel_type]["topology"][0]["allowed_sources"]: continue
 
             sources = re.findall(r'([^,\[\]]+)', row.get('sources', ''))
             targets = re.findall(r'([^,\[\]]+)', row.get('targets', ''))
@@ -273,9 +322,12 @@ def extract_ground_truth(input_dir):
     csv_topology = glob.glob(os.path.join(input_dir, "*edge_types.csv"))
 
     if not pgs_files:
-        raise FileNotFoundError("No .pgs file found")
+        raise FileNotFoundError(f"No .pgs file found in {input_dir}")
 
-    node_types, edge_defs, node_label_map = parse_pgs_file(pgs_files[0])
+    valid_data = load_validation_lists(input_dir)
+    valid_node_labels = valid_data["node_labels"]
+
+    node_types, edge_defs, node_label_map = parse_pgs_file(pgs_files[0], valid_node_labels)
     edge_types = build_edge_map(edge_defs, node_label_map)
 
     if csv_topology:

@@ -1,0 +1,301 @@
+{
+    "dataset_name": "gt_data_ldbc",
+    "node_types": [
+        {
+            "name": "Comment",
+            "type_name": "CommentType",
+            "labels": [
+                "Comment"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "content",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "length",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Forum",
+            "type_name": "ForumType",
+            "labels": [
+                "Forum"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "title",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Organisation",
+            "type_name": "OrganisationType",
+            "labels": [
+                "Organisation"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Person",
+            "type_name": "PersonType",
+            "labels": [
+                "Person"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "firstName",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "lastName",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "gender",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "birthday",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Place",
+            "type_name": "PlaceType",
+            "labels": [
+                "Place"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Post",
+            "type_name": "PostType",
+            "labels": [
+                "Post"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "content",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "length",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "language",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "imageFile",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Tag",
+            "type_name": "TagType",
+            "labels": [
+                "Tag"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "TagClass",
+            "type_name": "TagClassType",
+            "labels": [
+                "TagClass"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "UNKNOWN",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Comment",
+                        "Forum",
+                        "Organisation",
+                        "Person",
+                        "Place",
+                        "Post",
+                        "Tag",
+                        "TagClass"
+                    ],
+                    "allowed_targets": [
+                        "Comment",
+                        "Organisation",
+                        "Person",
+                        "Place",
+                        "Post",
+                        "Tag",
+                        "TagClass"
+                    ]
+                }
+            ]
+        }
+    ]
+}

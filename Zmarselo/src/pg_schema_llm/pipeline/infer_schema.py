@@ -187,12 +187,8 @@ def profile_edge_type(G, target_type):
 
 def identify_technical_containers(G, node_types):
     """
-    Algorithmically identify technical container nodes based on:
-    - Property count (typically < 3 meaningful properties)
-    - Structural role (Hubs/Bridges)
-    - Generic naming patterns (Sets/Collections)
-    
-    100% AGNOSTIC: Relies on graph structure and generic data modeling terms.
+    Algorithmically identify technical container nodes.
+    FIXED: Uses flat node attributes.
     """
     tech_containers = set()
 
@@ -203,38 +199,34 @@ def identify_technical_containers(G, node_types):
 
         sample = nodes[:min(100, len(nodes))]
 
-        # Count meaningful properties (exclude node_type and ID-like keys)
+        # --- FIX STARTS HERE ---
+        # Old (Broken): all_keys = {k for n in sample for k in (G.nodes[n].get("properties") or {}).keys()}
+        # New (Fixed): Read direct attributes, excluding internal keys
         all_keys = {k for n in sample for k in G.nodes[n].keys() if k != 'node_type'}
+        # --- FIX ENDS HERE ---
+
         id_like_keys = {k for k in all_keys if any(pattern in k.lower() for pattern in ['id', 'key', 'uuid', 'hash', 'guid'])}
         meaningful_props = len(all_keys - id_like_keys)
 
-        # Generic Data Modeling Terms (Set Theory)
-        # These are standard Computer Science terms, not domain-specific.
         name_patterns = ['set', 'collection', 'group', 'container', 'link', 'join', 'mapping', 'association', 'batch', 'list']
         name_match = any(pattern in node_type.lower() for pattern in name_patterns)
 
-        # Classify as technical container if:
-        # (1) Name matches generic pattern AND has few properties (structural hub), OR
-        # (2) Has very few properties (< 2) regardless of name (pure join node)
         if (name_match and meaningful_props < 3) or meaningful_props < 2:
             tech_containers.add(node_type)
 
     return tech_containers
 
-
 def analyze_edge_semantics(G, source_type, target_type):
     """
-    Analyze edge patterns to determine the STRUCTURAL CATEGORY of the relationship.
-    Does NOT suggest specific labels. Returns abstract categories only.
+    Analyze edge patterns to determine the STRUCTURAL CATEGORY.
+    FIXED: correctly handles MultiDiGraph attribute access.
     """
-    # Find edges between these node types
     source_nodes = [n for n, attr in G.nodes(data=True) if attr.get('node_type') == source_type]
     target_nodes = [n for n, attr in G.nodes(data=True) if attr.get('node_type') == target_type]
 
     if not source_nodes or not target_nodes:
         return "UNKNOWN_STRUCTURE", "No instances found"
 
-    # Sample edges
     sample_size = min(100, len(source_nodes))
     source_sample = source_nodes[:sample_size]
 
@@ -246,36 +238,44 @@ def analyze_edge_semantics(G, source_type, target_type):
             try:
                 # Direct check
                 if G.has_edge(source_node, target_node):
-                    edge_attrs = G[source_node][target_node]
-                    edge_properties.update(edge_attrs.keys())
+                    # --- FIX STARTS HERE ---
+                    # MultiDiGraph stores edges as {key: {attributes}}
+                    edge_bundle = G[source_node][target_node]
+                    for edge_key, edge_attr in edge_bundle.items():
+                        # Add all keys except the internal 'type'
+                        props = [k for k in edge_attr.keys() if k != 'type']
+                        edge_properties.update(props)
+                    # --- FIX ENDS HERE ---
                     path_found = True
+
                 # Indirect check (shortest path)
                 elif nx.has_path(G, source_node, target_node):
                     path = nx.shortest_path(G, source_node, target_node)
                     if len(path) > 1:
                         path_found = True
-                        # Collect properties from the path
                         for i in range(len(path) - 1):
-                            edge_attrs = G[path[i]][path[i+1]]
-                            edge_properties.update(edge_attrs.keys())
+                            # --- FIX REPEATED HERE ---
+                            edge_bundle = G[path[i]][path[i+1]]
+                            for edge_key, edge_attr in edge_bundle.items():
+                                props = [k for k in edge_attr.keys() if k != 'type']
+                                edge_properties.update(props)
+
             except (KeyError, nx.NetworkXError):
                 pass
 
     if not path_found:
         return "DISCONNECTED", "No path found"
 
-    # --- PURELY ABSTRACT CATEGORIZATION ---
-    # We classify based on the *nature* of the properties found, not specific words.
-    
+    # --- AGNOSTIC CATEGORIZATION ---
     prop_str = ' '.join(str(p).lower() for p in edge_properties)
     
-    # 1. Quantitative / Weighted (Has numbers)
-    has_metrics = any(k in prop_str for k in ['weight', 'score', 'cost', 'dist', 'count', 'strength', 'val'])
+    # 1. Quantitative / Weighted
+    has_metrics = any(k in prop_str for k in ['weight', 'score', 'cost', 'dist', 'count', 'strength', 'val', 'conf'])
     
-    # 2. Compositional / Hierarchical (Has part/whole terms)
+    # 2. Compositional / Hierarchical
     has_composition = any(k in prop_str for k in ['part', 'parent', 'child', 'member', 'element', 'index'])
     
-    # 3. Temporal (Has time)
+    # 3. Temporal
     has_time = any(k in prop_str for k in ['time', 'date', 'created', 'updated'])
 
     if has_composition:
@@ -289,7 +289,6 @@ def analyze_edge_semantics(G, source_type, target_type):
 
     rationale_props = sorted(list(edge_properties))[:3]
     return category, f"Evidence: Properties {rationale_props} suggest {category.lower().replace('_', ' ')}"
-
 
 def analyze_logical_paths(G, tech_containers):
     """

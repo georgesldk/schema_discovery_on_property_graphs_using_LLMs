@@ -4,7 +4,7 @@
             "name": "Meta",
             "properties": [
                 {
-                    "name": "label",
+                    "name": "LABEL",
                     "type": "String",
                     "mandatory": true
                 },
@@ -25,7 +25,7 @@
                 },
                 {
                     "name": "logo",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -104,23 +104,13 @@
             "name": "Neurons",
             "properties": [
                 {
-                    "name": "bodyId_ID",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "bodyId",
                     "type": "Long",
                     "mandatory": true
                 },
                 {
                     "name": "cropped",
-                    "type": "Double",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
@@ -130,7 +120,7 @@
                 },
                 {
                     "name": "instance",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -145,12 +135,12 @@
                 },
                 {
                     "name": "primaryNeurite",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
-                    "type": "Double",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
@@ -175,17 +165,17 @@
                 },
                 {
                     "name": "status",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "statusLabel",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "type",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 }
             ]
@@ -204,12 +194,7 @@
             "name": "SynapseSet",
             "properties": [
                 {
-                    "name": "synapseSetId",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
+                    "name": "Label",
                     "type": "String",
                     "mandatory": true
                 }
@@ -219,12 +204,7 @@
             "name": "Synapses",
             "properties": [
                 {
-                    "name": "synId",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
+                    "name": "Label",
                     "type": "String",
                     "mandatory": true
                 },
@@ -235,7 +215,7 @@
                 },
                 {
                     "name": "distal",
-                    "type": "Double",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
@@ -292,7 +272,7 @@
             "properties": []
         },
         {
-            "name": "CONTAINS",
+            "name": "INCLUDES",
             "start_node": "SynapseSet",
             "end_node": "Synapses",
             "properties": []
