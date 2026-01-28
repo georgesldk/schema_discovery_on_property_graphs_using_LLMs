@@ -55,37 +55,75 @@ def prop_set(props):
 
 #################new method
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-from sentence_transformers import SentenceTransformer, util
-print("Loading semantic model for Edge matching...")
-semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+_semantic_model = None
+_util = None
+
+def get_semantic_model():
+    """
+    Lazy-load the semantic model so imports don't have side effects.
+    Keeps behavior identical once run_compare() is called.
+    """
+    global _semantic_model, _util
+    if _semantic_model is None:
+        from sentence_transformers import SentenceTransformer, util
+        _util = util
+        _semantic_model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _semantic_model, _util
 
 
-#For edges
+
+# --- Semantic edge matcher (cached + lazy model load) ---
+# FOR EDGESSSSSSSSSSSSSSSSSSSS
+_EDGE_EMB_CACHE = {}  # text -> embedding tensor
+_semantic_model = None
+_util = None
+
+def get_semantic_model():
+    global _semantic_model, _util
+    if _semantic_model is None:
+        from sentence_transformers import SentenceTransformer, util
+        _util = util
+        _semantic_model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _semantic_model, _util
+
 def clean_label_for_embedding(label):
-    if not label: return ""
+    if not label:
+        return ""
     return label.replace("_", " ").replace(".", " ").lower().strip()
 
-def find_edge_match_semantic(target, candidates, threshold=0.75):
-    if not candidates: return None
+def _embed(text, model):
+    if text not in _EDGE_EMB_CACHE:
+        _EDGE_EMB_CACHE[text] = model.encode(text, convert_to_tensor=True)
+    return _EDGE_EMB_CACHE[text]
+
+def find_edge_match_semantic(target, candidates, threshold=0.75, verbose=False):
+    if not candidates:
+        return None
+
+    model, util = get_semantic_model()
 
     target_clean = clean_label_for_embedding(target)
     candidates_clean = [clean_label_for_embedding(c) for c in candidates]
 
-    target_embedding = semantic_model.encode(target_clean, convert_to_tensor=True)
-    candidate_embeddings = semantic_model.encode(candidates_clean, convert_to_tensor=True)
+    target_emb = _embed(target_clean, model)
 
-    cosine_scores = util.cos_sim(target_embedding, candidate_embeddings)[0]
+    # IMPORTANT: cos_sim expects a 2D tensor for candidates, not a list of tensors
+    import torch
+    cand_embs = torch.stack([_embed(c, model) for c in candidates_clean], dim=0)
 
-    best_score_idx = int(cosine_scores.argmax())
-    best_score = float(cosine_scores[best_score_idx])
-    best_match_candidate = candidates[best_score_idx]
+    cosine_scores = util.cos_sim(target_emb, cand_embs)[0]
+    best_idx = int(cosine_scores.argmax())
+    best_score = float(cosine_scores[best_idx])
+    best_match = candidates[best_idx]
 
     if best_score >= threshold:
-        print(f"   [Edge Semantic Match] ACCEPTED: '{target}' -> '{best_match_candidate}' (Score: {best_score:.3f})")
-        return best_match_candidate
-    
+        if verbose:
+            print(f"   [Edge Semantic Match] ACCEPTED: '{target}' -> '{best_match}' (Score: {best_score:.3f})")
+        return best_match
+
     return None
-#################
+
 
 def load_json(path):
     try:
@@ -113,7 +151,7 @@ def find_node_match_string(target, candidates, threshold=0.8):
     return best if best_score >= threshold else None
 
 
-def compare_properties(gt_props, inf_props):
+def compare_properties(gt_props, inf_props, verbose=False):
     gt_set = prop_set(gt_props)
     inf_set = prop_set(inf_props)
 
@@ -121,16 +159,13 @@ def compare_properties(gt_props, inf_props):
     total = len(gt_set)
     extra = len(inf_set - gt_set)
 
-    return matches, total, extra
-    
-    # --- DEBUG: Print the first mismatch to see what's wrong ---
-    if total > 0 and matches == 0:
+    if verbose and total > 0 and matches == 0:
         print(f"   [PROP DEBUG] Mismatch!")
         print(f"     GT Properties: {list(gt_set)[:5]}")
         print(f"     Inf Properties: {list(inf_set)[:5]}")
-    # -----------------------------------------------------------
 
-    return matches, total, extra  # <--- NEW: Return extra count
+    return matches, total, extra
+
 def check_edge_topology(gt_edge, inf_edge, node_matches):
     """
     Checks if inferred edge start/end match the ground truth topology.
@@ -269,7 +304,7 @@ def run_compare(gt_file, inferred_file, verbose=True):
             edge_label_map[gt_name] = gt_name
         else:
             # USE SEMANTIC MATCHER FOR EDGES
-            mapped = find_edge_match_semantic(gt_name, inf_edge_names)
+            mapped = find_edge_match_semantic(gt_name, inf_edge_names, threshold=0.75, verbose=verbose)
             if mapped:
                 edge_label_map[gt_name] = mapped
             else:

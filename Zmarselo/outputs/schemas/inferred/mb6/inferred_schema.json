@@ -4,11 +4,6 @@
             "name": "Meta",
             "properties": [
                 {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "dataset",
                     "type": "String",
                     "mandatory": true
@@ -104,18 +99,8 @@
             "name": "Neurons",
             "properties": [
                 {
-                    "name": "bodyId",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "alpha1",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -125,7 +110,12 @@
                 },
                 {
                     "name": "alpha3",
-                    "type": "Double",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "bodyId",
+                    "type": "Long",
                     "mandatory": true
                 },
                 {
@@ -165,7 +155,7 @@
                 },
                 {
                     "name": "somaLocation",
-                    "type": "Double",
+                    "type": "Point",
                     "mandatory": true
                 },
                 {
@@ -191,33 +181,22 @@
             ]
         },
         {
-            "name": "SynapseSet",
+            "name": "ROIs",
             "properties": [
                 {
-                    "name": "id",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
+                    "name": "name",
                     "type": "String",
                     "mandatory": true
                 }
             ]
         },
         {
+            "name": "SynapseSet",
+            "properties": []
+        },
+        {
             "name": "Synapses",
             "properties": [
-                {
-                    "name": "synId",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "label",
-                    "type": "String",
-                    "mandatory": true
-                },
                 {
                     "name": "alpha1",
                     "type": "Boolean",
@@ -240,7 +219,7 @@
                 },
                 {
                     "name": "location",
-                    "type": "String",
+                    "type": "Point",
                     "mandatory": true
                 },
                 {
@@ -281,13 +260,13 @@
             "properties": []
         },
         {
-            "name": "RELATES_TO",
+            "name": "LINKS",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "INCLUDES",
+            "name": "CONTAINS",
             "start_node": "SynapseSet",
             "end_node": "Synapses",
             "properties": []
@@ -299,26 +278,10 @@
             "properties": []
         },
         {
-            "name": "SYNAPTICALLY_CONNECTS",
+            "name": "CONNECTS",
             "start_node": "Neurons",
             "end_node": "Synapses",
-            "properties": [
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         }
     ]
 }

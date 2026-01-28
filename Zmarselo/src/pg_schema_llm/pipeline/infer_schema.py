@@ -15,6 +15,34 @@ try:
 except Exception:
     from build_graph import build_graph
 
+def uv_edge_attrdicts(G, u, v):
+    """Return list of attr dicts for all parallel edges u->v (MultiDiGraph-safe)."""
+    edict = G.get_edge_data(u, v) or {}
+    if isinstance(edict, dict) and all(isinstance(val, dict) for val in edict.values()):
+        return [attrs for attrs in edict.values() if isinstance(attrs, dict)]
+    return [edict] if isinstance(edict, dict) else []
+
+def uv_edge_type_mode(G, u, v):
+    """
+    Canonical edge type for (u,v): most common 'type' across parallel edges.
+    Stable tie-break by lexicographic order.
+    """
+    types = [a.get("type", "") for a in uv_edge_attrdicts(G, u, v)]
+    types = [t for t in types if t]
+    if not types:
+        return ""
+    c = Counter(types)
+    best_freq = max(c.values())
+    best = sorted([t for t, f in c.items() if f == best_freq])[0]
+    return best
+
+def uv_edge_props_union(G, u, v):
+    """Union of property keys across parallel edges (excluding 'type')."""
+    props = set()
+    for a in uv_edge_attrdicts(G, u, v):
+        props.update(k for k in a.keys() if k != "type")
+    return props
+
 
 def infer_schema_from_folder(data_dir):
     G = build_graph(data_dir)
@@ -69,17 +97,20 @@ def infer_schema_from_folder(data_dir):
 # --- Enhanced Profiling ---
 
 def node_pattern_signature(G, n):
-    """
-    Pattern = (set of property keys, set of outgoing edge types, set of incoming edge types)
-    """
     props = tuple(sorted(k for k in G.nodes[n].keys() if k != "node_type"))
+
     out_edges = tuple(sorted(
-        G[n][v].get("type", "") for v in G.successors(n)
+        uv_edge_type_mode(G, n, v) for v in G.successors(n)
     ))
     in_edges = tuple(sorted(
-        G[u][n].get("type", "") for u in G.predecessors(n)
+        uv_edge_type_mode(G, u, n) for u in G.predecessors(n)
     ))
+
+    out_edges = tuple(t for t in out_edges if t)
+    in_edges  = tuple(t for t in in_edges if t)
     return (props, out_edges, in_edges)
+
+
 
 
 def profile_node_type(G, target_type):
@@ -236,29 +267,16 @@ def analyze_edge_semantics(G, source_type, target_type):
     for source_node in source_sample:
         for target_node in target_nodes[:min(50, len(target_nodes))]:
             try:
-                # Direct check
                 if G.has_edge(source_node, target_node):
-                    # --- FIX STARTS HERE ---
-                    # MultiDiGraph stores edges as {key: {attributes}}
-                    edge_bundle = G[source_node][target_node]
-                    for edge_key, edge_attr in edge_bundle.items():
-                        # Add all keys except the internal 'type'
-                        props = [k for k in edge_attr.keys() if k != 'type']
-                        edge_properties.update(props)
-                    # --- FIX ENDS HERE ---
+                    edge_properties.update(uv_edge_props_union(G, source_node, target_node))
                     path_found = True
 
-                # Indirect check (shortest path)
                 elif nx.has_path(G, source_node, target_node):
                     path = nx.shortest_path(G, source_node, target_node)
                     if len(path) > 1:
                         path_found = True
                         for i in range(len(path) - 1):
-                            # --- FIX REPEATED HERE ---
-                            edge_bundle = G[path[i]][path[i+1]]
-                            for edge_key, edge_attr in edge_bundle.items():
-                                props = [k for k in edge_attr.keys() if k != 'type']
-                                edge_properties.update(props)
+                            edge_properties.update(uv_edge_props_union(G, path[i], path[i+1]))
 
             except (KeyError, nx.NetworkXError):
                 pass
@@ -319,9 +337,19 @@ def analyze_logical_paths(G, tech_containers):
                                     'out_edge_types': set()
                                 }
                             if G.has_edge(pred, container_node):
-                                source_target_pairs[key]['in_edge_types'].add(G[pred][container_node].get('type', ''))
+                                edict = G.get_edge_data(pred, container_node) or {}
+                                for _, attrs in edict.items():
+                                    t = attrs.get("type", "")
+                                    if t:
+                                        source_target_pairs[key]["in_edge_types"].add(t)
+
                             if G.has_edge(container_node, succ):
-                                source_target_pairs[key]['out_edge_types'].add(G[container_node][succ].get('type', ''))
+                                edict = G.get_edge_data(container_node, succ) or {}
+                                for _, attrs in edict.items():
+                                    t = attrs.get("type", "")
+                                    if t:
+                                        source_target_pairs[key]["out_edge_types"].add(t)
+
 
         for (source, target), edge_info in source_target_pairs.items():
             category, rationale = analyze_edge_semantics(G, source, target)
