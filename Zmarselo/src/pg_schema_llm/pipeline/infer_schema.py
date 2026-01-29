@@ -15,6 +15,53 @@ try:
 except Exception:
     from build_graph import build_graph
 
+
+def normalize_prop_name_simple(s: str) -> str:
+    return (s or "").strip()
+
+def backfill_missing_edge_properties(schema: dict) -> dict:
+    """
+    Ensure consistency: if an edge label has properties in any instance,
+    then all edges with the same label must include those properties.
+    This fixes cases like CONNECTS(A->B) has props but CONNECTS(C->D) has [].
+    """
+    edges = schema.get("edge_types") or []
+    if not edges:
+        return schema
+
+    # Collect union-of-props by edge label (from the inferred schema itself)
+    label_to_props = {}
+    for e in edges:
+        name = e.get("name")
+        if not name:
+            continue
+        props = e.get("properties") or []
+        for p in props:
+            pn = normalize_prop_name_simple(p.get("name"))
+            if not pn:
+                continue
+            label_to_props.setdefault(name, {})[pn] = p  # keep last seen dict
+
+    # Backfill missing
+    for e in edges:
+        name = e.get("name")
+        if not name:
+            continue
+        props = e.get("properties") or []
+        if len(props) == 0 and name in label_to_props:
+            # clone properties, defaulting mandatory False if not present
+            filled = []
+            for pn, pobj in sorted(label_to_props[name].items(), key=lambda x: x[0].lower()):
+                filled.append({
+                    "name": pobj.get("name", pn),
+                    "type": pobj.get("type", "String"),
+                    "mandatory": bool(pobj.get("mandatory", False)),
+                })
+            e["properties"] = filled
+
+    return schema
+
+
 def uv_edge_attrdicts(G, u, v):
     """Return list of attr dicts for all parallel edges u->v (MultiDiGraph-safe)."""
     edict = G.get_edge_data(u, v) or {}
@@ -90,8 +137,12 @@ def infer_schema_from_folder(data_dir):
     print("--- Asking Gemini for Logical Architect Schema ---")
     raw_res = call_gemini_api(prompt)
     if raw_res:
-        return extract_json(raw_res)
+        schema = extract_json(raw_res)
+        if schema:
+            schema = backfill_missing_edge_properties(schema)
+        return schema
     return None
+
 
 
 # --- Enhanced Profiling ---
@@ -443,8 +494,9 @@ def generate_logical_relationship_summary(G):
         for type_a, type_b in bidirectional_patterns:
             summary += f"      * {type_a} <-> {type_b}\n"
 
-    summary += "    - CRITICAL: Your schema MUST include these direct relationships.\n"
-    summary += "      Determine the specific semantic verb (e.g., OWNS, LINKS, INCLUDES) based on the Relationship Category.\n"
+    summary += "    - Observed frequent indirect patterns (via intermediate nodes).\n"
+    summary += "      You may propose direct relationships ONLY if they are consistent with observed edge labels and node-type connectivity.\n"
+
 
     return summary
 
