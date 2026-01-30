@@ -8,31 +8,94 @@ import csv
 # 0. HELPER: LOAD VALIDATION LISTS
 # ==========================================
 
+def parse_edge_names(definition, valid_edge_labels=None):
+    """
+    Extract one or more relationship type names from inside the [...] pattern.
+
+    Supports:
+      - KNOWS
+      - :KNOWS
+      - r:KNOWS
+      - `KNOWS`
+      - :KNOWS|LIKES
+      - r:`KNOWS`|:LIKES
+    """
+    if not definition:
+        return []
+
+    # remove surrounding whitespace
+    s = definition.strip()
+
+    # take only the "type segment" before any whitespace (properties already stripped earlier)
+    first = s.split()[0] if s.split() else s
+
+    # split alternatives by |
+    alts = [a.strip() for a in first.split('|') if a.strip()]
+
+    names = []
+    for a in alts:
+        # drop backticks
+        a = a.replace('`', '').strip()
+
+        # if we have var:type or :type, take the last segment after ':'
+        if ':' in a:
+            a = a.split(':')[-1].strip()
+
+        # final cleanup: keep only reasonable identifier chars
+        a = re.sub(r'[^A-Za-z0-9_]', '', a).strip()
+
+        if a:
+            names.append(a)
+
+    # optional validation filter
+    if valid_edge_labels:
+        inter = [n for n in names if n in valid_edge_labels]
+        if inter:
+            return inter
+
+    return names
+
+
 def load_validation_lists(input_dir):
     """
     Loads dataset-specific ground truth lists if they exist.
     Returns sets of valid names for filtering.
     """
     valid_data = {
-        "node_labels": None
+        "node_labels": None,
+        "edge_labels": None,
     }
-    
-    path = os.path.join(input_dir, "node_labels.csv")
-    if os.path.exists(path):
+
+    node_path = os.path.join(input_dir, "node_labels.csv")
+    if os.path.exists(node_path):
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(node_path, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 valid_set = set()
                 for row in reader:
-                    # Robust column fetching
                     val = row.get('label') or row.get('property') or list(row.values())[0]
                     if val:
                         valid_set.add(val.strip())
                 valid_data["node_labels"] = valid_set
         except Exception as e:
             print(f"[WARN] Failed to load node_labels.csv: {e}")
-    
+
+    edge_path = os.path.join(input_dir, "edge_labels.csv")
+    if os.path.exists(edge_path):
+        try:
+            with open(edge_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                valid_set = set()
+                for row in reader:
+                    val = row.get('label') or row.get('relType') or row.get('type') or list(row.values())[0]
+                    if val:
+                        valid_set.add(val.strip())
+                valid_data["edge_labels"] = valid_set
+        except Exception as e:
+            print(f"[WARN] Failed to load edge_labels.csv: {e}")
+
     return valid_data
+
 
 # ==========================================
 # 1. CLEANING & STANDARDIZATION
@@ -138,7 +201,7 @@ def derive_node_name(type_name, labels, valid_labels=None):
 # 3. ROBUST PARSING LOGIC
 # ==========================================
 
-def parse_pgs_file(file_path, valid_node_labels=None):
+def parse_pgs_file(file_path, valid_node_labels=None, valid_edge_labels=None):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -194,37 +257,45 @@ def parse_pgs_file(file_path, valid_node_labels=None):
         elif "CREATE EDGE TYPE" in stmt.upper():
             try:
                 arrow_match = re.search(r'-\s*\[(.*?)\]\s*->', stmt, re.DOTALL)
-                if not arrow_match: continue
-                
+                if not arrow_match:
+                    continue
+
                 definition = arrow_match.group(1).strip()
-                
+
                 e_props = []
                 if '{' in definition:
                     p_start = definition.find('{')
                     p_end = definition.rfind('}')
                     e_props = parse_props_block(definition[p_start+1 : p_end])
                     definition = definition[:p_start].strip()
-                
-                e_name = "UNKNOWN"
-                if ':' in definition:
-                    parts = definition.split(':')
-                    e_name = parts[0].strip() if parts[0].strip() else parts[-1].strip()
+
+                # NEW: extract one or more names robustly
+                e_names = parse_edge_names(definition, valid_edge_labels=valid_edge_labels)
+
+                if not e_names:
+                    e_names = ["UNKNOWN"]
 
                 arrow_start = arrow_match.start()
                 arrow_end = arrow_match.end()
-                
+
                 src_block = stmt[:arrow_start].split('(', 1)[1].strip()
                 tgt_block = stmt[arrow_end:].strip()
-                if tgt_block.endswith(')'): tgt_block = tgt_block[:-1]
-                if tgt_block.startswith('('): tgt_block = tgt_block[1:]
+                if tgt_block.endswith(')'):
+                    tgt_block = tgt_block[:-1]
+                if tgt_block.startswith('('):
+                    tgt_block = tgt_block[1:]
 
-                edge_definitions.append({
-                    "name": e_name,
-                    "properties": e_props,
-                    "raw_source": src_block,
-                    "raw_target": tgt_block
-                })
-            except: continue
+                # IMPORTANT: create one edge definition per name (handles KNOWS|LIKES)
+                for e_name in e_names:
+                    edge_definitions.append({
+                        "name": e_name,
+                        "properties": e_props,
+                        "raw_source": src_block,
+                        "raw_target": tgt_block
+                    })
+            except:
+                continue
+
 
     return node_types, edge_definitions, node_label_map
 
@@ -324,10 +395,18 @@ def extract_ground_truth(input_dir):
     if not pgs_files:
         raise FileNotFoundError(f"No .pgs file found in {input_dir}")
 
+    # Load validation lists (node_labels.csv + edge_labels.csv)
     valid_data = load_validation_lists(input_dir)
-    valid_node_labels = valid_data["node_labels"]
+    valid_node_labels = valid_data.get("node_labels")
+    valid_edge_labels = valid_data.get("edge_labels")
 
-    node_types, edge_defs, node_label_map = parse_pgs_file(pgs_files[0], valid_node_labels)
+    # IMPORTANT: parse_pgs_file must accept valid_edge_labels too
+    node_types, edge_defs, node_label_map = parse_pgs_file(
+        pgs_files[0],
+        valid_node_labels=valid_node_labels,
+        valid_edge_labels=valid_edge_labels
+    )
+
     edge_types = build_edge_map(edge_defs, node_label_map)
 
     if csv_topology:
@@ -338,6 +417,7 @@ def extract_ground_truth(input_dir):
         "node_types": node_types,
         "edge_types": edge_types
     }
+
 
 def run_extract_gt(input_dir, output_file):
     schema = extract_ground_truth(input_dir)

@@ -271,28 +271,247 @@
     ],
     "edge_types": [
         {
-            "name": "UNKNOWN",
+            "name": "CONTAINER_OF",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Forum"
+                    ],
+                    "allowed_targets": [
+                        "Post"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_CREATOR",
             "properties": [],
             "topology": [
                 {
                     "allowed_sources": [
                         "Comment",
+                        "Post"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_INTEREST",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Tag"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_MEMBER",
+            "properties": [
+                {
+                    "name": "joinDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Forum"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_MODERATOR",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Forum"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_TAG",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
                         "Forum",
+                        "Post"
+                    ],
+                    "allowed_targets": [
+                        "Tag"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_TYPE",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Tag"
+                    ],
+                    "allowed_targets": [
+                        "TagClass"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
                         "Organisation",
                         "Person",
-                        "Place",
-                        "Post",
-                        "Tag",
+                        "Post"
+                    ],
+                    "allowed_targets": [
+                        "Place"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "IS_PART_OF",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Place"
+                    ],
+                    "allowed_targets": [
+                        "Place"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "IS_SUBCLASS_OF",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
                         "TagClass"
                     ],
                     "allowed_targets": [
-                        "Comment",
-                        "Organisation",
-                        "Person",
-                        "Place",
-                        "Post",
-                        "Tag",
                         "TagClass"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KNOWS",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "LIKES",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Comment",
+                        "Post"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "REPLY_OF",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Comment"
+                    ],
+                    "allowed_targets": [
+                        "Comment",
+                        "Post"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "STUDIES_AT",
+            "properties": [
+                {
+                    "name": "classYear",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Organisation"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "WORKS_AT",
+            "properties": [
+                {
+                    "name": "workFrom",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Organisation"
                     ]
                 }
             ]

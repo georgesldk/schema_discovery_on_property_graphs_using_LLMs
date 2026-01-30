@@ -1,125 +1,10 @@
 {
     "node_types": [
         {
-            "name": "Meta",
-            "properties": [
-                {
-                    "name": "dataset",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "lastDatabaseEdit",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "latestMutationId",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "logo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "meshHost",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "neuroglancerInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "neuroglancerMeta",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "postHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "postHighAccuracyThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "preHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "primaryRois",
-                    "type": "StringArray",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiHierarchy",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "statusDefinitions",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "superLevelRois",
-                    "type": "StringArray",
-                    "mandatory": true
-                },
-                {
-                    "name": "totalPostCount",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "totalPreCount",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "uuid",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
             "name": "Neurons",
             "properties": [
                 {
                     "name": "bodyId",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "cropped",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "instance",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "post",
                     "type": "Long",
                     "mandatory": true
                 },
@@ -129,28 +14,43 @@
                     "mandatory": true
                 },
                 {
-                    "name": "primaryNeurite",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "size",
+                    "name": "post",
                     "type": "Long",
                     "mandatory": true
                 },
                 {
+                    "name": "status",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "cropped",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "instance",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryNeurite",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
                     "name": "somaLocation",
-                    "type": "Point",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -159,21 +59,35 @@
                     "mandatory": true
                 },
                 {
-                    "name": "status",
-                    "type": "String",
+                    "name": "size",
+                    "type": "Long",
                     "mandatory": true
                 },
                 {
-                    "name": "statusLabel",
-                    "type": "String",
+                    "name": "distal_bool",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
-                    "name": "type",
-                    "type": "String",
+                    "name": "proximal_bool",
+                    "type": "Boolean",
                     "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "distal",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
+        },
+        {
+            "name": "ROIs",
+            "properties": []
         },
         {
             "name": "SynapseSet",
@@ -183,28 +97,28 @@
             "name": "Synapses",
             "properties": [
                 {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
                     "name": "confidence",
                     "type": "Double",
                     "mandatory": true
                 },
                 {
-                    "name": "distal",
-                    "type": "Boolean",
+                    "name": "location",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "location",
-                    "type": "Point",
+                    "name": "distal",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
                     "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "type",
-                    "type": "String",
                     "mandatory": true
                 }
             ]
@@ -222,13 +136,13 @@
                     "mandatory": true
                 },
                 {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "name": "weightHP",
+                    "type": "Long",
                     "mandatory": true
                 },
                 {
-                    "name": "weightHP",
-                    "type": "Long",
+                    "name": "roiInfo",
+                    "type": "String",
                     "mandatory": true
                 }
             ]
@@ -240,10 +154,26 @@
             "properties": []
         },
         {
-            "name": "INCLUDES",
+            "name": "CONNECTS",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
         },
         {
             "name": "CONTAINS",
@@ -255,7 +185,23 @@
             "name": "CONNECTS",
             "start_node": "Synapses",
             "end_node": "Synapses",
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
         }
     ]
 }
