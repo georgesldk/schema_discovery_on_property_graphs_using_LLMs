@@ -1,0 +1,557 @@
+{
+    "dataset_name": "gt_data_pole",
+    "node_types": [
+        {
+            "name": "AREA",
+            "type_name": "AREA",
+            "labels": [
+                "AREA"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "areaCode",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Crime",
+            "type_name": "Crime",
+            "labels": [
+                "Crime"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "last_outcome",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "date",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "source_id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "note",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "charge",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Email",
+            "type_name": "Email",
+            "labels": [
+                "Email"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "email_address",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Location",
+            "type_name": "Location",
+            "labels": [
+                "Location"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "address",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "postcode",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "latitude",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "longitude",
+                    "type": "Double",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Object",
+            "type_name": "Object",
+            "labels": [
+                "Object"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "description",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "source_id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Officer",
+            "type_name": "Officer",
+            "labels": [
+                "Officer"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "rank",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "surname",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "badge_no",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Person",
+            "type_name": "Person",
+            "labels": [
+                "Person"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "surname",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "nhs_no",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "age",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "PhoneCall",
+            "type_name": "PhoneCall",
+            "labels": [
+                "PhoneCall"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_time",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_date",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_duration",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Phone",
+            "type_name": "Phone",
+            "labels": [
+                "Phone"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "phoneNo",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "PostCode",
+            "type_name": "PostCode",
+            "labels": [
+                "PostCode"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "code",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Vehicle",
+            "type_name": "Vehicle",
+            "labels": [
+                "Vehicle"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "reg",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "model",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "year",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "make",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "CALLED",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "PhoneCall"
+                    ],
+                    "allowed_targets": [
+                        "Phone"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CALLER",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "PhoneCall"
+                    ],
+                    "allowed_targets": [
+                        "Phone"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CURRENT_ADDRESS",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Location"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_POSTCODE",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Location"
+                    ],
+                    "allowed_targets": [
+                        "PostCode"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "LOCATION_IN_AREA",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Location"
+                    ],
+                    "allowed_targets": [
+                        "AREA"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "POSTCODE_IN_AREA",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "PostCode"
+                    ],
+                    "allowed_targets": [
+                        "AREA"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_EMAIL",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Email"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAS_PHONE",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Phone"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KNOWS",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KNOWS_LW",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KNOWS_PHONE",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "FAMILY_REL",
+            "properties": [
+                {
+                    "name": "rel_type",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Person"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "INVESTIGATED_BY",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Crime"
+                    ],
+                    "allowed_targets": [
+                        "Officer"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "INVOLVED_IN",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Object",
+                        "Vehicle"
+                    ],
+                    "allowed_targets": [
+                        "Crime"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PARTY_TO",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Person"
+                    ],
+                    "allowed_targets": [
+                        "Crime"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "OCCURRED_AT",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Crime"
+                    ],
+                    "allowed_targets": [
+                        "Location"
+                    ]
+                }
+            ]
+        }
+    ]
+}

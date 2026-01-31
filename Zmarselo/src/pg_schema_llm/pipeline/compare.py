@@ -37,6 +37,11 @@ def load_json(path: str) -> dict:
 # Helpers: property normalization + filtering
 # ============================================================
 
+def avg_defined(values: Sequence[Optional[float]]) -> float:
+    xs = [v for v in values if v is not None]
+    return (sum(xs) / len(xs)) if xs else 0.0
+
+
 def normalize_prop_name(name: str) -> str:
     if not name:
         return ""
@@ -227,17 +232,13 @@ class CompareResult:
 # ============================================================
 
 def calculate_real_score(matches: int, total_gt: int, total_extra: int) -> float:
-    """
-    Real score over (GT + Extra).
-
-    Important: when there is nothing to score (GT=0 and Extra=0), the metric is
-    mathematically undefined (0/0). For reporting, treat it as 100% (perfect),
-    because there were no required properties and no hallucinated extras.
-    """
     denom = total_gt + total_extra
+    # Nothing to score (0/0): treat as N/A at print-time.
+    # Here we return 100.0 so it doesn't unfairly penalize the overall score.
     if denom == 0:
         return 100.0
     return (matches / denom) * 100.0
+
 
 
 
@@ -595,18 +596,33 @@ def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig
 
     _list_block(p, "EDGE PROPERTY SUMMARY (VALID TOPOLOGY ONLY)", "EDGE", sorted(edge_prop_rows), limit=30)
 
-    # Final real scores
     real_node_score = calculate_real_score(node_matches, len(gt_nodes), len(extra_nodes))
     real_edge_score = topo_precision * 100.0
     real_prop_score = calculate_real_score(prop_matches, total_props, total_extra_props)
-    real_edge_prop_score = calculate_real_score(edge_prop_matches, total_edge_props, total_extra_edge_props)
     topology_score = topo_f1 * 100.0
 
-    overall = (real_node_score + real_edge_score + real_prop_score + real_edge_prop_score + topology_score) / 5.0
+    # Edge property accuracy is only defined if GT has edge properties.
+    real_edge_prop_score: Optional[float]
+    if total_edge_props > 0:
+        real_edge_prop_score = calculate_real_score(edge_prop_matches, total_edge_props, total_extra_edge_props)
+    else:
+        real_edge_prop_score = None
+
+    overall = avg_defined([
+        real_node_score,
+        real_edge_score,
+        real_prop_score,
+        real_edge_prop_score,   # excluded automatically when None
+        topology_score,
+    ])
+
     
     node_prop_label = f"{real_prop_score:.2f}%" if (total_props + total_extra_props) > 0 else "N/A"
-    edge_prop_label = f"{real_edge_prop_score:.2f}%" if (total_edge_props + total_extra_edge_props) > 0 else "N/A"
     
+    # If GT defines no edge properties at all, accuracy is N/A by definition.
+    edge_prop_label = f"{real_edge_prop_score:.2f}%" if total_edge_props > 0 else "N/A"
+
+
     _header(p, "FINAL SCORES")
     _kv(p, "NODE ACCURACY", f"{real_node_score:.2f}%")
     _kv(p, "EDGE CORRECTNESS", f"{real_edge_score:.2f}%")

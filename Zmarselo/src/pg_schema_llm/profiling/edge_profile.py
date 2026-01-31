@@ -20,8 +20,8 @@ class EdgeProfileConfig:
     seed: Optional[int] = None            # deterministic runs if set
 
     # reporting
-    top_k_topology: int = 30
-    top_props: int = 200
+    top_k_topology: int = 15
+    top_props: int = 100
 
 
 # ============================================================

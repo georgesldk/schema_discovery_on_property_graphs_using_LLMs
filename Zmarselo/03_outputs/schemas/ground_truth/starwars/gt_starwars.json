@@ -1,0 +1,493 @@
+{
+    "dataset_name": "gt_data_starwars",
+    "node_types": [
+        {
+            "name": "Character",
+            "type_name": "Character",
+            "labels": [
+                "Character"
+            ],
+            "properties": [
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "birth_year",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "eye_color",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "height",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "gender",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "skin_color",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "mass",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "hair_color",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Film",
+            "type_name": "Film",
+            "labels": [
+                "Film"
+            ],
+            "properties": [
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "producer",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "title",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "release_date",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "director",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "opening_crawl",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "episode_id",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Planet",
+            "type_name": "Planet",
+            "labels": [
+                "Planet"
+            ],
+            "properties": [
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "gravity",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "terrain",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "diameter",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "climate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "population",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "rotation_period",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "orbital_period",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "surface_water",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Species",
+            "type_name": "Species",
+            "labels": [
+                "Species"
+            ],
+            "properties": [
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "average_height",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "average_lifespan",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "skin_colors",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "hair_colors",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "eye_colors",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "classification",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "language",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "designation",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Starship",
+            "type_name": "Starship",
+            "labels": [
+                "Starship"
+            ],
+            "properties": [
+                {
+                    "name": "consumables",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "cargo_capacity",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "passengers",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "cost_in_credits",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "model",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "max_atmosphering_speed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "manufacturer",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "length",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "crew",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "starship_class",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "MGLT",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "hyperdrive_rating",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Vehicle",
+            "type_name": "Vehicle",
+            "labels": [
+                "Vehicle"
+            ],
+            "properties": [
+                {
+                    "name": "consumables",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "created",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "edited",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "cargo_capacity",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "passengers",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "cost_in_credits",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "model",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "max_atmosphering_speed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "manufacturer",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "length",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "crew",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "vehicle_class",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "APPEARED_IN",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Character",
+                        "Planet",
+                        "Species",
+                        "Starship",
+                        "Vehicle"
+                    ],
+                    "allowed_targets": [
+                        "Film"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HOMEWORLD",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Character",
+                        "Species"
+                    ],
+                    "allowed_targets": [
+                        "Planet"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "OF",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Character"
+                    ],
+                    "allowed_targets": [
+                        "Species"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PILOT",
+            "properties": [],
+            "topology": [
+                {
+                    "allowed_sources": [
+                        "Character"
+                    ],
+                    "allowed_targets": [
+                        "Starship",
+                        "Vehicle"
+                    ]
+                }
+            ]
+        }
+    ]
+}

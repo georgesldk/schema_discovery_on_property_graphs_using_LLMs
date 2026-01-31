@@ -1,0 +1,366 @@
+{
+    "node_types": [
+        {
+            "name": "Crime",
+            "properties": [
+                {
+                    "name": "date",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "source_id",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "last_outcome",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "charge",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "note",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Location",
+            "properties": [
+                {
+                    "name": "address",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "latitude",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "postcode",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "longitude",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "code",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "areaCode",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "description",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "source_id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Officer",
+            "properties": [
+                {
+                    "name": "badge_no",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "surname",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "rank",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Person",
+            "properties": [
+                {
+                    "name": "surname",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "nhs_no",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "age",
+                    "type": "Long",
+                    "mandatory": false
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "email_address",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "phoneNo",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "PhoneCall",
+            "properties": [
+                {
+                    "name": "call_date",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_time",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "call_duration",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "phoneNo",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Vehicle",
+            "properties": [
+                {
+                    "name": "year",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "reg",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "model",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "make",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "CURRENT_ADDRESS",
+            "start_node": "Person",
+            "end_node": "Location",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "FAMILY_REL",
+            "start_node": "Person",
+            "end_node": "Person",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "INVOLVED_IN",
+            "start_node": "Object",
+            "end_node": "Crime",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "INVOLVED_IN",
+            "start_node": "Vehicle",
+            "end_node": "Crime",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "INVESTIGATED_BY",
+            "start_node": "Crime",
+            "end_node": "Officer",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "KNOWS",
+            "start_node": "Person",
+            "end_node": "Person",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "KNOWS_LW",
+            "start_node": "Person",
+            "end_node": "Person",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "KNOWS_PHONE",
+            "start_node": "Person",
+            "end_node": "Person",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "OCCURRED_AT",
+            "start_node": "Crime",
+            "end_node": "Location",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "PARTY_TO",
+            "start_node": "Person",
+            "end_node": "Crime",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ]
+}

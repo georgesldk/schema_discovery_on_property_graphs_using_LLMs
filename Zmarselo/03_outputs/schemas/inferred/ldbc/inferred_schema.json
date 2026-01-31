@@ -1,0 +1,385 @@
+{
+    "node_types": [
+        {
+            "name": "comment",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "content",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "length",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "forum",
+            "properties": [
+                {
+                    "name": "title",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "organisation",
+            "properties": [
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "person",
+            "properties": [
+                {
+                    "name": "firstName",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "lastName",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "gender",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "birthday",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "email",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "language",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "place",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "post",
+            "properties": [
+                {
+                    "name": "imageFile",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "locationIP",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "browserUsed",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "language",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "content",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "length",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "tag",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "tagclass",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "url",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "HAS_CREATOR",
+            "start_node": "comment",
+            "end_node": "person",
+            "properties": []
+        },
+        {
+            "name": "HAS_TAG",
+            "start_node": "comment",
+            "end_node": "tag",
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "start_node": "comment",
+            "end_node": "place",
+            "properties": []
+        },
+        {
+            "name": "REPLY_OF",
+            "start_node": "comment",
+            "end_node": "comment",
+            "properties": []
+        },
+        {
+            "name": "REPLY_OF",
+            "start_node": "comment",
+            "end_node": "post",
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "start_node": "forum",
+            "end_node": "post",
+            "properties": []
+        },
+        {
+            "name": "HAS_MEMBER",
+            "start_node": "forum",
+            "end_node": "person",
+            "properties": [
+                {
+                    "name": "joinDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "HAS_MODERATOR",
+            "start_node": "forum",
+            "end_node": "person",
+            "properties": []
+        },
+        {
+            "name": "HAS_TAG",
+            "start_node": "forum",
+            "end_node": "tag",
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "start_node": "organisation",
+            "end_node": "place",
+            "properties": []
+        },
+        {
+            "name": "HAS_INTEREST",
+            "start_node": "person",
+            "end_node": "tag",
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "start_node": "person",
+            "end_node": "place",
+            "properties": []
+        },
+        {
+            "name": "KNOWS",
+            "start_node": "person",
+            "end_node": "person",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "LIKES",
+            "start_node": "person",
+            "end_node": "comment",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "LIKES",
+            "start_node": "person",
+            "end_node": "post",
+            "properties": [
+                {
+                    "name": "creationDate",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "STUDIES_AT",
+            "start_node": "person",
+            "end_node": "organisation",
+            "properties": [
+                {
+                    "name": "classYear",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "WORKS_AT",
+            "start_node": "person",
+            "end_node": "organisation",
+            "properties": [
+                {
+                    "name": "workFrom",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "IS_PART_OF",
+            "start_node": "place",
+            "end_node": "place",
+            "properties": []
+        },
+        {
+            "name": "HAS_CREATOR",
+            "start_node": "post",
+            "end_node": "person",
+            "properties": []
+        },
+        {
+            "name": "HAS_TAG",
+            "start_node": "post",
+            "end_node": "tag",
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "start_node": "post",
+            "end_node": "place",
+            "properties": []
+        },
+        {
+            "name": "HAS_TYPE",
+            "start_node": "tag",
+            "end_node": "tagclass",
+            "properties": []
+        },
+        {
+            "name": "IS_SUBCLASS_OF",
+            "start_node": "tagclass",
+            "end_node": "tagclass",
+            "properties": []
+        }
+    ]
+}

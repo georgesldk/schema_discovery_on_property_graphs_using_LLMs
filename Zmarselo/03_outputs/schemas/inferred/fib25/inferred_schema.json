@@ -1,0 +1,197 @@
+{
+    "node_types": [
+        {
+            "name": "Neurons",
+            "properties": [
+                {
+                    "name": "bodyId",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "pre",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "post",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "status",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "cropped",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "instance",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryNeurite",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "somaLocation",
+                    "type": "Point",
+                    "mandatory": true
+                },
+                {
+                    "name": "somaRadius",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "size",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "Boolean",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "ROIs",
+            "properties": []
+        },
+        {
+            "name": "SynapseSet",
+            "properties": []
+        },
+        {
+            "name": "Synapses",
+            "properties": [
+                {
+                    "name": "type",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "confidence",
+                    "type": "Double",
+                    "mandatory": true
+                },
+                {
+                    "name": "location",
+                    "type": "Point",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "Boolean",
+                    "mandatory": true
+                }
+            ]
+        }
+    ],
+    "edge_types": [
+        {
+            "name": "CONNECTS",
+            "start_node": "Neurons",
+            "end_node": "Neurons",
+            "properties": [
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "HAS",
+            "start_node": "Neurons",
+            "end_node": "SynapseSet",
+            "properties": []
+        },
+        {
+            "name": "CONNECTS",
+            "start_node": "SynapseSet",
+            "end_node": "SynapseSet",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CONTAINS",
+            "start_node": "SynapseSet",
+            "end_node": "Synapses",
+            "properties": []
+        },
+        {
+            "name": "CONNECTS",
+            "start_node": "Synapses",
+            "end_node": "Synapses",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
+        }
+    ]
+}

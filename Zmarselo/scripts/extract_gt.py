@@ -1,17 +1,21 @@
 import argparse
 from pg_schema_llm.pipeline.extract_gt import run_extract_gt
 
-# Reads your Ground Truth inputs (.pgs and optional CSV like edge_types.csv) and 
-# writes a normalized GT schema JSON.
-# This is what you later compare against.
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract Ground Truth schema")
-    parser.add_argument("--input", required=True, help="Ground truth input folder")
-    parser.add_argument("--output", required=True, help="Output folder for GT schema")
+    parser = argparse.ArgumentParser(description="Extract GT schema for a dataset")
+    parser.add_argument(
+        "dataset",
+        help="Dataset name (e.g. fib25, mb6, starwars, ldbc)"
+    )
 
     args = parser.parse_args()
-    run_extract_gt(args.input, args.output)
+    ds = args.dataset.lower()
+
+    input_dir = f"01_gts/gt_data_{ds}"
+    output_file = f"03_outputs/schemas/ground_truth/{ds}/gt_{ds}.json"
+
+    run_extract_gt(input_dir, output_file)
 
 
 if __name__ == "__main__":
