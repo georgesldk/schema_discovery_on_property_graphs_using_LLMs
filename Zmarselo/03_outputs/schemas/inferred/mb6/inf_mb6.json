@@ -20,12 +20,12 @@
                 },
                 {
                     "name": "status",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "statusLabel",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -35,12 +35,12 @@
                 },
                 {
                     "name": "instance",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "type",
-                    "type": "Double",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
@@ -50,7 +50,7 @@
                 },
                 {
                     "name": "somaLocation",
-                    "type": "Point",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -64,40 +64,26 @@
                     "mandatory": true
                 },
                 {
-                    "name": "alpha1_boolean",
-                    "type": "Double",
+                    "name": "roiInfo",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha2_boolean",
-                    "type": "Double",
+                    "name": "alpha1",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha3_boolean",
-                    "type": "Double",
+                    "name": "alpha2",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha1_string",
-                    "type": "String",
-                    "mandatory": false
-                },
-                {
-                    "name": "alpha3_string",
-                    "type": "String",
-                    "mandatory": false
-                },
-                {
-                    "name": "alpha2_string",
-                    "type": "String",
-                    "mandatory": false
+                    "name": "alpha3",
+                    "type": "Boolean",
+                    "mandatory": true
                 }
             ]
-        },
-        {
-            "name": "ROIs",
-            "properties": []
         },
         {
             "name": "SynapseSet",
@@ -118,21 +104,21 @@
                 },
                 {
                     "name": "location",
-                    "type": "Point",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha1_boolean",
+                    "name": "alpha1",
+                    "type": "Boolean",
+                    "mandatory": true
+                },
+                {
+                    "name": "alpha2",
                     "type": "Double",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha2_boolean",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "alpha3_boolean",
+                    "name": "alpha3",
                     "type": "Double",
                     "mandatory": true
                 }
@@ -148,31 +134,47 @@
                 {
                     "name": "weight",
                     "type": "Long",
-                    "mandatory": false
+                    "mandatory": true
                 },
                 {
                     "name": "weightHP",
                     "type": "Long",
-                    "mandatory": false
+                    "mandatory": true
                 },
                 {
                     "name": "roiInfo",
                     "type": "String",
-                    "mandatory": false
+                    "mandatory": true
                 }
             ]
         },
         {
-            "name": "INCLUDES",
+            "name": "CONTAINS",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "LINKS",
+            "name": "CONNECTS",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "Long",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "Long",
+                    "mandatory": true
+                }
+            ]
         },
         {
             "name": "CONTAINS",
@@ -188,17 +190,17 @@
                 {
                     "name": "roiInfo",
                     "type": "String",
-                    "mandatory": false
+                    "mandatory": true
                 },
                 {
                     "name": "weight",
                     "type": "Long",
-                    "mandatory": false
+                    "mandatory": true
                 },
                 {
                     "name": "weightHP",
                     "type": "Long",
-                    "mandatory": false
+                    "mandatory": true
                 }
             ]
         }

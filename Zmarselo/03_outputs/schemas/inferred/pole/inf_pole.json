@@ -1,6 +1,21 @@
 {
     "node_types": [
         {
+            "name": "AREA",
+            "properties": [
+                {
+                    "name": "areaCode",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
             "name": "Crime",
             "properties": [
                 {
@@ -41,6 +56,21 @@
             ]
         },
         {
+            "name": "Email",
+            "properties": [
+                {
+                    "name": "email_address",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
             "name": "Location",
             "properties": [
                 {
@@ -67,16 +97,6 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
-                {
-                    "name": "code",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "areaCode",
-                    "type": "String",
-                    "mandatory": true
                 }
             ]
         },
@@ -162,16 +182,21 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
-                {
-                    "name": "email_address",
-                    "type": "String",
-                    "mandatory": true
-                },
+                }
+            ]
+        },
+        {
+            "name": "Phone",
+            "properties": [
                 {
                     "name": "phoneNo",
                     "type": "String",
                     "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         },
@@ -202,11 +227,21 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
+                }
+            ]
+        },
+        {
+            "name": "PostCode",
+            "properties": [
                 {
-                    "name": "phoneNo",
+                    "name": "code",
                     "type": "String",
                     "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         },
@@ -243,33 +278,63 @@
     ],
     "edge_types": [
         {
-            "name": "CURRENT_ADDRESS",
+            "name": "CALLED",
+            "start_node": "PhoneCall",
+            "end_node": "Phone",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CALLER",
+            "start_node": "PhoneCall",
+            "end_node": "Phone",
+            "properties": [
+                {
+                    "name": "props",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "HAS_CURRENT_ADDRESS",
             "start_node": "Person",
             "end_node": "Location",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "FAMILY_REL",
+            "name": "HAS_FAMILY_RELATIONSHIP",
             "start_node": "Person",
             "end_node": "Person",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "INVOLVED_IN",
-            "start_node": "Object",
-            "end_node": "Crime",
+            "name": "HAS",
+            "start_node": "Person",
+            "end_node": "Email",
+            "properties": []
+        },
+        {
+            "name": "HAS",
+            "start_node": "Person",
+            "end_node": "Phone",
+            "properties": []
+        },
+        {
+            "name": "HAS",
+            "start_node": "Location",
+            "end_node": "PostCode",
+            "properties": []
+        },
+        {
+            "name": "INVESTIGATED_BY",
+            "start_node": "Crime",
+            "end_node": "Officer",
             "properties": [
                 {
                     "name": "props",
@@ -291,9 +356,9 @@
             ]
         },
         {
-            "name": "INVESTIGATED_BY",
-            "start_node": "Crime",
-            "end_node": "Officer",
+            "name": "INVOLVED_IN",
+            "start_node": "Object",
+            "end_node": "Crime",
             "properties": [
                 {
                     "name": "props",
@@ -339,6 +404,12 @@
             ]
         },
         {
+            "name": "LOCATED_IN",
+            "start_node": "Location",
+            "end_node": "AREA",
+            "properties": []
+        },
+        {
             "name": "OCCURRED_AT",
             "start_node": "Crime",
             "end_node": "Location",
@@ -361,6 +432,12 @@
                     "mandatory": true
                 }
             ]
+        },
+        {
+            "name": "LOCATED_IN",
+            "start_node": "PostCode",
+            "end_node": "AREA",
+            "properties": []
         }
     ]
 }

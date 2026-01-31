@@ -7,7 +7,7 @@ import os
 import sqlite3
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 import pandas as pd
 import networkx as nx
@@ -16,19 +16,16 @@ from pg_schema_llm.io.csv_detect import detect_file_role
 from pg_schema_llm.io.csv_normalize import normalize_node_row, normalize_edge_row
 
 
-# ----------------------------
+# ============================================================
 # CSV parsing utilities
-# ----------------------------
+# ============================================================
 
 CSV_SAMPLE_BYTES = 4096
 
 
 def sniff_delimiter(file_path: str, default: str = ",") -> str:
     """
-    Detect delimiter robustly. Handles:
-    - comma separated
-    - pipe separated (common in LDBC exports)
-    - tab / semicolon
+    Detect delimiter robustly.
     """
     try:
         with open(file_path, "r", encoding="utf-8-sig", newline="") as f:
@@ -65,7 +62,7 @@ def normalize_header_columns(cols: Sequence[str]) -> List[str]:
 
 def _read_preview(file_path: str, delim: str) -> pd.DataFrame:
     """
-    Read only headers with consistent parsing options (works for quoted CSV too).
+    Read headers only (robust to quotes).
     """
     df = pd.read_csv(
         file_path,
@@ -74,6 +71,25 @@ def _read_preview(file_path: str, delim: str) -> pd.DataFrame:
         engine="python",
         quotechar='"',
         doublequote=True,
+    )
+    df.columns = normalize_header_columns(df.columns)
+    return df
+
+
+def _read_full_df(file_path: str, delim: str) -> pd.DataFrame:
+    """
+    Full read (legacy graph builder).
+    """
+    df = pd.read_csv(
+        file_path,
+        sep=delim,
+        engine="python",
+        quotechar='"',
+        doublequote=True,
+        dtype=str,
+        keep_default_na=False,
+        na_values=["", "null", "NULL"],
+        on_bad_lines="skip",
     )
     df.columns = normalize_header_columns(df.columns)
     return df
@@ -107,9 +123,9 @@ def _iter_chunks(
         yield chunk
 
 
-# ----------------------------
+# ============================================================
 # Name cleaning utilities
-# ----------------------------
+# ============================================================
 
 def get_common_affixes(filenames: Sequence[str]) -> Tuple[str, str]:
     """
@@ -117,12 +133,9 @@ def get_common_affixes(filenames: Sequence[str]) -> Tuple[str, str]:
     """
     if not filenames:
         return "", ""
-
     prefix = os.path.commonprefix(list(filenames))
-
     rev = [f[::-1] for f in filenames]
-    common_rev = os.path.commonprefix(rev)
-    suffix = common_rev[::-1]
+    suffix = os.path.commonprefix(rev)[::-1]
     return prefix, suffix
 
 
@@ -139,27 +152,24 @@ def clean_name_smart(filename: str, prefix: str, suffix: str) -> str:
     if suffix and base.endswith(suffix):
         base = base[:-len(suffix)]
 
-    base = os.path.splitext(base)[0]
-    base = base.strip("_")
+    base = os.path.splitext(base)[0].strip("_")
 
-    # common structural prefixes (StarWars etc.)
     lower = base.lower()
     if lower.startswith("nodes_"):
         base = base[len("nodes_"):]
     elif lower.startswith("rels_"):
         base = base[len("rels_"):]
-
     return base
 
 
-# --- LEGACY SUPPORT (Fixes ImportError in older modules) ---
+# --- Legacy support ---
 def clean_type_name(filename: str) -> str:
     return os.path.splitext(os.path.basename(filename))[0]
 
 
-# ----------------------------
+# ============================================================
 # JSON props helper (StarWars)
-# ----------------------------
+# ============================================================
 
 def extract_json_keys_sample(series: pd.Series, max_rows: int = 200) -> List[str]:
     """
@@ -178,37 +188,30 @@ def extract_json_keys_sample(series: pd.Series, max_rows: int = 200) -> List[str
     return sorted(keys)
 
 
-# ----------------------------
-# Lightweight type inference for dtype=str
-# ----------------------------
+# ============================================================
+# Lightweight type inference (works with dtype=str)
+# ============================================================
 
-def _infer_simple_kind(v) -> Optional[str]:
-    """
-    For streaming reads we use dtype=str for robustness; infer types from strings.
-    """
+def _infer_simple_kind(v: Any) -> Optional[str]:
     if v is None:
         return None
-
     if isinstance(v, str):
         s = v.strip()
         if s == "":
             return None
         if s.lower() in ("true", "false"):
             return "Boolean"
-        # int
         try:
             int(s)
             return "Long"
         except Exception:
             pass
-        # float
         try:
             float(s)
             return "Double"
         except Exception:
             pass
         return "String"
-
     if isinstance(v, bool):
         return "Boolean"
     if isinstance(v, int):
@@ -226,51 +229,44 @@ def _is_reserved_property(col: str) -> bool:
         return True
     if col.startswith(":"):
         return True
-    # Neo4j helper tokens
     if col in (":START_ID", ":END_ID", ":TYPE", ":LABEL"):
         return True
     return False
 
-import re
-from typing import Optional, Sequence
 
-def resolve_col(actual_cols: Sequence[str], detected: str) -> Optional[str]:
+# ============================================================
+# Column resolution helper
+# ============================================================
+
+def resolve_col(actual_cols: Sequence[str], detected: Optional[str]) -> Optional[str]:
     """
     Map a detected column name to an actual column name in the dataframe.
-
-    Handles:
-    - quoted headers
-    - normalized headers (':ID' -> 'id')
-    - neo4j token columns like ':ID(Body-ID)', ':START_ID(...)', ':END_ID(...)'
-    - generic 'id/source/target' to neo4j forms
+    Handles neo4j forms and common aliases.
     """
     if not detected:
         return None
 
-    # exact
     if detected in actual_cols:
         return detected
 
-    # compare with stripped quotes/backticks and lower
     def norm(x: str) -> str:
         return str(x).strip().strip('"').strip("'").strip("`")
 
     det_n = norm(detected)
     det_l = det_n.lower()
 
-    # 1) try exact after stripping
+    # exact after stripping
     for c in actual_cols:
         if norm(c) == det_n:
             return c
 
-    # 2) case-insensitive match
+    # case-insensitive
     for c in actual_cols:
         if norm(c).lower() == det_l:
             return c
 
-    # 3) special mapping for id / start / end
+    # id special
     if det_l in {"id", "node_id", "nodeid"}:
-        # prefer neo4j :ID(...) or :ID, else a column literally named id
         for c in actual_cols:
             cn = norm(c)
             if cn.startswith(":ID(") or cn == ":ID":
@@ -279,37 +275,81 @@ def resolve_col(actual_cols: Sequence[str], detected: str) -> Optional[str]:
             if norm(c).lower() == "id":
                 return c
 
+    # start/end special
     if det_l in {"source", "src", "from", "start", "start_id", "startid", "u"}:
         for c in actual_cols:
-            cn = norm(c)
-            if cn.startswith(":START_ID"):
+            if norm(c).startswith(":START_ID"):
                 return c
-
     if det_l in {"target", "dst", "to", "end", "end_id", "endid", "v"}:
         for c in actual_cols:
-            cn = norm(c)
-            if cn.startswith(":END_ID"):
+            if norm(c).startswith(":END_ID"):
                 return c
 
-    # 4) last resort: if detected contains 'id', pick the best candidate
+    # last resort: if contains id, prefer :ID(...)
     if "id" in det_l:
-        # prefer :ID(...) first
         for c in actual_cols:
-            cn = norm(c)
-            if cn.startswith(":ID("):
+            if norm(c).startswith(":ID("):
                 return c
 
     return None
 
 
-# ----------------------------
-# Legacy graph builder (NetworkX) - for small datasets only
-# ----------------------------
+# ============================================================
+# File scanning abstraction (single source of truth)
+# ============================================================
+
+@dataclass(frozen=True)
+class DetectedCSV:
+    path: str
+    filename: str
+    delim: str
+    clean_type: str
+    role: str
+    cols: Dict[str, str]
+    preview_cols: List[str]
+
+
+def _list_csv_files(data_folder: str) -> List[str]:
+    return glob.glob(os.path.join(data_folder, "*.csv"))
+
+
+def iter_detected_csvs(data_folder: str) -> Iterator[DetectedCSV]:
+    """
+    Detect role + cols once per file using preview headers.
+    """
+    csv_files = _list_csv_files(data_folder)
+    all_filenames = [os.path.basename(f) for f in csv_files]
+    common_prefix, common_suffix = get_common_affixes(all_filenames)
+
+    for file_path in csv_files:
+        filename = os.path.basename(file_path)
+        delim = sniff_delimiter(file_path)
+        clean_type = clean_name_smart(file_path, common_prefix, common_suffix)
+
+        try:
+            df_preview = _read_preview(file_path, delim)
+        except Exception:
+            continue
+
+        role, cols = detect_file_role(df_preview)
+        yield DetectedCSV(
+            path=file_path,
+            filename=filename,
+            delim=delim,
+            clean_type=clean_type,
+            role=role,
+            cols=cols,
+            preview_cols=list(df_preview.columns),
+        )
+
+
+# ============================================================
+# Legacy graph builder (NetworkX) - small datasets only
+# ============================================================
 
 def build_graph(data_folder: str) -> nx.MultiDiGraph:
     """
     Legacy: materializes full NetworkX MultiDiGraph.
-    Works but not scalable. Kept for compatibility and debugging.
     """
     print(f"--- Building Graph from: {data_folder} ---")
     G = nx.MultiDiGraph()
@@ -318,14 +358,13 @@ def build_graph(data_folder: str) -> nx.MultiDiGraph:
         print(f" Error: Folder '{data_folder}' does not exist.")
         return G
 
-    csv_files = glob.glob(os.path.join(data_folder, "*.csv"))
+    csv_files = _list_csv_files(data_folder)
     if not csv_files:
         print(f" No CSV files found in {data_folder}")
         return G
 
     all_filenames = [os.path.basename(f) for f in csv_files]
     common_prefix, common_suffix = get_common_affixes(all_filenames)
-
     print(f"   [Auto-Cleaner] Detected Common Prefix: '{common_prefix}'")
     print(f"   [Auto-Cleaner] Detected Common Suffix: '{common_suffix}'")
     print(">>> Scanning for Nodes & Edges...")
@@ -334,58 +373,42 @@ def build_graph(data_folder: str) -> nx.MultiDiGraph:
         try:
             clean_type = clean_name_smart(file_path, common_prefix, common_suffix)
             delim = sniff_delimiter(file_path)
+
             df_preview = _read_preview(file_path, delim)
             role, cols = detect_file_role(df_preview)
-            id_col = resolve_col(df_preview.columns, cols["id"])
-            if not id_col:
-                print(f"    [SKIP] Could not resolve node id column for {os.path.basename(file_path)}. detected={cols['id']} cols={list(df_preview.columns)[:6]}")
-                continue
 
             if role == "node":
-                df = pd.read_csv(
-                    file_path,
-                    sep=delim,
-                    engine="python",
-                    quotechar='"',
-                    doublequote=True,
-                    dtype=str,
-                    keep_default_na=False,
-                    na_values=["", "null", "NULL"],
-                    on_bad_lines="skip",
-                )
-                df.columns = normalize_header_columns(df.columns)
+                id_col_prev = resolve_col(df_preview.columns, cols.get("id"))
+                if not id_col_prev:
+                    print(f"    [SKIP] Node {os.path.basename(file_path)}: cannot resolve id. detected={cols.get('id')} cols={list(df_preview.columns)[:8]}")
+                    continue
 
-                id_col = resolve_col(df.columns, cols["id"])
+                df = _read_full_df(file_path, delim)
+                id_col = resolve_col(df.columns, id_col_prev)
                 if not id_col:
-                    print(f"    [SKIP] Node file {os.path.basename(file_path)}: can't resolve id col. detected={cols['id']} cols={list(df.columns)}")
+                    print(f"    [SKIP] Node {os.path.basename(file_path)}: cannot resolve id in full df.")
                     continue
 
                 print(f"   Processing Nodes: {os.path.basename(file_path)} -> '{clean_type}' (id={id_col})")
 
                 for _, row in df.iterrows():
-                    node_id, props = normalize_node_row(row, id_col=id_col_chunk)
+                    node_id, props = normalize_node_row(row.to_dict(), id_col=id_col)
                     if node_id is None:
                         continue
                     G.add_node(node_id, node_type=clean_type, **props)
 
             elif role == "edge":
-                df = pd.read_csv(
-                    file_path,
-                    sep=delim,
-                    engine="python",
-                    quotechar='"',
-                    doublequote=True,
-                    dtype=str,
-                    keep_default_na=False,
-                    na_values=["", "null", "NULL"],
-                    on_bad_lines="skip",
-                )
-                df.columns = normalize_header_columns(df.columns)
+                start_prev = resolve_col(df_preview.columns, cols.get("start"))
+                end_prev = resolve_col(df_preview.columns, cols.get("end"))
+                if not start_prev or not end_prev:
+                    print(f"    [SKIP] Edge {os.path.basename(file_path)}: cannot resolve start/end. detected=({cols.get('start')},{cols.get('end')}) cols={list(df_preview.columns)[:8]}")
+                    continue
 
-                start_col = resolve_col(df.columns, cols["start"])
-                end_col   = resolve_col(df.columns, cols["end"])
+                df = _read_full_df(file_path, delim)
+                start_col = resolve_col(df.columns, start_prev)
+                end_col = resolve_col(df.columns, end_prev)
                 if not start_col or not end_col:
-                    print(f"    [SKIP] Edge file {os.path.basename(file_path)}: can't resolve start/end. detected=({cols['start']},{cols['end']}) cols={list(df.columns)}")
+                    print(f"    [SKIP] Edge {os.path.basename(file_path)}: cannot resolve start/end in full df.")
                     continue
 
                 print(f"   Processing Edges: {os.path.basename(file_path)} -> '{clean_type}' (start={start_col}, end={end_col})")
@@ -400,9 +423,6 @@ def build_graph(data_folder: str) -> nx.MultiDiGraph:
                         G.add_node(v, node_type="Inferred")
                     G.add_edge(u, v, type=clean_type, **props)
 
-
-
-
         except Exception as e:
             print(f"    Error reading {file_path}: {e}")
 
@@ -410,9 +430,9 @@ def build_graph(data_folder: str) -> nx.MultiDiGraph:
     return G
 
 
-# ----------------------------
+# ============================================================
 # SQLite KV store for id -> node_type
-# ----------------------------
+# ============================================================
 
 def _sqlite_kv_open(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
@@ -452,9 +472,9 @@ def _sqlite_kv_get_many(conn: sqlite3.Connection, ids: List[str]) -> Dict[str, s
     return out
 
 
-# ----------------------------
+# ============================================================
 # Streaming TypeStats builder (scalable)
-# ----------------------------
+# ============================================================
 
 def build_typestats(
     data_folder: str,
@@ -477,7 +497,7 @@ def build_typestats(
         print(f" Error: Folder '{data_folder}' does not exist.")
         return {"node_types": {}, "edge_types": {}}
 
-    csv_files = glob.glob(os.path.join(data_folder, "*.csv"))
+    csv_files = _list_csv_files(data_folder)
     if not csv_files:
         print(f" No CSV files found in {data_folder}")
         return {"node_types": {}, "edge_types": {}}
@@ -497,11 +517,11 @@ def build_typestats(
     # PASS 1: NODES
     # -------------------------
     print(">>> PASS 1: Nodes (build id -> type map + node stats)")
+
     for file_path in csv_files:
         clean_type = clean_name_smart(file_path, common_prefix, common_suffix)
         delim = sniff_delimiter(file_path)
 
-        # preview header
         try:
             df_preview = _read_preview(file_path, delim)
         except Exception as e:
@@ -512,23 +532,12 @@ def build_typestats(
         if role != "node":
             continue
 
-        id_col = resolve_col(df_preview.columns, cols.get("id"))
-        if not id_col:
-            print(
-                f"    [SKIP] Could not resolve node id column for {os.path.basename(file_path)}. "
-                f"detected={cols.get('id')} cols={list(df_preview.columns)}"
-            )
+        id_col_preview = resolve_col(df_preview.columns, cols.get("id"))
+        if not id_col_preview:
+            print(f"    [SKIP] Node {os.path.basename(file_path)}: cannot resolve id. detected={cols.get('id')} cols={list(df_preview.columns)}")
             continue
 
-
-
-        # df_preview columns are already normalized; resolve against preview columns
-        id_col = resolve_col(df_preview.columns, cols["id"])
-        if not id_col:
-            print(f"    [SKIP] Could not resolve node id column in preview for {os.path.basename(file_path)}. detected={cols['id']} cols={list(df_preview.columns)}")
-            continue
-
-        print(f"   Nodes: {os.path.basename(file_path)} -> '{clean_type}' (id_col={id_col})")
+        print(f"   Nodes: {os.path.basename(file_path)} -> '{clean_type}' (id_col={id_col_preview})")
 
         st = node_stats.setdefault(clean_type, {
             "count": 0,
@@ -539,29 +548,34 @@ def build_typestats(
 
         try:
             for chunk in _iter_chunks(file_path, delim, chunksize):
-                id_col_chunk = resolve_col(chunk.columns, id_col)
-                if not id_col_chunk:
+                id_col = resolve_col(chunk.columns, id_col_preview)
+                if not id_col:
                     continue
 
-                chunk[id_col_chunk] = chunk[id_col_chunk].astype(str)
-                rows = list(zip(chunk[id_col_chunk].tolist(), [clean_type] * len(chunk)))
-                
-            
+                # Update id -> type map in SQLite
+                chunk[id_col] = chunk[id_col].astype(str)
+                rows = list(zip(chunk[id_col].tolist(), [clean_type] * len(chunk)))
                 _sqlite_kv_put_many(conn, rows)
 
-                st["count"] += len(chunk)
+            st["count"] += len(chunk)
 
+            # ------------------------------------------------------------
+            # PATH A: Fast column-based stats (no per-row normalize)
+            # Fallback to per-row only when JSON blob column exists.
+            # ------------------------------------------------------------
+
+            # If StarWars-like JSON blob exists, we must fall back to per-row normalize
+            # (this is Path B, but only triggered when necessary).
+            if "props" in chunk.columns:
                 for row in chunk.to_dict(orient="records"):
-                    node_id, props = normalize_node_row(row, id_col=id_col_chunk)
+                    node_id, props = normalize_node_row(row, id_col=id_col)
                     if node_id is None:
                         continue
 
                     for prop, value in props.items():
-                    
-
                         if not prop:
                             continue
-                        if prop.lower() in ("id",):
+                        if prop.lower() == "id":
                             continue
                         if _is_reserved_property(prop):
                             continue
@@ -571,23 +585,63 @@ def build_typestats(
                         if kind:
                             st["prop_kind"][(prop, kind)] += 1
 
-
-                        # samples (optional)
                         if sample_values_per_prop > 0:
                             lst = st["prop_samples"][prop]
                             if len(lst) < sample_values_per_prop:
-                                s = str(value)
+                                s = str(value).strip()
                                 if s:
                                     lst.append(s[:80])
 
-                # StarWars: expand JSON blob column "props" into pseudo-properties
-                if "props" in chunk.columns:
-                    keys = extract_json_keys_sample(chunk["props"])
-                    if keys:
-                        # presence signal only (cheap)
-                        for k in keys:
-                            st["prop_fill"][k] += 1
-                            st["prop_kind"][(k, "String")] += 1
+                # presence-only extra keys
+                keys = extract_json_keys_sample(chunk["props"])
+                for k in keys:
+                    st["prop_fill"][k] += 1
+                    st["prop_kind"][(k, "String")] += 1
+
+            else:
+                # -------- PATH A (fast) --------
+                # Count fills per column without normalizing each row.
+                for col in chunk.columns:
+                    if col == id_col:
+                        continue
+                    if not col:
+                        continue
+                    if col.lower() == "id":
+                        continue
+                    if _is_reserved_property(col):
+                        continue
+
+                    s = chunk[col]
+
+                    # Treat blanks as missing (because keep_default_na=False makes many missings "")
+                    # We count non-empty strings as present.
+                    nonblank = s.astype(str).str.strip()
+                    mask = nonblank.ne("")  # != ""
+
+                    nn = int(mask.sum())
+                    if nn <= 0:
+                        continue
+
+                    st["prop_fill"][col] += nn
+
+                    # Kind inference: sample up to 200 nonblank values to estimate types
+                    sample_vals = nonblank[mask].head(200).tolist()
+                    for v in sample_vals:
+                        kind = _infer_simple_kind(v)
+                        if kind:
+                            st["prop_kind"][(col, kind)] += 1
+
+                    # Samples (optional)
+                    if sample_values_per_prop > 0:
+                        lst = st["prop_samples"][col]
+                        if len(lst) < sample_values_per_prop:
+                            for v in nonblank[mask].head(sample_values_per_prop).tolist():
+                                if len(lst) >= sample_values_per_prop:
+                                    break
+                                vv = str(v).strip()
+                                if vv:
+                                    lst.append(vv[:80])
+
 
             conn.commit()
         except Exception as e:
@@ -597,6 +651,7 @@ def build_typestats(
     # PASS 2: EDGES
     # -------------------------
     print(">>> PASS 2: Edges (topology + edge stats using SQLite id->type)")
+
     for file_path in csv_files:
         clean_type = clean_name_smart(file_path, common_prefix, common_suffix)
         delim = sniff_delimiter(file_path)
@@ -611,23 +666,13 @@ def build_typestats(
         if role != "edge":
             continue
 
-        start_col = resolve_col(df_preview.columns, cols.get("start"))
-        end_col   = resolve_col(df_preview.columns, cols.get("end"))
-        if not start_col or not end_col:
-            print(
-                f"    [SKIP] Could not resolve edge columns for {os.path.basename(file_path)}. "
-                f"detected=({cols.get('start')},{cols.get('end')}) cols={list(df_preview.columns)}"
-            )
+        start_preview = resolve_col(df_preview.columns, cols.get("start"))
+        end_preview = resolve_col(df_preview.columns, cols.get("end"))
+        if not start_preview or not end_preview:
+            print(f"    [SKIP] Edge {os.path.basename(file_path)}: cannot resolve start/end. detected=({cols.get('start')},{cols.get('end')}) cols={list(df_preview.columns)}")
             continue
 
-
-
-        start_col = resolve_col(df_preview.columns, cols["start"])
-        end_col   = resolve_col(df_preview.columns, cols["end"])
-        if not start_col or not end_col:
-            print(f"    [SKIP] Could not resolve edge columns in preview for {os.path.basename(file_path)}. detected=({cols['start']},{cols['end']}) cols={list(df_preview.columns)}")
-            continue
-        print(f"   Edges: {os.path.basename(file_path)} -> '{clean_type}' (start={start_col}, end={end_col})")
+        print(f"   Edges: {os.path.basename(file_path)} -> '{clean_type}' (start={start_preview}, end={end_preview})")
 
         st = edge_stats.setdefault(clean_type, {
             "count": 0,
@@ -639,19 +684,16 @@ def build_typestats(
 
         try:
             for chunk in _iter_chunks(file_path, delim, chunksize):
-                start_c = resolve_col(chunk.columns, start_col)
-                end_c   = resolve_col(chunk.columns, end_col)
-                if not start_c or not end_c:
+                start_col = resolve_col(chunk.columns, start_preview)
+                end_col = resolve_col(chunk.columns, end_preview)
+                if not start_col or not end_col:
                     continue
-
-                chunk[start_c] = chunk[start_c].astype(str)
-                chunk[end_c]   = chunk[end_c].astype(str)
 
                 st["count"] += len(chunk)
 
-                # edge props: skip start_c/end_c
+                # edge properties per column
                 for col in chunk.columns:
-                    if col in (start_c, end_c):
+                    if col in (start_col, end_col):
                         continue
                     if _is_reserved_property(col):
                         continue
@@ -670,11 +712,13 @@ def build_typestats(
                         if kind:
                             st["prop_kind"][(col, kind)] += 1
 
-                # topology mapping using SQLite
-                ids = list(set(chunk[start_c].tolist() + chunk[end_c].tolist()))
+                # topology via sqlite id->type
+                start_vals = chunk[start_col].astype(str).tolist()
+                end_vals = chunk[end_col].astype(str).tolist()
+                ids = list(set(start_vals + end_vals))
                 id2type = _sqlite_kv_get_many(conn, ids)
 
-                for u, v in zip(chunk[start_c].tolist(), chunk[end_c].tolist()):
+                for u, v in zip(start_vals, end_vals):
                     su = id2type.get(u, "Inferred")
                     sv = id2type.get(v, "Inferred")
                     st["topology"][(su, sv)] += 1

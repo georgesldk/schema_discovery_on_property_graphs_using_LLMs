@@ -35,17 +35,17 @@
                 },
                 {
                     "name": "instance",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "type",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
                     "name": "primaryNeurite",
-                    "type": "String",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -64,26 +64,25 @@
                     "mandatory": true
                 },
                 {
+                    "name": "roiInfo",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
                     "name": "distal",
                     "type": "Boolean",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
-                },
-                {
-                    "name": "proximal",
-                    "type": "String",
-                    "mandatory": false
-                },
-                {
-                    "name": "distal",
-                    "type": "String",
-                    "mandatory": false
                 }
             ]
+        },
+        {
+            "name": "ROIs",
+            "properties": []
         },
         {
             "name": "SynapseSet",
@@ -104,12 +103,12 @@
                 },
                 {
                     "name": "location",
-                    "type": "Point",
+                    "type": "String",
                     "mandatory": true
                 },
                 {
                     "name": "distal",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -144,32 +143,16 @@
             ]
         },
         {
-            "name": "FORMS_SYNAPSE_SET",
+            "name": "HAS",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "CONNECTS",
+            "name": "LINKS",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "CONTAINS",
