@@ -8,7 +8,9 @@ from typing import Any, Dict, Optional
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-from pg_schema_llm.io import build_typestats
+# UPDATED: explicit import from new io layout
+from pg_schema_llm.io.typestats import build_typestats
+
 from pg_schema_llm.llm import build_inference_prompt
 from pg_schema_llm.schema import typestats_from_dict
 from pg_schema_llm.profiling import (

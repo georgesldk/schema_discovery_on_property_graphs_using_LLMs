@@ -50,7 +50,7 @@
                 },
                 {
                     "name": "somaLocation",
-                    "type": "Point",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -108,12 +108,12 @@
                 },
                 {
                     "name": "distal",
-                    "type": "Double",
+                    "type": "Boolean",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 }
             ]
@@ -143,7 +143,7 @@
             ]
         },
         {
-            "name": "HAS",
+            "name": "ASSOCIATES_WITH",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []

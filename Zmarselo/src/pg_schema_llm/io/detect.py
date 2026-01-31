@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Any, Dict, List, Tuple
 
 
 _EDGE_START_ALIASES = {"source", "src", "from", "start", "start_id", "startid", "u"}
-_EDGE_END_ALIASES   = {"target", "dst", "to", "end", "end_id", "endid", "v"}
+_EDGE_END_ALIASES = {"target", "dst", "to", "end", "end_id", "endid", "v"}
 
 _NODE_ID_ALIASES = {"id", "node_id", "nodeid"}
 
@@ -31,7 +31,7 @@ def detect_file_role(df) -> Tuple[str, Dict[str, str]]:
     # ---------- EDGE detection ----------
     # 1) Neo4j headers (:START_ID..., :END_ID...)
     start_col = next((c for c in cols if c.startswith(":START_ID")), None)
-    end_col   = next((c for c in cols if c.startswith(":END_ID")), None)
+    end_col = next((c for c in cols if c.startswith(":END_ID")), None)
 
     # 2) common generic headers (source/target variants)
     if not start_col:

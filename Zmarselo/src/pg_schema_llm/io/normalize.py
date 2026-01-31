@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
 
 
 def _is_blank(v: Any) -> bool:
@@ -61,7 +61,7 @@ def normalize_node_row(row: Dict[str, Any], id_col: str) -> Tuple[Optional[str],
 def normalize_edge_row(
     row: Dict[str, Any],
     start_col: str,
-    end_col: str
+    end_col: str,
 ) -> Tuple[Optional[str], Optional[str], Dict[str, Any]]:
     """
     Returns:
