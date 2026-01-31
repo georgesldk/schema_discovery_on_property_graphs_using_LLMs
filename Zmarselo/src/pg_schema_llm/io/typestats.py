@@ -491,6 +491,31 @@ def build_typestats(
                         if kind:
                             st["prop_kind"][(col, kind)] += 1
 
+###################################################################################
+                if "props" in chunk.columns:
+        
+                    for val in chunk["props"].dropna():
+                        if not isinstance(val, str) or not val.strip():
+                            continue
+                        try:
+                            # Fast parse
+                            obj = json.loads(val)
+                            if isinstance(obj, dict):
+                                for k, v in obj.items():
+                                    if not k or _is_reserved_property(k): 
+                                        continue
+                                    
+                                    st["prop_keys"].add(k)
+                                    st["prop_fill"][k] += 1
+                                    
+                                    k_type = _infer_simple_kind(v)
+                                    if k_type:
+                                        st["prop_kind"][(k, k_type)] += 1
+                        except Exception:
+                            continue
+
+###############################################################################
+
                 # topology via sqlite id->type
                 start_vals = chunk[start_col].astype(str).tolist()
                 end_vals = chunk[end_col].astype(str).tolist()
