@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,55 +8,47 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1>🔍 Schema Discovery</h1>
-            <p class="subtitle">LLM-Powered Property Graph Schema Inference</p>
+            <div class="header-brand">
+                <h1>Schema Discovery</h1>
+                <span class="subtitle">Property Graph Schema Inference</span>
+            </div>
         </header>
 
         <div class="main-content">
-            <!-- Mode Selection -->
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="mode-selector">
-                    <button class="mode-btn active" id="pocModeBtn" data-mode="proof_of_concept">
-                        🧪 Proof of Concept
-                    </button>
-                    <button class="mode-btn" id="newDatasetModeBtn" data-mode="new_dataset">
-                        📁 New Dataset
-                    </button>
-                </div>
-            </div>
-
-            <!-- Proof of Concept Mode -->
+            <!-- Dataset Selection -->
             <div class="card" id="pocCard">
-                <h2>Proof of Concept Mode</h2>
-                <p class="description">Select a dataset to run schema discovery and compare with ground truth. This mode includes full comparison metrics and validation.</p>
-                
-                <div id="datasetSelector" style="margin-top: 20px;">
-                    <label for="datasetSelect" style="display: block; margin-bottom: 10px; font-weight: 600;">Select Dataset:</label>
-                    <select id="datasetSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); font-size: 1rem;">
-                        <option value="">Loading datasets...</option>
-                    </select>
-                    <div id="datasetDescription" style="margin-top: 12px; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; color: var(--text-secondary); display: none;"></div>
+                <div id="datasetSelector" class="dataset-selector">
+                    <div class="dataset-field">
+                        <label for="datasetSelect">Dataset</label>
+                        <select id="datasetSelect">
+                            <option value="">Select a dataset...</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="processDatasetBtn" disabled>
+                        Run Inference
+                    </button>
                 </div>
-                
-                <button type="button" class="btn btn-primary" id="processDatasetBtn" style="margin-top: 20px; width: 100%;" disabled>
-                    <span>Infer Schema</span>
-                </button>
+                <div id="datasetDescription" class="dataset-description"></div>
             </div>
 
             <!-- New Dataset Mode (Upload Section) -->
             <div class="card hidden" id="uploadCard">
                 <h2>New Dataset Mode</h2>
-                <p class="description">Upload your CSV files containing node and edge data. The system will automatically detect node types, edge types, and properties.</p>
-                <p class="description" style="color: var(--primary-color); font-weight: 600; margin-top: -10px;">⚠️ IMPORTANT: Select ALL your CSV files at once (hold Ctrl/Cmd and click each file)</p>
-                
+                <p class="description">Upload your CSV files containing node and edge data. The system will
+                    automatically detect node types, edge types, and properties.</p>
+                <p class="description hint-important">Select all your CSV files at once (hold Ctrl/Cmd and click each
+                    file)</p>
+
                 <form id="uploadForm" enctype="multipart/form-data">
                     <div class="upload-area" id="uploadArea">
                         <input type="file" id="fileInput" name="files[]" multiple accept=".csv" required>
                         <div class="upload-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="17 8 12 3 7 8"></polyline>
                                 <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -66,7 +59,7 @@
                         <div class="file-list" id="fileList"></div>
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <span>Start Schema Discovery</span>
+                        Start Schema Discovery
                     </button>
                 </form>
             </div>
@@ -81,29 +74,16 @@
                     <p class="progress-text" id="progressText">Initializing...</p>
                 </div>
                 <div class="status-message" id="statusMessage"></div>
-                
+
                 <!-- Console Output -->
-                <div style="margin-top: 20px;">
-                    <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--text-primary);">Console Output:</h3>
-                    <div id="consoleOutput" style="
-                        background: #1e1e1e;
-                        color: #d4d4d4;
-                        font-family: 'Courier New', monospace;
-                        font-size: 0.9rem;
-                        padding: 15px;
-                        border-radius: 8px;
-                        max-height: 400px;
-                        overflow-y: auto;
-                        white-space: pre-wrap;
-                        word-wrap: break-word;
-                        border: 1px solid var(--border-color);
-                    "></div>
+                <div class="console-section">
+                    <h3>Console Output</h3>
+                    <div id="consoleOutput"></div>
                 </div>
-                
-                <!-- View Results Button (shown when completed) -->
-                <div id="viewResultsContainer" style="margin-top: 20px; display: none;">
-                    <button type="button" class="btn btn-primary" id="viewResultsBtn" style="width: 100%;">
-                        <span>View Results</span>
+
+                <div id="viewResultsContainer" class="view-results-container">
+                    <button type="button" class="btn btn-primary" id="viewResultsBtn">
+                        View Results
                     </button>
                 </div>
             </div>
@@ -111,32 +91,26 @@
             <!-- Results Section -->
             <div class="card hidden" id="resultsCard">
                 <h2>Inferred Schema</h2>
-                <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary" id="backToConsoleBtn" title="Back to Console">
-                            ← Back to Console
-                        </button>
-                        <button class="btn btn-secondary" id="downloadBtn">Download JSON</button>
-                        <button class="btn btn-primary" id="compareBtn" style="display: none;">Compare with GT</button>
+                <div class="results-header">
+                    <div class="results-actions">
+                        <button class="btn btn-secondary" id="backToConsoleBtn">Back</button>
+                        <button class="btn btn-secondary" id="downloadBtn">Download</button>
+                        <button class="btn btn-primary" id="compareBtn">Compare</button>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary" id="prevTabBtn" style="display: none;" title="Previous Tab">
-                            ←
-                        </button>
-                        <button class="btn btn-secondary" id="nextTabBtn" style="display: none;" title="Next Tab">
-                            →
-                        </button>
-                        <button class="btn btn-secondary" id="newAnalysisBtn">New Analysis</button>
+                    <div class="results-nav">
+                        <button class="btn btn-secondary" id="prevTabBtn">←</button>
+                        <button class="btn btn-secondary" id="nextTabBtn">→</button>
+                        <button class="btn btn-secondary" id="newAnalysisBtn">New</button>
                     </div>
                 </div>
-                
+
                 <!-- Tab Navigation -->
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="schema">Schema View</button>
                     <button class="tab-btn" data-tab="graph">Graph Visualization</button>
                     <button class="tab-btn" data-tab="comparison">Algorithm Validation</button>
                 </div>
-                
+
                 <!-- Schema Tab Content -->
                 <div class="tab-content active" id="schemaTab">
                     <div class="schema-viewer">
@@ -150,66 +124,40 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Graph Tab Content -->
                 <div class="tab-content hidden" id="graphTab">
-                    <div class="graph-container">
-                        <div id="graphNetwork"></div>
-                        <div class="graph-legend">
-                            <div class="legend-item">
-                                <div class="legend-node node-legend"></div>
-                                <span>Node Types</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-edge edge-legend"></div>
-                                <span>Edge Types</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="graphNetwork"></div>
                 </div>
-                
+
                 <!-- Comparison Tab Content -->
                 <div class="tab-content hidden" id="comparisonTab">
-                    <div id="compareNotRun" style="text-align: center; padding: 40px;">
-                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Click "Compare with GT" button to run comparison</p>
+                    <div id="compareNotRun" class="compare-prompt">
+                        <p>Click Compare to run comparison with ground truth</p>
                     </div>
-                    
-                    <div id="compareRunning" style="display: none;">
-                        <h3>Running Comparison...</h3>
-                        <div id="compareConsoleOutput" style="
-                            background: #1e1e1e;
-                            color: #d4d4d4;
-                            font-family: 'Courier New', monospace;
-                            font-size: 0.9rem;
-                            padding: 15px;
-                            border-radius: 8px;
-                            max-height: 400px;
-                            overflow-y: auto;
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                            border: 1px solid var(--border-color);
-                            margin-top: 20px;
-                        "></div>
+
+                    <div id="compareRunning" class="compare-running">
+                        <h3>Running Comparison</h3>
+                        <div id="compareConsoleOutput"></div>
                     </div>
-                    
-                    <div id="compareResults" style="display: none;">
+
+                    <div id="compareResults" class="compare-results">
                         <div class="comparison-header">
-                            <h3>Algorithm Performance: Inferred vs Ground Truth</h3>
+                            <h3>Algorithm Performance</h3>
                             <div class="comparison-metrics" id="comparisonMetrics"></div>
                         </div>
-                        
-                        <!-- Comparison Tables -->
-                        <div id="compareTables" style="margin-top: 30px;"></div>
-                        
+
+                        <div id="compareTables" class="compare-tables"></div>
+
                         <div class="comparison-graphs">
                             <div class="comparison-graph-panel">
-                                <h4>🔮 Inferred Schema (Your Algorithm)</h4>
+                                <h4>Inferred Schema</h4>
                                 <div class="graph-container-small">
                                     <div id="inferredGraphNetwork"></div>
                                 </div>
                             </div>
                             <div class="comparison-graph-panel">
-                                <h4>✅ Ground Truth Schema</h4>
+                                <h4>Ground Truth</h4>
                                 <div class="graph-container-small">
                                     <div id="groundTruthGraphNetwork"></div>
                                 </div>
@@ -235,5 +183,5 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
-</html>
 
+</html>

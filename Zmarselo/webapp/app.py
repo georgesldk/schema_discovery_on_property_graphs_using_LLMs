@@ -556,7 +556,7 @@ def get_status(job_id):
         'status': job['status'],
         'message': job.get('message', ''),
         'progress': job.get('progress', 0),
-        'mode': job.get('mode', 'new_dataset'),  # Include mode information
+        'mode': job.get('mode', 'proof_of_concept'),  # Include mode information
         'dataset_id': job.get('dataset_id'),  # Include dataset_id for POC mode
         'console_output': job.get('console_output', [])  # Include console output
     }

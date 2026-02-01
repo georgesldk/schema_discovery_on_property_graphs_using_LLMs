@@ -15,3 +15,5 @@ gt_data_mb6/
 gt_data_pole/
 gt_data_starwars/
 gt_data_fib25/
+
+.agent/
