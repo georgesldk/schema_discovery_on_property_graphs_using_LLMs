@@ -433,19 +433,19 @@
             "properties": []
         },
         {
-            "name": "HAS_HOMEWORLD",
+            "name": "BELONGS_TO",
             "start_node": "Character",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "HAS_HOMEWORLD",
+            "name": "BELONGS_TO",
             "start_node": "Species",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "BELONGS_TO",
+            "name": "IS_A",
             "start_node": "Character",
             "end_node": "Species",
             "properties": []

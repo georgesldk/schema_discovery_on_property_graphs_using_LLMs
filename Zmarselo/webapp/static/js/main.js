@@ -15,7 +15,10 @@ const STATE_KEYS = {
     SCHEMA: 'schemaDiscovery_currentSchema',
     GROUND_TRUTH: 'schemaDiscovery_groundTruthSchema',
     DATASET_ID: 'schemaDiscovery_datasetId',
-    COMPARISON_RESULTS: 'schemaDiscovery_comparisonResults'
+    COMPARISON_RESULTS: 'schemaDiscovery_comparisonResults',
+    JOB_ID: 'schemaDiscovery_currentJobId',
+    COMPARE_JOB_ID: 'schemaDiscovery_currentCompareJobId',
+    MODE: 'schemaDiscovery_currentMode'
 };
 
 // Save state to sessionStorage
@@ -30,6 +33,15 @@ function saveState() {
         if (currentDatasetId) {
             sessionStorage.setItem(STATE_KEYS.DATASET_ID, currentDatasetId);
         }
+        if (currentJobId) {
+            sessionStorage.setItem(STATE_KEYS.JOB_ID, currentJobId);
+        }
+        if (currentCompareJobId) {
+            sessionStorage.setItem(STATE_KEYS.COMPARE_JOB_ID, currentCompareJobId);
+        }
+        if (currentMode) {
+            sessionStorage.setItem(STATE_KEYS.MODE, currentMode);
+        }
     } catch (e) {
         console.warn('Failed to save state:', e);
     }
@@ -41,6 +53,9 @@ function restoreState() {
         const savedSchema = sessionStorage.getItem(STATE_KEYS.SCHEMA);
         const savedGroundTruth = sessionStorage.getItem(STATE_KEYS.GROUND_TRUTH);
         const savedDatasetId = sessionStorage.getItem(STATE_KEYS.DATASET_ID);
+        const savedJobId = sessionStorage.getItem(STATE_KEYS.JOB_ID);
+        const savedCompareJobId = sessionStorage.getItem(STATE_KEYS.COMPARE_JOB_ID);
+        const savedMode = sessionStorage.getItem(STATE_KEYS.MODE);
 
         if (savedSchema) {
             currentSchema = JSON.parse(savedSchema);
@@ -50,6 +65,15 @@ function restoreState() {
         }
         if (savedDatasetId) {
             currentDatasetId = savedDatasetId;
+        }
+        if (savedJobId) {
+            currentJobId = savedJobId;
+        }
+        if (savedCompareJobId) {
+            currentCompareJobId = savedCompareJobId;
+        }
+        if (savedMode) {
+            currentMode = savedMode;
         }
 
         return !!savedSchema; // Return true if we have a schema to restore
@@ -133,7 +157,10 @@ function startCompareStatusCheck() {
             if (data.status === 'completed' || data.status === 'error') {
                 clearInterval(compareStatusCheckInterval);
 
-                if (data.status === 'completed') {
+                // Check if it's actually a note, not a real error
+                const isNoteNotError = data.message && data.message.includes('[ NOTE ]');
+
+                if (data.status === 'completed' || isNoteNotError) {
                     document.getElementById('compareRunning').style.display = 'none';
                     document.getElementById('compareResults').style.display = 'block';
                     displayCompareResults(data);
@@ -147,7 +174,7 @@ function startCompareStatusCheck() {
     }, 2000);
 }
 
-function displayCompareResults(data) {
+async function displayCompareResults(data) {
     const results = data.compare_results || {};
     const consoleOutput = data.console_output || [];
 
@@ -194,6 +221,23 @@ function displayCompareResults(data) {
             );
             tablesDiv.appendChild(edgesTable);
         }
+    }
+
+    // NEW: Fetch ground truth if missing and render graphs
+    if (!groundTruthSchema && currentDatasetId) {
+        try {
+            const response = await fetch(`/ground-truth/${currentDatasetId}`);
+            if (response.ok) {
+                groundTruthSchema = await response.json();
+                saveState();
+            }
+        } catch (e) {
+            console.error('Failed to fetch ground truth for rendering:', e);
+        }
+    }
+
+    if (groundTruthSchema) {
+        renderComparisonGraphs();
     }
 }
 
@@ -398,6 +442,7 @@ function showResults(schema) {
 
                 // Store compare job ID and show comparison tab
                 currentCompareJobId = data.job_id;
+                saveState();
                 switchTab('comparison');
                 startCompareStatusCheck();
             } catch (error) {
@@ -596,7 +641,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Try to restore previous state
     const hasState = restoreState();
-    if (hasState && currentSchema) {
+    if (hasState) {
         // Restore the dataset selection if available
         if (currentDatasetId) {
             const select = document.getElementById('datasetSelect');
@@ -605,20 +650,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // Show results page with restored schema
-        document.getElementById('pocCard').classList.add('hidden');
-        document.getElementById('progressCard').classList.add('hidden');
-        document.getElementById('resultsCard').classList.remove('hidden');
+        if (currentSchema) {
+            // Show results page with restored schema
+            document.getElementById('pocCard').classList.add('hidden');
+            document.getElementById('progressCard').classList.add('hidden');
+            document.getElementById('resultsCard').classList.remove('hidden');
 
-        // Display the restored schema
-        displaySchema(currentSchema);
+            // Display the restored schema - FIX: Use renderSchema instead of displaySchema
+            renderSchema(currentSchema);
 
-        // If we have ground truth, also restore comparison
-        if (groundTruthSchema) {
-            document.getElementById('compareNotRun').classList.add('hidden');
-            document.getElementById('compareResults').style.display = 'block';
-            renderComparisonGraphs();
-            calculateComparisonMetrics();
+            // Setup download button
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn && currentJobId) {
+                downloadBtn.onclick = () => {
+                    window.location.href = `/download/${currentJobId}`;
+                };
+            }
+
+            // Setup compare button
+            const compareBtn = document.getElementById('compareBtn');
+            if (compareBtn && currentDatasetId) {
+                compareBtn.style.display = '';
+                // Setup onclick handler
+                compareBtn.onclick = async () => {
+                    compareBtn.disabled = true;
+                    compareBtn.innerHTML = 'Comparing...';
+                    try {
+                        const response = await fetch(`/compare-dataset/${currentDatasetId}`, {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'Failed to start comparison');
+                        currentCompareJobId = data.job_id;
+                        saveState();
+                        switchTab('comparison');
+                        startCompareStatusCheck();
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                        compareBtn.disabled = false;
+                        compareBtn.innerHTML = 'Compare with GT';
+                    }
+                };
+            }
+
+            // If we have ground truth, also restore comparison
+            if (groundTruthSchema) {
+                document.getElementById('compareNotRun').classList.add('hidden');
+                document.getElementById('compareResults').style.display = 'block';
+
+                // Show/hide comparison tab button
+                const comparisonTabBtn = document.querySelector('[data-tab="comparison"]');
+                if (comparisonTabBtn) {
+                    comparisonTabBtn.style.display = '';
+                }
+
+                renderComparisonGraphs();
+                calculateComparisonMetrics();
+            } else if (currentCompareJobId) {
+                // If comparison was in progress, resume checking
+                switchTab('comparison');
+                startCompareStatusCheck();
+            }
+        } else if (currentJobId) {
+            // If a main job was in progress, resume checking
+            showProgress();
+            startStatusCheck();
         }
     }
 });
@@ -699,6 +795,7 @@ document.getElementById('processDatasetBtn').addEventListener('click', async () 
         }
 
         currentJobId = data.job_id;
+        saveState();
         showProgress();
         startStatusCheck();
     } catch (error) {
