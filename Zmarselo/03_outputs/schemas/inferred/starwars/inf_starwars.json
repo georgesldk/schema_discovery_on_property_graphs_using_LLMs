@@ -406,121 +406,61 @@
             "name": "APPEARED_IN",
             "start_node": "Character",
             "end_node": "Film",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "APPEARED_IN",
             "start_node": "Species",
             "end_node": "Film",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "APPEARED_IN",
             "start_node": "Starship",
             "end_node": "Film",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "APPEARED_IN",
             "start_node": "Vehicle",
             "end_node": "Film",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "APPEARED_IN",
             "start_node": "Planet",
             "end_node": "Film",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "HOMEWORLD",
             "start_node": "Character",
             "end_node": "Planet",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "HOMEWORLD",
             "start_node": "Species",
             "end_node": "Planet",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "OF",
             "start_node": "Character",
             "end_node": "Species",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "PILOT",
             "start_node": "Character",
             "end_node": "Starship",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
             "name": "PILOT",
             "start_node": "Character",
             "end_node": "Vehicle",
-            "properties": [
-                {
-                    "name": "props",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         }
     ]
 }

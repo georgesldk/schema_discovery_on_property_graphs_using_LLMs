@@ -1,5 +1,7 @@
 let currentJobId = null;
 let statusCheckInterval = null;
+let compareStatusCheckInterval = null;
+let currentCompareJobId = null;
 let graphNetwork = null;
 let currentSchema = null;
 let inferredGraphNetwork = null;
@@ -150,7 +152,8 @@ function startStatusCheck() {
                 clearInterval(statusCheckInterval);
                 
                 if (data.status === 'completed') {
-                    showResults(data.result);
+                    // Don't auto-redirect, show "View Results" button instead
+                    showCompletionButton(data);
                 } else {
                     showError(data.message || 'An error occurred');
                 }
@@ -161,14 +164,234 @@ function startStatusCheck() {
     }, 2000); // Check every 2 seconds
 }
 
+function startCompareStatusCheck() {
+    if (compareStatusCheckInterval) {
+        clearInterval(compareStatusCheckInterval);
+    }
+    
+    document.getElementById('compareNotRun').style.display = 'none';
+    document.getElementById('compareRunning').style.display = 'block';
+    document.getElementById('compareResults').style.display = 'none';
+    
+    compareStatusCheckInterval = setInterval(async () => {
+        if (!currentCompareJobId) return;
+        
+        try {
+            const response = await fetch(`/status/${currentCompareJobId}`);
+            const data = await response.json();
+            
+            // Update console output
+            const consoleOutput = document.getElementById('compareConsoleOutput');
+            if (consoleOutput && data.console_output && Array.isArray(data.console_output)) {
+                consoleOutput.textContent = data.console_output.join('\n');
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+            
+            if (data.status === 'completed' || data.status === 'error') {
+                clearInterval(compareStatusCheckInterval);
+                
+                if (data.status === 'completed') {
+                    document.getElementById('compareRunning').style.display = 'none';
+                    document.getElementById('compareResults').style.display = 'block';
+                    displayCompareResults(data);
+                } else {
+                    alert('Comparison failed: ' + (data.message || 'Unknown error'));
+                }
+            }
+        } catch (error) {
+            console.error('Compare status check error:', error);
+        }
+    }, 2000);
+}
+
+function displayCompareResults(data) {
+    const results = data.compare_results || {};
+    const consoleOutput = data.console_output || [];
+    
+    // Display scores
+    const metricsDiv = document.getElementById('comparisonMetrics');
+    if (metricsDiv && results.scores) {
+        metricsDiv.innerHTML = '';
+        for (const [metric, value] of Object.entries(results.scores)) {
+            const metricItem = document.createElement('div');
+            metricItem.className = 'metric-item';
+            metricItem.innerHTML = `
+                <span class="metric-label">${metric}</span>
+                <span class="metric-value">${value}</span>
+            `;
+            metricsDiv.appendChild(metricItem);
+        }
+    }
+    
+    // Display tables
+    const tablesDiv = document.getElementById('compareTables');
+    if (tablesDiv) {
+        tablesDiv.innerHTML = '';
+        
+        // Nodes table
+        if (results.nodes) {
+            const nodesTable = createComparisonTable(
+                'Nodes Comparison',
+                ['Ground Truth', 'Inferred', 'Match'],
+                results.nodes.gt || [],
+                results.nodes.inferred || [],
+                results.nodes.matches || []
+            );
+            tablesDiv.appendChild(nodesTable);
+        }
+        
+        // Edges table
+        if (results.edges) {
+            const edgesTable = createComparisonTable(
+                'Edges Comparison',
+                ['Ground Truth', 'Inferred', 'Match'],
+                results.edges.gt || [],
+                results.edges.inferred || [],
+                results.edges.matches || []
+            );
+            tablesDiv.appendChild(edgesTable);
+        }
+    }
+}
+
+function createComparisonTable(title, headers, gtItems, inferredItems, matches) {
+    const tableContainer = document.createElement('div');
+    tableContainer.style.cssText = 'margin-bottom: 30px;';
+    
+    const titleEl = document.createElement('h4');
+    titleEl.textContent = title;
+    titleEl.style.cssText = 'margin-bottom: 15px; color: var(--text-primary);';
+    tableContainer.appendChild(titleEl);
+    
+    const table = document.createElement('table');
+    table.style.cssText = 'width: 100%; border-collapse: collapse; background: var(--bg-color); border-radius: 8px; overflow: hidden;';
+    
+    // Header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.cssText = 'background: var(--primary-color); color: white;';
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        th.style.cssText = 'padding: 12px; text-align: left; font-weight: 600;';
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    // Body
+    const tbody = document.createElement('tbody');
+    
+    // Create match map
+    const matchMap = new Map();
+    matches.forEach(m => {
+        matchMap.set(m.gt, m.inferred);
+    });
+    
+    // Add GT items
+    const maxRows = Math.max(gtItems.length, inferredItems.length);
+    for (let i = 0; i < maxRows; i++) {
+        const row = document.createElement('tr');
+        row.style.cssText = 'border-bottom: 1px solid var(--border-color);';
+        
+        const gtCell = document.createElement('td');
+        gtCell.style.cssText = 'padding: 10px;';
+        gtCell.textContent = gtItems[i] || '';
+        row.appendChild(gtCell);
+        
+        const inferredCell = document.createElement('td');
+        inferredCell.style.cssText = 'padding: 10px;';
+        inferredCell.textContent = inferredItems[i] || '';
+        row.appendChild(inferredCell);
+        
+        const matchCell = document.createElement('td');
+        matchCell.style.cssText = 'padding: 10px; text-align: center;';
+        if (gtItems[i] && matchMap.has(gtItems[i])) {
+            matchCell.innerHTML = '✓';
+            matchCell.style.color = '#10b981';
+        } else if (gtItems[i] || inferredItems[i]) {
+            matchCell.innerHTML = '✗';
+            matchCell.style.color = '#ef4444';
+        }
+        row.appendChild(matchCell);
+        
+        tbody.appendChild(row);
+    }
+    
+    table.appendChild(tbody);
+    tableContainer.appendChild(table);
+    
+    return tableContainer;
+}
+
 function updateProgress(data) {
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
     const statusMessage = document.getElementById('statusMessage');
+    const consoleOutput = document.getElementById('consoleOutput');
     
     progressFill.style.width = `${data.progress}%`;
     progressText.textContent = `${data.progress}%`;
     statusMessage.textContent = data.message || '';
+    
+    // Update console output if available
+    if (data.console_output && Array.isArray(data.console_output)) {
+        consoleOutput.textContent = data.console_output.join('\n');
+        // Auto-scroll to bottom
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+}
+
+function showCompletionButton(data) {
+    // Show "View Results" button when processing is complete
+    const viewResultsContainer = document.getElementById('viewResultsContainer');
+    const viewResultsBtn = document.getElementById('viewResultsBtn');
+    
+    if (viewResultsContainer && viewResultsBtn) {
+        viewResultsContainer.style.display = 'block';
+        
+        // Store result data for when user clicks "View Results"
+        viewResultsBtn.onclick = async () => {
+            try {
+                // Always fetch fresh status to get output_file
+                const response = await fetch(`/status/${currentJobId}`);
+                const statusData = await response.json();
+                
+                let schema = null;
+                
+                // Try to load from output file
+                if (statusData.output_file) {
+                    try {
+                        const filePath = statusData.output_file;
+                        const fileResponse = await fetch(`/api/load-schema?file=${encodeURIComponent(filePath)}`);
+                        if (fileResponse.ok) {
+                            schema = await fileResponse.json();
+                        }
+                    } catch (e) {
+                        console.log('Could not load from API, trying direct file read');
+                    }
+                }
+                
+                // Fallback: try to read file directly if we have the path
+                if (!schema && statusData.output_file) {
+                    // For now, we'll need to add an endpoint to read the file
+                    // Or we can use the result if available
+                    if (statusData.result) {
+                        schema = statusData.result;
+                    }
+                }
+                
+                if (schema) {
+                    showResults(schema);
+                } else {
+                    showError('Could not load schema. Please check the console output for errors.');
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+                showError('Failed to load results: ' + error.message);
+            }
+        };
+    }
 }
 
 // UI State Management
@@ -199,12 +422,54 @@ function showResults(schema) {
     
     // Reset to schema tab
     switchTab('schema');
+    updateTabNavigation();
     
     // Setup download button
     const downloadBtn = document.getElementById('downloadBtn');
     downloadBtn.onclick = () => {
         window.location.href = `/download/${currentJobId}`;
     };
+    
+    // Setup back to console button
+    const backToConsoleBtn = document.getElementById('backToConsoleBtn');
+    if (backToConsoleBtn) {
+        backToConsoleBtn.onclick = () => {
+            document.getElementById('resultsCard').classList.add('hidden');
+            document.getElementById('progressCard').classList.remove('hidden');
+        };
+    }
+    
+    // Setup compare button (only show in proof_of_concept mode)
+    const compareBtn = document.getElementById('compareBtn');
+    if (compareBtn && currentMode === 'proof_of_concept' && currentDatasetId) {
+        compareBtn.style.display = '';
+        compareBtn.onclick = async () => {
+            compareBtn.disabled = true;
+            compareBtn.innerHTML = 'Comparing...';
+            
+            try {
+                const response = await fetch(`/compare-dataset/${currentDatasetId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to start comparison');
+                }
+                
+                // Store compare job ID and show comparison tab
+                currentCompareJobId = data.job_id;
+                switchTab('comparison');
+                startCompareStatusCheck();
+            } catch (error) {
+                alert('Error: ' + error.message);
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = 'Compare with GT';
+            }
+        };
+    } else if (compareBtn) {
+        compareBtn.style.display = 'none';
+    }
 }
 
 function showError(message) {
@@ -244,7 +509,7 @@ function resetForm() {
         document.getElementById('datasetDescription').style.display = 'none';
         const processBtn = document.getElementById('processDatasetBtn');
         processBtn.disabled = true;
-        processBtn.innerHTML = '<span>Process Dataset</span>';
+        processBtn.innerHTML = '<span>Infer Schema</span>';
     } else {
         document.getElementById('uploadCard').classList.remove('hidden');
         document.getElementById('pocCard').classList.add('hidden');
@@ -495,7 +760,7 @@ document.getElementById('processDatasetBtn').addEventListener('click', async () 
     } catch (error) {
         showError(error.message);
         processBtn.disabled = false;
-        processBtn.innerHTML = '<span>Process Dataset</span>';
+        processBtn.innerHTML = '<span>Infer Schema</span>';
     }
 });
 
@@ -506,6 +771,65 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         switchTab(tabName);
     });
 });
+
+// Tab navigation arrows
+document.addEventListener('DOMContentLoaded', () => {
+    const prevTabBtn = document.getElementById('prevTabBtn');
+    const nextTabBtn = document.getElementById('nextTabBtn');
+    
+    if (prevTabBtn) {
+        prevTabBtn.addEventListener('click', () => {
+            const tabs = getAvailableTabs();
+            const currentIndex = getCurrentTabIndex();
+            if (currentIndex > 0) {
+                switchTab(tabs[currentIndex - 1]);
+            }
+        });
+    }
+    
+    if (nextTabBtn) {
+        nextTabBtn.addEventListener('click', () => {
+            const tabs = getAvailableTabs();
+            const currentIndex = getCurrentTabIndex();
+            if (currentIndex < tabs.length - 1) {
+                switchTab(tabs[currentIndex + 1]);
+            }
+        });
+    }
+});
+
+function getAvailableTabs() {
+    const tabs = ['schema', 'graph'];
+    if (currentMode === 'proof_of_concept') {
+        tabs.push('comparison');
+    }
+    return tabs;
+}
+
+function getCurrentTabIndex() {
+    const tabs = getAvailableTabs();
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) {
+        const tabName = activeTab.getAttribute('data-tab');
+        return tabs.indexOf(tabName);
+    }
+    return 0;
+}
+
+function updateTabNavigation() {
+    const tabs = getAvailableTabs();
+    const currentIndex = getCurrentTabIndex();
+    const prevBtn = document.getElementById('prevTabBtn');
+    const nextBtn = document.getElementById('nextTabBtn');
+    
+    if (prevBtn && nextBtn) {
+        prevBtn.style.display = tabs.length > 1 ? '' : 'none';
+        nextBtn.style.display = tabs.length > 1 ? '' : 'none';
+        
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === tabs.length - 1;
+    }
+}
 
 function switchTab(tabName) {
     // Don't switch to comparison tab if in new_dataset mode
@@ -545,6 +869,8 @@ function switchTab(tabName) {
             loadComparison();
         }
     }
+    
+    updateTabNavigation();
 }
 
 // Helper function to determine node status (matched vs extra) for coloring

@@ -4,6 +4,7 @@ import random
 import threading
 import time
 import shutil
+import subprocess
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 import networkx as nx
@@ -11,26 +12,47 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from collections import Counter
 import sys
+from pathlib import Path
 
-# Add scripts directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
-from build_graph import build_graph
+# Add src to path so we can import pg_schema_llm
+webapp_dir = Path(__file__).parent
+src_dir = webapp_dir.parent / "src"
+sys.path.insert(0, str(src_dir))
+
+# Import from the new pg_schema_llm system
+from pg_schema_llm.io import build_graph
+from pg_schema_llm.profiling import (
+    profile_node_type,
+    profile_edge_type,
+)
+
+# generate_logical_relationship_summary doesn't exist for graph-based, 
+# so we create a simple wrapper that returns empty string
+def generate_logical_relationship_summary(G):
+    """Simple wrapper - graph-based logical summary not available in new system"""
+    # For now, return empty string. Can be enhanced later if needed.
+    return ""
 
 # Import comparison functions
 from difflib import SequenceMatcher
 
-# Import functions from main.py - reuse existing code
-import importlib.util
-main_path = os.path.join(os.path.dirname(__file__), 'scripts', 'main.py')
-spec = importlib.util.spec_from_file_location("main_module", main_path)
-main_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(main_module)
-
-# Use the existing profiling functions from main.py (same code, no duplication)
-profile_node_type = main_module.profile_node_type
-profile_edge_type = main_module.profile_edge_type
-extract_json = main_module.extract_json
-generate_logical_relationship_summary = main_module.generate_logical_relationship_summary
+# Helper function to extract JSON from text (simple version)
+def extract_json(text):
+    """Extract JSON from text, handling markdown code blocks"""
+    if not text:
+        return None
+    try:
+        cleaned = text.strip()
+        # Remove markdown code blocks if present
+        if cleaned.startswith("```json"):
+            cleaned = cleaned[7:]
+        elif cleaned.startswith("```"):
+            cleaned = cleaned[3:]
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+        return json.loads(cleaned.strip())
+    except Exception:
+        return None
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -364,32 +386,28 @@ def request_entity_too_large(error):
 
 @app.route('/process-dataset/<dataset_id>', methods=['POST'])
 def process_dataset(dataset_id):
-    """Process a proof-of-concept dataset"""
-    # Map dataset_id to data directory
-    dataset_map = {
-        'fib25': 'pg_data_fib25'
-    }
+    """Process a proof-of-concept dataset using infer.py script"""
+    # Available datasets
+    available_datasets = ['starwars', 'pole', 'mb6', 'fib25', 'ldbc']
     
-    data_dir = dataset_map.get(dataset_id)
-    if not data_dir or not os.path.exists(data_dir):
-        return jsonify({'error': f'Dataset {dataset_id} not found'}), 404
+    if dataset_id not in available_datasets:
+        return jsonify({'error': f'Dataset {dataset_id} not available. Available: {", ".join(available_datasets)}'}), 404
     
     # Create a unique job ID
     job_id = f"poc_{dataset_id}_{int(time.time() * 1000)}"
     
-    # Initialize job (no upload_dir needed for POC)
+    # Initialize job with console output tracking
     jobs[job_id] = {
         'status': 'queued',
         'message': 'Job queued',
         'progress': 0,
         'dataset_id': dataset_id,
-        'mode': 'proof_of_concept'
+        'mode': 'proof_of_concept',
+        'console_output': []  # Store console output lines
     }
     
-    # Start processing in background thread (use existing data directory)
-    output_dir = os.path.join('schema_found', job_id)
-    os.makedirs(output_dir, exist_ok=True)
-    thread = threading.Thread(target=process_schema_discovery, args=(data_dir, output_dir, job_id))
+    # Start processing in background thread
+    thread = threading.Thread(target=run_infer_script, args=(dataset_id, job_id))
     thread.daemon = True
     thread.start()
     
@@ -398,6 +416,83 @@ def process_dataset(dataset_id):
         'message': f'Processing dataset {dataset_id}...',
         'dataset_id': dataset_id
     })
+
+def run_infer_script(dataset_id, job_id):
+    """Run infer.py script and capture output"""
+    try:
+        # Get the script path
+        webapp_dir = Path(__file__).parent
+        scripts_dir = webapp_dir.parent / "scripts"
+        infer_script = scripts_dir / "infer.py"
+        
+        if not infer_script.exists():
+            jobs[job_id]['status'] = 'error'
+            jobs[job_id]['message'] = f'Script not found: {infer_script}'
+            jobs[job_id]['console_output'].append(f'ERROR: Script not found: {infer_script}')
+            return
+        
+        jobs[job_id]['status'] = 'running'
+        jobs[job_id]['message'] = f'Running infer.py for {dataset_id}...'
+        jobs[job_id]['console_output'].append(f'>>> Starting schema inference for dataset: {dataset_id}')
+        jobs[job_id]['console_output'].append(f'>>> Command: python scripts/infer.py {dataset_id}')
+        jobs[job_id]['progress'] = 10
+        
+        # Change to Zmarselo directory
+        zmarselo_dir = webapp_dir.parent
+        os.chdir(str(zmarselo_dir))
+        
+        # Run the script and capture output in real-time
+        process = subprocess.Popen(
+            ['python', 'scripts/infer.py', dataset_id],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            bufsize=1
+        )
+        
+        # Read output line by line
+        for line in iter(process.stdout.readline, ''):
+            if line:
+                line = line.strip()
+                if line:
+                    jobs[job_id]['console_output'].append(line)
+                    # Update progress based on keywords
+                    if 'Building TypeStats' in line:
+                        jobs[job_id]['progress'] = 20
+                        jobs[job_id]['message'] = 'Building statistics...'
+                    elif 'Asking Gemini' in line:
+                        jobs[job_id]['progress'] = 60
+                        jobs[job_id]['message'] = 'Calling Gemini API...'
+                    elif 'Node types:' in line or 'Edge types:' in line:
+                        jobs[job_id]['progress'] = 40
+                    elif 'ERROR' in line.upper() or 'Error' in line:
+                        jobs[job_id]['status'] = 'error'
+                        jobs[job_id]['message'] = line
+        
+        process.wait()
+        
+        if process.returncode == 0:
+            jobs[job_id]['status'] = 'completed'
+            jobs[job_id]['message'] = f'Schema inference completed for {dataset_id}'
+            jobs[job_id]['progress'] = 100
+            jobs[job_id]['console_output'].append('>>> Schema inference completed successfully!')
+            
+            # Check if output file exists
+            output_file = zmarselo_dir / f"03_outputs/schemas/inferred/{dataset_id}/inf_{dataset_id}.json"
+            if output_file.exists():
+                jobs[job_id]['output_file'] = str(output_file)
+                jobs[job_id]['result'] = 'success'
+            else:
+                jobs[job_id]['console_output'].append(f'WARNING: Output file not found: {output_file}')
+        else:
+            jobs[job_id]['status'] = 'error'
+            jobs[job_id]['message'] = f'Script failed with return code {process.returncode}'
+            jobs[job_id]['console_output'].append(f'>>> ERROR: Script failed with return code {process.returncode}')
+            
+    except Exception as e:
+        jobs[job_id]['status'] = 'error'
+        jobs[job_id]['message'] = f'Error running script: {str(e)}'
+        jobs[job_id]['console_output'].append(f'>>> EXCEPTION: {str(e)}')
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
@@ -462,7 +557,8 @@ def get_status(job_id):
         'message': job.get('message', ''),
         'progress': job.get('progress', 0),
         'mode': job.get('mode', 'new_dataset'),  # Include mode information
-        'dataset_id': job.get('dataset_id')  # Include dataset_id for POC mode
+        'dataset_id': job.get('dataset_id'),  # Include dataset_id for POC mode
+        'console_output': job.get('console_output', [])  # Include console output
     }
     
     if job['status'] == 'completed' and 'result' in job:
@@ -482,19 +578,248 @@ def download_result(job_id):
     
     return send_file(output_file, as_attachment=True, download_name='inferred_schema.json')
 
+@app.route('/api/load-schema')
+def load_schema():
+    """Load schema from output file"""
+    file_path = request.args.get('file')
+    if not file_path:
+        return jsonify({'error': 'File path not provided'}), 400
+    
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            schema = json.load(f)
+        return jsonify(schema)
+    except Exception as e:
+        return jsonify({'error': f'Failed to load schema: {str(e)}'}), 500
+
+@app.route('/compare-dataset/<dataset_id>', methods=['POST'])
+def compare_dataset(dataset_id):
+    """Run compare.py script for a dataset"""
+    available_datasets = ['starwars', 'pole', 'mb6', 'fib25', 'ldbc']
+    
+    if dataset_id not in available_datasets:
+        return jsonify({'error': f'Dataset {dataset_id} not available'}), 404
+    
+    # Create a unique job ID for compare
+    job_id = f"compare_{dataset_id}_{int(time.time() * 1000)}"
+    
+    # Initialize job with console output tracking
+    jobs[job_id] = {
+        'status': 'queued',
+        'message': 'Job queued',
+        'progress': 0,
+        'dataset_id': dataset_id,
+        'mode': 'compare',
+        'console_output': []
+    }
+    
+    # Start processing in background thread
+    thread = threading.Thread(target=run_compare_script, args=(dataset_id, job_id))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({
+        'job_id': job_id,
+        'message': f'Comparing dataset {dataset_id}...',
+        'dataset_id': dataset_id
+    })
+
+def run_compare_script(dataset_id, job_id):
+    """Run compare.py script and capture output"""
+    try:
+        webapp_dir = Path(__file__).parent
+        zmarselo_dir = webapp_dir.parent
+        
+        jobs[job_id]['status'] = 'running'
+        jobs[job_id]['message'] = f'Running compare.py for {dataset_id}...'
+        jobs[job_id]['console_output'].append(f'>>> Starting comparison for dataset: {dataset_id}')
+        jobs[job_id]['console_output'].append(f'>>> Command: python scripts/compare.py {dataset_id}')
+        jobs[job_id]['progress'] = 10
+        
+        # Change to Zmarselo directory
+        os.chdir(str(zmarselo_dir))
+        
+        # Run the script and capture output in real-time
+        process = subprocess.Popen(
+            ['python', 'scripts/compare.py', dataset_id],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            bufsize=1
+        )
+        
+        # Read output line by line
+        for line in iter(process.stdout.readline, ''):
+            if line:
+                line = line.strip()
+                if line:
+                    jobs[job_id]['console_output'].append(line)
+                    # Update progress based on keywords
+                    if 'NODE MATCHING' in line:
+                        jobs[job_id]['progress'] = 30
+                    elif 'EDGE LABEL MAPPING' in line:
+                        jobs[job_id]['progress'] = 50
+                    elif 'TOPOLOGY' in line:
+                        jobs[job_id]['progress'] = 70
+                    elif 'FINAL SCORES' in line:
+                        jobs[job_id]['progress'] = 90
+                    elif 'ERROR' in line.upper() or 'Error' in line:
+                        jobs[job_id]['status'] = 'error'
+                        jobs[job_id]['message'] = line
+        
+        process.wait()
+        
+        if process.returncode == 0:
+            jobs[job_id]['status'] = 'completed'
+            jobs[job_id]['message'] = f'Comparison completed for {dataset_id}'
+            jobs[job_id]['progress'] = 100
+            jobs[job_id]['console_output'].append('>>> Comparison completed successfully!')
+            
+            # Parse results from console output
+            parse_compare_results(job_id)
+        else:
+            jobs[job_id]['status'] = 'error'
+            jobs[job_id]['message'] = f'Script failed with return code {process.returncode}'
+            jobs[job_id]['console_output'].append(f'>>> ERROR: Script failed with return code {process.returncode}')
+            
+    except Exception as e:
+        jobs[job_id]['status'] = 'error'
+        jobs[job_id]['message'] = f'Error running script: {str(e)}'
+        jobs[job_id]['console_output'].append(f'>>> EXCEPTION: {str(e)}')
+
+def parse_compare_results(job_id):
+    """Parse compare.py output to extract structured results"""
+    if job_id not in jobs:
+        return
+    
+    output = jobs[job_id].get('console_output', [])
+    results = {
+        'nodes': {'gt': [], 'inferred': [], 'matches': []},
+        'edges': {'gt': [], 'inferred': [], 'matches': []},
+        'scores': {}
+    }
+    
+    # Parse node matching
+    in_gt_nodes = False
+    in_inferred_nodes = False
+    in_gt_edges = False
+    in_inferred_edges = False
+    in_scores_section = False
+    
+    for line in output:
+        if '[ RAW GT NODES ]' in line:
+            in_gt_nodes = True
+            in_inferred_nodes = False
+            continue
+        elif '[ RAW INFERRED NODES ]' in line:
+            in_gt_nodes = False
+            in_inferred_nodes = True
+            continue
+        elif '[ NODE MATCHES ]' in line:
+            in_gt_nodes = False
+            in_inferred_nodes = False
+            continue
+        elif '[ RAW GT EDGE TYPES ]' in line:
+            in_gt_nodes = False
+            in_inferred_nodes = False
+            in_gt_edges = True
+            in_inferred_edges = False
+            continue
+        elif '[ RAW INFERRED EDGE TYPES ]' in line:
+            in_gt_edges = False
+            in_inferred_edges = True
+            continue
+        elif '[ EDGE LABEL MAP ]' in line:
+            in_gt_edges = False
+            in_inferred_edges = False
+            continue
+        elif '[ FINAL SCORES ]' in line:
+            in_gt_edges = False
+            in_inferred_edges = False
+            in_scores_section = True
+            continue
+        
+        if in_gt_nodes and '[ NODE ]' in line:
+            node_name = line.split('[ NODE ]')[1].strip()
+            if node_name:
+                results['nodes']['gt'].append(node_name)
+        elif in_inferred_nodes and '[ NODE ]' in line:
+            node_name = line.split('[ NODE ]')[1].strip()
+            if node_name:
+                results['nodes']['inferred'].append(node_name)
+        elif in_gt_edges and '[ EDGE ]' in line:
+            edge_name = line.split('[ EDGE ]')[1].strip()
+            if edge_name:
+                results['edges']['gt'].append(edge_name)
+        elif in_inferred_edges and '[ EDGE ]' in line:
+            edge_name = line.split('[ EDGE ]')[1].strip()
+            if edge_name:
+                results['edges']['inferred'].append(edge_name)
+        elif '[ MAP ]' in line and '->' in line:
+            parts = line.split('->')
+            if len(parts) == 2:
+                gt = parts[0].split('[ MAP ]')[1].strip()
+                inferred = parts[1].strip()
+                if ':' in gt:  # Edge match (format: "EDGE_NAME: source -> target")
+                    results['edges']['matches'].append({'gt': gt, 'inferred': inferred})
+                else:  # Node match
+                    results['nodes']['matches'].append({'gt': gt, 'inferred': inferred})
+        elif in_scores_section and '[' in line and ']' in line and '%' in line:
+            # Parse scores like "[ NODE ACCURACY ] 100.00%"
+            parts = line.split(']')
+            if len(parts) == 2:
+                metric = parts[0].replace('[', '').strip()
+                value = parts[1].strip()
+                results['scores'][metric] = value
+    
+    jobs[job_id]['compare_results'] = results
+
 @app.route('/datasets')
 def list_datasets():
     """List available proof-of-concept datasets"""
-    # Currently hardcoded to fib25, but can be extended to scan directories
-    datasets = []
+    from pathlib import Path
     
-    # Check if fib25 data exists
-    if os.path.exists('pg_data_fib25') and os.path.exists('gt_data_fib25'):
-        datasets.append({
+    webapp_dir = Path(__file__).parent
+    zmarselo_dir = webapp_dir.parent
+    
+    # Available datasets (ordered from smallest to largest)
+    available_datasets = [
+        {
+            'id': 'starwars',
+            'name': 'Star Wars',
+            'description': 'Star Wars character and film dataset (smallest)'
+        },
+        {
+            'id': 'pole',
+            'name': 'POLE',
+            'description': 'POLE dataset'
+        },
+        {
+            'id': 'mb6',
+            'name': 'MB6',
+            'description': 'MB6 dataset'
+        },
+        {
             'id': 'fib25',
-            'name': 'Fib25',
-            'description': 'Neuprint Fib25 dataset with neurons and synapses'
-        })
+            'name': 'FIB25',
+            'description': 'FlyWire connectome dataset (25% sample)'
+        },
+        {
+            'id': 'ldbc',
+            'name': 'LDBC',
+            'description': 'LDBC Social Network Benchmark (largest)'
+        }
+    ]
+    
+    # Filter datasets that have data directories
+    datasets = []
+    for ds in available_datasets:
+        data_dir = zmarselo_dir / f"02_pgs/pg_data_{ds['id']}"
+        if data_dir.exists():
+            datasets.append(ds)
     
     return jsonify({'datasets': datasets})
 

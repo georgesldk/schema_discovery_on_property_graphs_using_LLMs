@@ -41,7 +41,7 @@
                 </div>
                 
                 <button type="button" class="btn btn-primary" id="processDatasetBtn" style="margin-top: 20px; width: 100%;" disabled>
-                    <span>Process Dataset</span>
+                    <span>Infer Schema</span>
                 </button>
             </div>
 
@@ -81,14 +81,53 @@
                     <p class="progress-text" id="progressText">Initializing...</p>
                 </div>
                 <div class="status-message" id="statusMessage"></div>
+                
+                <!-- Console Output -->
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--text-primary);">Console Output:</h3>
+                    <div id="consoleOutput" style="
+                        background: #1e1e1e;
+                        color: #d4d4d4;
+                        font-family: 'Courier New', monospace;
+                        font-size: 0.9rem;
+                        padding: 15px;
+                        border-radius: 8px;
+                        max-height: 400px;
+                        overflow-y: auto;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        border: 1px solid var(--border-color);
+                    "></div>
+                </div>
+                
+                <!-- View Results Button (shown when completed) -->
+                <div id="viewResultsContainer" style="margin-top: 20px; display: none;">
+                    <button type="button" class="btn btn-primary" id="viewResultsBtn" style="width: 100%;">
+                        <span>View Results</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Results Section -->
             <div class="card hidden" id="resultsCard">
                 <h2>Inferred Schema</h2>
-                <div class="results-header">
-                    <button class="btn btn-secondary" id="downloadBtn">Download JSON</button>
-                    <button class="btn btn-secondary" id="newAnalysisBtn">New Analysis</button>
+                <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" id="backToConsoleBtn" title="Back to Console">
+                            ← Back to Console
+                        </button>
+                        <button class="btn btn-secondary" id="downloadBtn">Download JSON</button>
+                        <button class="btn btn-primary" id="compareBtn" style="display: none;">Compare with GT</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" id="prevTabBtn" style="display: none;" title="Previous Tab">
+                            ←
+                        </button>
+                        <button class="btn btn-secondary" id="nextTabBtn" style="display: none;" title="Next Tab">
+                            →
+                        </button>
+                        <button class="btn btn-secondary" id="newAnalysisBtn">New Analysis</button>
+                    </div>
                 </div>
                 
                 <!-- Tab Navigation -->
@@ -131,29 +170,53 @@
                 
                 <!-- Comparison Tab Content -->
                 <div class="tab-content hidden" id="comparisonTab">
-                    <div class="comparison-header">
-                        <h3>Algorithm Performance: Inferred vs Ground Truth</h3>
-                        <div class="comparison-metrics" id="comparisonMetrics">
-                            <div class="metric-item">
-                                <span class="metric-label">Loading...</span>
-                            </div>
-                        </div>
+                    <div id="compareNotRun" style="text-align: center; padding: 40px;">
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Click "Compare with GT" button to run comparison</p>
                     </div>
-                    <div class="comparison-graphs">
-                        <div class="comparison-graph-panel">
-                            <h4>🔮 Inferred Schema (Your Algorithm)</h4>
-                            <div class="graph-container-small">
-                                <div id="inferredGraphNetwork"></div>
-                            </div>
-                        </div>
-                        <div class="comparison-graph-panel">
-                            <h4>✅ Ground Truth Schema</h4>
-                            <div class="graph-container-small">
-                                <div id="groundTruthGraphNetwork"></div>
-                            </div>
-                        </div>
+                    
+                    <div id="compareRunning" style="display: none;">
+                        <h3>Running Comparison...</h3>
+                        <div id="compareConsoleOutput" style="
+                            background: #1e1e1e;
+                            color: #d4d4d4;
+                            font-family: 'Courier New', monospace;
+                            font-size: 0.9rem;
+                            padding: 15px;
+                            border-radius: 8px;
+                            max-height: 400px;
+                            overflow-y: auto;
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            border: 1px solid var(--border-color);
+                            margin-top: 20px;
+                        "></div>
                     </div>
-                    <div class="comparison-details" id="comparisonDetails"></div>
+                    
+                    <div id="compareResults" style="display: none;">
+                        <div class="comparison-header">
+                            <h3>Algorithm Performance: Inferred vs Ground Truth</h3>
+                            <div class="comparison-metrics" id="comparisonMetrics"></div>
+                        </div>
+                        
+                        <!-- Comparison Tables -->
+                        <div id="compareTables" style="margin-top: 30px;"></div>
+                        
+                        <div class="comparison-graphs">
+                            <div class="comparison-graph-panel">
+                                <h4>🔮 Inferred Schema (Your Algorithm)</h4>
+                                <div class="graph-container-small">
+                                    <div id="inferredGraphNetwork"></div>
+                                </div>
+                            </div>
+                            <div class="comparison-graph-panel">
+                                <h4>✅ Ground Truth Schema</h4>
+                                <div class="graph-container-small">
+                                    <div id="groundTruthGraphNetwork"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-details" id="comparisonDetails"></div>
+                    </div>
                 </div>
             </div>
 
