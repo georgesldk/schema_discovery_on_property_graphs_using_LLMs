@@ -74,7 +74,7 @@ pip install flask werkzeug python-dotenv
 
 4. **Open in browser:**
    ```
-   http://localhost:5000
+   http://localhost:3000
    ```
 
 5. **Test API key (optional):**

@@ -1,4 +1,11 @@
 import argparse
+import sys
+import os
+from pathlib import Path
+
+# Add src to sys.path automatically
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
 from pg_schema_llm.pipeline.compare import run_compare
 
 

@@ -826,23 +826,30 @@ def list_datasets():
 @app.route('/ground-truth/<dataset_id>')
 def get_ground_truth(dataset_id):
     """Get ground truth schema for a specific dataset"""
-    gt_dir = 'gt_schema'
-    if not os.path.exists(gt_dir):
-        return jsonify({'error': 'Ground truth schema not found'}), 404
+    # Use the correct directory path
+    webapp_dir = Path(__file__).parent
+    zmarselo_dir = webapp_dir.parent
+    gt_dir = zmarselo_dir / '03_outputs' / 'schemas' / 'ground_truth'
+    
+    if not gt_dir.exists():
+        return jsonify({'error': 'Ground truth schema directory not found'}), 404
     
     # Map dataset_id to ground truth file
-    # For fib25, the file is golden_truth_gt_data_fib25.json
     dataset_map = {
-        'fib25': 'golden_truth_gt_data_fib25.json'
+        'starwars': 'gt_starwars.json',
+        'pole': 'gt_pole.json',
+        'mb6': 'gt_mb6.json',
+        'fib25': 'gt_fib25.json',
+        'ldbc': 'gt_ldbc.json'
     }
     
     gt_filename = dataset_map.get(dataset_id)
     if not gt_filename:
-        return jsonify({'error': f'Unknown dataset: {dataset_id}'}), 404
+        return jsonify({'error': f'Unknown dataset: {dataset_id}. Available datasets: {", ".join(dataset_map.keys())}'}), 404
     
-    gt_file = os.path.join(gt_dir, gt_filename)
-    if not os.path.exists(gt_file):
-        return jsonify({'error': f'Ground truth file not found for {dataset_id}'}), 404
+    gt_file = gt_dir / dataset_id / gt_filename
+    if not gt_file.exists():
+        return jsonify({'error': f'Ground truth file not found: {gt_file}'}), 404
     
     try:
         with open(gt_file, 'r', encoding='utf-8') as f:
@@ -854,18 +861,26 @@ def get_ground_truth(dataset_id):
 @app.route('/ground-truth')
 def get_ground_truth_default():
     """Get ground truth schema for comparison (backwards compatibility)"""
-    # Look for ground truth files in gt_schema directory
-    gt_dir = 'gt_schema'
-    if not os.path.exists(gt_dir):
-        return jsonify({'error': 'Ground truth schema not found'}), 404
+    # Use the correct directory path
+    webapp_dir = Path(__file__).parent
+    zmarselo_dir = webapp_dir.parent
+    gt_base_dir = zmarselo_dir / '03_outputs' / 'schemas' / 'ground_truth'
     
-    # Find the first ground truth JSON file
-    gt_files = [f for f in os.listdir(gt_dir) if f.endswith('.json') and 'golden_truth' in f]
+    if not gt_base_dir.exists():
+        return jsonify({'error': 'Ground truth schema directory not found'}), 404
+    
+    # Find the first available ground truth JSON file
+    gt_files = []
+    for dataset_dir in gt_base_dir.iterdir():
+        if dataset_dir.is_dir():
+            for json_file in dataset_dir.glob('gt_*.json'):
+                gt_files.append(json_file)
+    
     if not gt_files:
         return jsonify({'error': 'No ground truth schema files found'}), 404
     
     # Load the first available ground truth file
-    gt_file = os.path.join(gt_dir, gt_files[0])
+    gt_file = gt_files[0]
     try:
         with open(gt_file, 'r', encoding='utf-8') as f:
             gt_schema = json.load(f)
@@ -962,5 +977,5 @@ def compare_schemas():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
 
