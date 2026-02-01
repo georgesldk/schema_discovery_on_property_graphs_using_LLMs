@@ -2228,12 +2228,6 @@ function getAccuracyClass(accuracy) {
 function displayComparisonDetails(matchedNodes, missingNodes, extraNodes, matchedEdges, missingEdges, extraEdges, nodeMatchMap, edgeMatchMap) {
     let html = '';
 
-    // Add note about demo mode
-    html += '<div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning-color); padding: 12px; margin-bottom: 20px; border-radius: 8px;">';
-    html += '<strong style="color: var(--warning-color);">ℹ️ Note:</strong> ';
-    html += '<span style="color: var(--text-secondary);">If you\'re using demo mode (no API key), the accuracy may be lower. For best results, use the actual Gemini API with your API key.</span>';
-    html += '</div>';
-
     // Node comparison
     html += '<div class="comparison-section"><h4>Node Types Comparison</h4>';
 

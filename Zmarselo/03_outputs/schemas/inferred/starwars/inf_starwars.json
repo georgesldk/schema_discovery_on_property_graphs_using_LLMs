@@ -433,31 +433,31 @@
             "properties": []
         },
         {
-            "name": "BELONGS_TO",
+            "name": "HOMEWORLD",
             "start_node": "Character",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "BELONGS_TO",
+            "name": "HOMEWORLD",
             "start_node": "Species",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "IS_A",
+            "name": "OF",
             "start_node": "Character",
             "end_node": "Species",
             "properties": []
         },
         {
-            "name": "PILOTS",
+            "name": "PILOT",
             "start_node": "Character",
             "end_node": "Starship",
             "properties": []
         },
         {
-            "name": "PILOTS",
+            "name": "PILOT",
             "start_node": "Character",
             "end_node": "Vehicle",
             "properties": []
