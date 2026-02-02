@@ -5,6 +5,21 @@ from typing import Dict, List, Tuple
 
 
 def sqlite_kv_open(db_path: str) -> sqlite3.Connection:
+    """
+    Open and initialize a lightweight SQLite-backed key?value store.
+
+    This function creates (or opens) a SQLite database used to persist
+    node identifier to node-type mappings. The database is configured
+    with performance-oriented pragmas and ensures that the required
+    table and index exist.
+
+    Args:
+        db_path (str): Path to the SQLite database file.
+
+    Returns:
+        sqlite3.Connection: Open SQLite connection ready for use.
+    """
+
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA synchronous=NORMAL;")
@@ -22,6 +37,21 @@ def sqlite_kv_open(db_path: str) -> sqlite3.Connection:
 
 
 def sqlite_kv_put_many(conn: sqlite3.Connection, rows: List[Tuple[str, str]]) -> None:
+    """
+    Insert or update multiple key?value entries in the SQLite store.
+
+    This function performs a batched upsert operation that maps node
+    identifiers to their corresponding node types. Existing entries
+    are replaced to keep the store consistent with the latest inference.
+
+    Args:
+        conn (sqlite3.Connection): Open SQLite connection.
+        rows (List[Tuple[str, str]]): List of (node_id, node_type) pairs.
+
+    Returns:
+        None
+    """
+
     conn.executemany(
         "INSERT OR REPLACE INTO node_type_map(node_id, node_type) VALUES (?, ?)",
         rows,
@@ -29,6 +59,21 @@ def sqlite_kv_put_many(conn: sqlite3.Connection, rows: List[Tuple[str, str]]) ->
 
 
 def sqlite_kv_get_many(conn: sqlite3.Connection, ids: List[str]) -> Dict[str, str]:
+    """
+    Retrieve multiple node-type mappings from the SQLite store.
+
+    This function fetches node-type assignments for a given list of
+    node identifiers. Queries are executed in chunks to avoid SQLite
+    parameter limits and to ensure stable performance.
+
+    Args:
+        conn (sqlite3.Connection): Open SQLite connection.
+        ids (List[str]): List of node identifiers to query.
+
+    Returns:
+        Dict[str, str]: Mapping from node identifiers to node types.
+    """
+
     if not ids:
         return {}
     out: Dict[str, str] = {}

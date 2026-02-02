@@ -26,6 +26,21 @@ DEFAULT_SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 # ============================================================
 
 def load_json(path: str) -> dict:
+    """
+    Load a JSON file from disk with UTF-8 compatibility.
+
+    This function provides a thin wrapper around json loading that
+    raises a clear, contextual error message when loading fails.
+
+    Args:
+        path (str): Path to the JSON file.
+
+    Returns:
+        dict: Parsed JSON content.
+
+    Raises:
+        RuntimeError: If the file cannot be loaded or parsed.
+    """
     try:
         with open(path, "r", encoding="utf-8-sig") as f:
             return json.load(f)
@@ -38,11 +53,35 @@ def load_json(path: str) -> dict:
 # ============================================================
 
 def avg_defined(values: Sequence[Optional[float]]) -> float:
+    """
+    Compute the average of defined (non-None) numeric values.
+
+    This helper is used to aggregate multiple metric scores while
+    automatically excluding undefined values from the computation.
+
+    Args:
+        values (Sequence[Optional[float]]): Collection of numeric values.
+
+    Returns:
+        float: Average of defined values, or 0.0 if none are defined.
+    """
     xs = [v for v in values if v is not None]
     return (sum(xs) / len(xs)) if xs else 0.0
 
 
 def normalize_prop_name(name: str) -> str:
+    """
+    Normalize a property name for comparison.
+
+    This function lowercases the name, strips whitespace, and removes
+    quoting artifacts to enable robust property matching across schemas.
+
+    Args:
+        name (str): Raw property name.
+
+    Returns:
+        str: Normalized property name.
+    """
     if not name:
         return ""
     n = name.strip().lower()
@@ -50,6 +89,19 @@ def normalize_prop_name(name: str) -> str:
     return n
 
 def is_reserved_prop(name: str) -> bool:
+    """
+    Determine whether a property name is reserved or technical.
+
+    This function filters out internal identifiers, Neo4j import
+    artifacts, and schema-level technical fields that should not
+    participate in property accuracy evaluation.
+
+    Args:
+        name (str): Property name.
+
+    Returns:
+        bool: True if the property should be excluded, False otherwise.
+    """
     if not name:
         return True
     raw = name.strip()
@@ -71,6 +123,19 @@ def is_reserved_prop(name: str) -> bool:
     return False
 
 def prop_set(props: Sequence[dict]) -> Set[str]:
+    """
+    Extract a normalized set of comparable property names.
+
+    This function converts a list of property descriptors into a
+    normalized set of property names, excluding reserved or invalid
+    entries.
+
+    Args:
+        props (Sequence[dict]): Property definitions.
+
+    Returns:
+        Set[str]: Normalized property name set.
+    """
     out: Set[str] = set()
     for p in props or []:
         nm = p.get("name", "")
@@ -80,6 +145,24 @@ def prop_set(props: Sequence[dict]) -> Set[str]:
     return out
 
 def compare_properties(gt_props: Sequence[dict], inf_props: Sequence[dict], verbose: bool = False) -> Tuple[int, int, int]:
+    """
+    Compare ground-truth and inferred property sets.
+
+    This function measures how many ground-truth properties are matched
+    by inferred properties, how many are missing, and how many extra
+    properties were inferred.
+
+    Args:
+        gt_props (Sequence[dict]): Ground-truth property definitions.
+        inf_props (Sequence[dict]): Inferred property definitions.
+        verbose (bool): Whether to print debug output on mismatches.
+
+    Returns:
+        Tuple[int, int, int]:
+            - Number of matched properties
+            - Total number of ground-truth properties
+            - Number of extra inferred properties
+    """
     gt_set = prop_set(gt_props)
     inf_set = prop_set(inf_props)
 
@@ -108,11 +191,40 @@ def _norm_label(s: str) -> str:
     return s
 
 def similar_string(a: str, b: str) -> float:
+    """
+    Compute a normalized string similarity score.
+
+    This function applies light normalization and computes a similarity
+    ratio suitable for approximate label matching.
+
+    Args:
+        a (str): First string.
+        b (str): Second string.
+
+    Returns:
+        float: Similarity score in the range [0.0, 1.0].
+    """
+
     if not a or not b:
         return 0.0
     return SequenceMatcher(None, _norm_label(a), _norm_label(b)).ratio()
 
 def find_best_string_match(target: str, candidates: Sequence[str], threshold: float) -> Optional[str]:
+    """
+    Find the best string match above a similarity threshold.
+
+    This function selects the most similar candidate label to a target
+    string using normalized string similarity.
+
+    Args:
+        target (str): Target label.
+        candidates (Sequence[str]): Candidate labels.
+        threshold (float): Minimum similarity score for acceptance.
+
+    Returns:
+        Optional[str]: Best matching candidate, or None if no match
+        satisfies the threshold.
+    """
     best = None
     best_score = 0.0
     for c in candidates:
@@ -129,8 +241,11 @@ def find_best_string_match(target: str, candidates: Sequence[str], threshold: fl
 
 class SemanticEdgeMatcher:
     """
-    Lazy-load sentence transformer and cache embeddings.
-    Only used if enabled in CompareConfig.
+    Semantic edge label matcher using sentence embeddings.
+
+    This class lazily loads a sentence-transformer model and uses
+    cosine similarity to match ground-truth edge labels with inferred
+    edge labels when string matching is insufficient.
     """
     def __init__(self, model_name: str = DEFAULT_SEMANTIC_MODEL_NAME):
         self.model_name = model_name
@@ -162,6 +277,24 @@ class SemanticEdgeMatcher:
         margin: float = 0.05,
         verbose: bool = False,
     ) -> Optional[str]:
+        """
+        Find a semantically similar edge label using embeddings.
+
+        This method compares a target edge label against candidate labels
+        using cosine similarity and applies confidence thresholds and
+        margins to avoid ambiguous matches.
+
+        Args:
+            target (str): Ground-truth edge label.
+            candidates (Sequence[str]): Inferred edge label candidates.
+            threshold (float): Minimum similarity score for acceptance.
+            margin (float): Minimum gap to the second-best candidate.
+            verbose (bool): Whether to print debug information.
+
+        Returns:
+            Optional[str]: Matched candidate label, or None if rejected.
+        """
+
         if not candidates:
             return None
         self._load()
@@ -198,6 +331,13 @@ class SemanticEdgeMatcher:
 
 @dataclass
 class CompareConfig:
+    """
+    Configuration container for schema comparison.
+
+    This dataclass defines thresholds, matching strategies, and
+    reporting options used during schema comparison.
+    """
+
     verbose: bool = True
 
     # node matching
@@ -215,6 +355,13 @@ class CompareConfig:
 
 @dataclass
 class CompareResult:
+    """
+    Structured result of a schema comparison run.
+
+    This dataclass aggregates all computed accuracy metrics along
+    with auxiliary matching information for downstream analysis.
+    """
+
     real_node_accuracy: float
     real_edge_accuracy: float
     real_node_property_accuracy: float
@@ -232,6 +379,21 @@ class CompareResult:
 # ============================================================
 
 def calculate_real_score(matches: int, total_gt: int, total_extra: int) -> float:
+    """
+    Compute a normalized accuracy score accounting for extra predictions.
+
+    This function penalizes both missing and extra inferred elements,
+    while treating empty comparisons as fully correct by definition.
+
+    Args:
+        matches (int): Number of correct matches.
+        total_gt (int): Total number of ground-truth elements.
+        total_extra (int): Number of extra inferred elements.
+
+    Returns:
+        float: Accuracy score as a percentage.
+    """
+
     denom = total_gt + total_extra
     # Nothing to score (0/0): treat as N/A at print-time.
     # Here we return 100.0 so it doesn't unfairly penalize the overall score.
@@ -287,6 +449,23 @@ def _list_block(p, title: str, tag: str, rows: Sequence[str], limit: int, suffix
 # ============================================================
 
 def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig] = None) -> Optional[CompareResult]:
+    """
+    Compare an inferred schema against a ground-truth schema.
+
+    This function performs node matching, edge label mapping, topology
+    validation, property comparison, and metric aggregation. It produces
+    both a detailed report and a structured result object.
+
+    Args:
+        gt_file (str): Path to the ground-truth schema JSON file.
+        inferred_file (str): Path to the inferred schema JSON file.
+        config (Optional[CompareConfig]): Comparison configuration.
+
+    Returns:
+        Optional[CompareResult]: Comparison result object, or None if
+        comparison could not be performed.
+    """
+
     cfg = config or CompareConfig()
     p = _make_printer(cfg.verbose)
 

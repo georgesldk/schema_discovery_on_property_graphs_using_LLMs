@@ -209,8 +209,8 @@
     "edge_types": [
         {
             "name": "HAS_CREATOR",
-            "start_node": "comment",
-            "end_node": "person",
+            "start_node": "person",
+            "end_node": "comment",
             "properties": []
         },
         {
@@ -226,13 +226,13 @@
             "properties": []
         },
         {
-            "name": "REPLIES_TO",
+            "name": "REPLY_OF",
             "start_node": "comment",
             "end_node": "comment",
             "properties": []
         },
         {
-            "name": "REPLIES_TO",
+            "name": "REPLY_OF",
             "start_node": "comment",
             "end_node": "post",
             "properties": []
@@ -256,7 +256,7 @@
             ]
         },
         {
-            "name": "HAS_MODERATOR",
+            "name": "MODERATES",
             "start_node": "forum",
             "end_node": "person",
             "properties": []

@@ -1,9 +1,17 @@
 """
-Profiling layer.
+Profiling layer for property-graph schema inference.
 
-This package contains the profiling + heuristic analysis used to build the
-DATA PROFILE section of the LLM prompt.
+This package provides profiling and heuristic analysis utilities used
+to construct the DATA PROFILE section of the LLM inference prompt.
+It supports both legacy graph-based profiling (for small datasets)
+and scalable statistics-based profiling (for large datasets).
+
+The module exposes a stable public API that prefers statistics-based
+profiling functions, while conditionally supporting legacy graph-based
+heuristics when available. This design allows the pipeline to scale
+without forcing full graph materialization.
 """
+
 
 # Graph-based profiling (legacy / small datasets)
 from pg_schema_llm.profiling.node_profile import profile_node_type

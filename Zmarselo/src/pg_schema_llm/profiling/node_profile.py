@@ -15,6 +15,13 @@ import networkx as nx
 
 @dataclass
 class NodeProfileConfig:
+    """
+    Configuration container for node profiling.
+
+    This dataclass defines sampling parameters, node-type attribute
+    resolution, and reporting limits used during node profiling.
+    """
+
     # graph-mode sampling
     sample_size: int = 500
     seed: Optional[int] = 42
@@ -34,11 +41,21 @@ def build_node_type_index(
     node_type_attr: str = "node_type",
 ) -> Dict[str, List[str]]:
     """
-    Optional accelerator:
-    Build an index: node_type -> list[node_id]
+    Build an index mapping node types to node identifiers.
 
-    This prevents scanning all nodes for every node type.
+    This optional accelerator constructs a dictionary mapping each
+    node type to the list of node identifiers that belong to it. It
+    prevents repeated full-graph scans when profiling multiple node
+    types.
+
+    Args:
+        G (nx.MultiDiGraph): Input property graph.
+        node_type_attr (str): Node attribute containing the node type.
+
+    Returns:
+        Dict[str, List[str]]: Node type index.
     """
+
     idx: Dict[str, List[str]] = {}
     for n, attr in G.nodes(data=True):
         for lab in _labels_of(attr, node_type_attr):
@@ -52,8 +69,17 @@ def build_node_type_index(
 
 def _labels_of(node_attr: dict, node_type_attr: str) -> List[str]:
     """
-    Return node labels/types in a uniform list[str] form.
-    Supports single label or list/set/tuple.
+    Extract node labels from a node attribute dictionary.
+
+    This helper normalizes the node-type attribute into a list of
+    string labels, supporting single values as well as collections.
+
+    Args:
+        node_attr (dict): Node attribute dictionary.
+        node_type_attr (str): Key used to store node type information.
+
+    Returns:
+        List[str]: List of node labels.
     """
     v = node_attr.get(node_type_attr)
     if v is None:
@@ -65,7 +91,16 @@ def _labels_of(node_attr: dict, node_type_attr: str) -> List[str]:
 
 def _stable(v):
     """
-    Stable representation for dict/list to allow set/uniqueness checks.
+    Produce a stable, hashable representation of a value.
+
+    This helper converts dictionaries and lists into a deterministic
+    string representation to enable uniqueness and cardinality checks.
+
+    Args:
+        v (Any): Input value.
+
+    Returns:
+        Any: Stable representation of the value.
     """
     if isinstance(v, (dict, list)):
         return json.dumps(v, sort_keys=True, ensure_ascii=False)
@@ -84,12 +119,21 @@ def profile_node_type(
     config: Optional[NodeProfileConfig] = None,
 ) -> str:
     """
-    Graph-based node profiler.
+    Profile a node type using a materialized graph.
 
-    Improvements vs your version:
-    - Can use a prebuilt node_index (type -> nodes) to avoid scanning all nodes per type.
-    - Deterministic sampling if seed is set.
-    - Bounded memory and stable output.
+    This function samples nodes of a given type to infer property
+    presence, cardinality characteristics, and value-type distributions.
+    It supports deterministic sampling and optional acceleration via
+    a precomputed node index.
+
+    Args:
+        G (nx.MultiDiGraph): Input property graph.
+        target_type (str): Node type to profile.
+        node_index (Optional[dict]): Optional node type index.
+        config (Optional[NodeProfileConfig]): Profiling configuration.
+
+    Returns:
+        str: Human-readable node profile summary.
     """
     cfg = config or NodeProfileConfig()
     target_type = str(target_type)
@@ -158,7 +202,18 @@ def profile_node_type(
 
 def _best_kind(prop_kind_counter: Counter, prop: str) -> str:
     """
-    prop_kind_counter keys are (prop, kind) -> count
+    Infer the most likely data type for a node property.
+
+    This function selects the data type with the highest observed
+    frequency for a given property based on collected statistics.
+
+    Args:
+        prop_kind_counter (Counter): Counter mapping (property, kind)
+            pairs to observed counts.
+        prop (str): Property name.
+
+    Returns:
+        str: Inferred canonical property type.
     """
     votes = Counter()
     for (p, k), c in prop_kind_counter.items():
@@ -171,8 +226,19 @@ def _best_kind(prop_kind_counter: Counter, prop: str) -> str:
 
 def profile_node_type_from_stats(ts, target_type: str, top_props: int = 60) -> str:
     """
-    Stats-based node profiler (no NetworkX).
-    Expects ts: TypeStats (schema/models.py)
+    Profile a node type using streaming TypeStats.
+
+    This function generates a node profile directly from aggregated
+    statistics without requiring graph materialization. It reports
+    property fill rates, inferred data types, and cardinality patterns.
+
+    Args:
+        ts: TypeStats object containing node statistics.
+        target_type (str): Node type to profile.
+        top_props (int): Maximum number of properties to report.
+
+    Returns:
+        str: Human-readable node profile summary.
     """
     ns = ts.node_types.get(str(target_type))
     if not ns or ns.count == 0:

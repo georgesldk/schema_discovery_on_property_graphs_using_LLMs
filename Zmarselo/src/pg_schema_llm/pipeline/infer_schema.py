@@ -20,12 +20,17 @@ from pg_schema_llm.profiling import (
 )
 
 
-# ============================================================
-# Config
-# ============================================================
 
 @dataclass
 class InferConfig:
+    """
+    Configuration container for schema inference.
+
+    This dataclass defines all tunable parameters controlling statistics
+    collection, LLM invocation, deterministic post-processing, and logging
+    behavior for schema inference.
+    """
+
     # stats building
     chunksize: int = 100_000
     sample_values_per_prop: int = 3
@@ -47,6 +52,15 @@ class InferConfig:
 # ============================================================
 
 def _p(verbose: bool, *args, **kwargs):
+    """
+    Conditional print helper for verbose logging.
+
+    This function centralizes verbosity checks to keep logging calls
+    concise and consistent across the inference pipeline.
+
+    Args:
+        verbose (bool): Whether logging is enabled.
+    """
     if verbose:
         print(*args, **kwargs)
 
@@ -56,6 +70,23 @@ def _p(verbose: bool, *args, **kwargs):
 # ============================================================
 
 def call_gemini_api(prompt: str, *, model_name: str, response_mime_type: str, verbose: bool) -> Optional[str]:
+    """
+    Invoke the Gemini LLM API for schema inference.
+
+    This function configures the Gemini client, submits a schema inference
+    prompt, and returns the raw textual response. API errors and missing
+    credentials are handled defensively.
+
+    Args:
+        prompt (str): Fully constructed inference prompt.
+        model_name (str): Gemini model identifier.
+        response_mime_type (str): Expected response MIME type.
+        verbose (bool): Whether to print diagnostic messages.
+
+    Returns:
+        Optional[str]: Raw response text, or None if the request fails.
+    """
+
     load_dotenv()
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
@@ -74,6 +105,19 @@ def call_gemini_api(prompt: str, *, model_name: str, response_mime_type: str, ve
 
 
 def extract_json(text: Optional[str]) -> Optional[dict]:
+    """
+    Extract and parse a JSON object from an LLM response.
+
+    This function removes common Markdown code-fence wrappers and attempts
+    to deserialize the remaining content into JSON. Parsing failures are
+    handled gracefully.
+
+    Args:
+        text (Optional[str]): Raw LLM response text.
+
+    Returns:
+        Optional[dict]: Parsed JSON object, or None if parsing fails.
+    """
     if not text:
         return None
     try:
@@ -88,6 +132,21 @@ def extract_json(text: Optional[str]) -> Optional[dict]:
 # ============================================================
 
 def _infer_best_kind(kind_counter, raw_prop: str) -> str:
+    """
+    Infer the most likely data type for a property from TypeStats.
+
+    This function selects the property type with the highest observed
+    frequency for a given property name, falling back to String when
+    no evidence is available.
+
+    Args:
+        kind_counter (Counter): Counter mapping (property, kind) to counts.
+        raw_prop (str): Raw property name.
+
+    Returns:
+        str: Inferred canonical property type.
+    """
+
     # kind_counter: Counter((prop, kind) -> count)
     best_kind = None
     best_c = -1
@@ -98,6 +157,20 @@ def _infer_best_kind(kind_counter, raw_prop: str) -> str:
 
 
 def _clean_prop_name(raw: str) -> str:
+    """
+    Normalize a raw property name for schema output.
+
+    This function removes Neo4j import artifacts, strips quoting, and
+    filters out technical columns that should not appear in inferred
+    schemas.
+
+    Args:
+        raw (str): Raw property name.
+
+    Returns:
+        str: Cleaned property name, or empty string if invalid.
+    """
+
     if not raw:
         return ""
     p = str(raw).strip().strip('"').strip("'")
@@ -119,8 +192,18 @@ def _clean_prop_name(raw: str) -> str:
 
 def backfill_properties_from_typestats(schema: dict, ts) -> dict:
     """
-    If model returns empty 'properties', fill from TypeStats.
-    This is what fixes StarWars/LDBC "properties": [] outputs.
+    Backfill missing node and edge properties using TypeStats.
+
+    This function deterministically populates empty property lists in
+    the inferred schema using statistics derived directly from the data.
+    It ensures completeness when the LLM omits properties.
+
+    Args:
+        schema (dict): Inferred schema returned by the LLM.
+        ts: TypeStats object containing observed property statistics.
+
+    Returns:
+        dict: Updated schema with backfilled properties.
     """
     if not schema:
         return schema
@@ -188,8 +271,17 @@ def backfill_properties_from_typestats(schema: dict, ts) -> dict:
 
 def backfill_missing_edge_properties_by_label(schema: dict) -> dict:
     """
-    If an edge label has properties in ANY occurrence, apply them to empty ones.
-    Useful when model outputs multiple edges with same name but only one has props.
+    Propagate edge properties across identical edge labels.
+
+    If multiple edges share the same label and at least one occurrence
+    defines properties, this function applies those properties to all
+    other occurrences with empty property lists.
+
+    Args:
+        schema (dict): Inferred schema.
+
+    Returns:
+        dict: Updated schema with edge properties propagated by label.
     """
     edges = schema.get("edge_types") or []
     if not edges:
@@ -231,6 +323,19 @@ def backfill_missing_edge_properties_by_label(schema: dict) -> dict:
 # ============================================================
 
 def build_profile_text_from_stats(ts) -> str:
+    """
+    Construct a textual data profile from TypeStats.
+
+    This function converts node and edge statistics into a structured
+    textual description suitable for LLM consumption, including logical
+    relationship summaries.
+
+    Args:
+        ts: TypeStats object.
+
+    Returns:
+        str: Profile text used to build the LLM prompt.
+    """
     node_types = ts.sorted_node_types()
     edge_types = ts.sorted_edge_types()
 
@@ -250,6 +355,21 @@ def build_profile_text_from_stats(ts) -> str:
 # ============================================================
 
 def infer_schema_from_folder(data_dir: str, config: Optional[InferConfig] = None) -> Optional[dict]:
+    """
+    Infer a property-graph schema from a dataset directory.
+
+    This function performs streaming statistics collection, profile
+    construction, LLM-based schema inference, and deterministic
+    post-processing to produce a final schema.
+
+    Args:
+        data_dir (str): Path to the dataset directory.
+        config (Optional[InferConfig]): Inference configuration.
+
+    Returns:
+        Optional[dict]: Inferred schema, or None if inference fails.
+    """
+
     cfg = config or InferConfig()
 
     _p(cfg.verbose, f"--- Building TypeStats (streaming) for: {data_dir} ---")
@@ -285,8 +405,22 @@ def infer_schema_from_folder(data_dir: str, config: Optional[InferConfig] = None
 
 
 def run_infer_schema(data_dir: str, output_path: str, config: Optional[InferConfig] = None) -> str:
-    schema = infer_schema_from_folder(data_dir, config=config)
+    """
+    Run schema inference and write the result to disk.
 
+    This function executes schema inference for a dataset directory and
+    serializes the resulting schema to a JSON file.
+
+    Args:
+        data_dir (str): Path to the dataset directory.
+        output_path (str): Path to the output JSON file.
+        config (Optional[InferConfig]): Inference configuration.
+
+    Returns:
+        str: Path to the written schema file.
+    """
+
+    schema = infer_schema_from_folder(data_dir, config=config)
     parent_dir = os.path.dirname(output_path)
     if parent_dir:
         os.makedirs(parent_dir, exist_ok=True)

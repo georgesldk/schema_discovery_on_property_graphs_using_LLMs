@@ -32,6 +32,11 @@
                     "name": "note",
                     "type": "String",
                     "mandatory": false
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         },
@@ -59,7 +64,17 @@
                     "mandatory": true
                 },
                 {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
                     "name": "areaCode",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "postcode_code",
                     "type": "String",
                     "mandatory": true
                 }
@@ -80,6 +95,11 @@
                 },
                 {
                     "name": "source_id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "id",
                     "type": "String",
                     "mandatory": false
                 }
@@ -107,6 +127,11 @@
                     "name": "rank",
                     "type": "String",
                     "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         },
@@ -129,20 +154,20 @@
                     "mandatory": true
                 },
                 {
+                    "name": "age",
+                    "type": "Long",
+                    "mandatory": false
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
                     "name": "email_address",
                     "type": "String",
                     "mandatory": true
                 },
-                {
-                    "name": "age",
-                    "type": "Long",
-                    "mandatory": false
-                }
-            ]
-        },
-        {
-            "name": "Phone",
-            "properties": [
                 {
                     "name": "phoneNo",
                     "type": "String",
@@ -172,19 +197,19 @@
                     "name": "call_duration",
                     "type": "Long",
                     "mandatory": true
-                }
-            ]
-        },
-        {
-            "name": "PostCode",
-            "properties": [
+                },
                 {
-                    "name": "code",
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                },
+                {
+                    "name": "called_phoneNo",
                     "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "areaCode",
+                    "name": "caller_phoneNo",
                     "type": "String",
                     "mandatory": true
                 }
@@ -212,25 +237,18 @@
                     "name": "make",
                     "type": "String",
                     "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         }
     ],
     "edge_types": [
         {
-            "name": "CALLED",
-            "start_node": "PhoneCall",
-            "end_node": "Phone",
-            "properties": []
-        },
-        {
-            "name": "CALLER",
-            "start_node": "PhoneCall",
-            "end_node": "Phone",
-            "properties": []
-        },
-        {
-            "name": "RESIDES_AT",
+            "name": "HAS_ADDRESS",
             "start_node": "Person",
             "end_node": "Location",
             "properties": []
@@ -239,19 +257,13 @@
             "name": "HAS_FAMILY_RELATIONSHIP",
             "start_node": "Person",
             "end_node": "Person",
-            "properties": []
-        },
-        {
-            "name": "OWNS_PHONE",
-            "start_node": "Person",
-            "end_node": "Phone",
-            "properties": []
-        },
-        {
-            "name": "ASSOCIATED_WITH",
-            "start_node": "Location",
-            "end_node": "PostCode",
-            "properties": []
+            "properties": [
+                {
+                    "name": "rel_type",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
         },
         {
             "name": "INVESTIGATED_BY",
@@ -278,13 +290,13 @@
             "properties": []
         },
         {
-            "name": "KNOWS_SPECIFICALLY",
+            "name": "KNOWS_LW",
             "start_node": "Person",
             "end_node": "Person",
             "properties": []
         },
         {
-            "name": "KNOWS_VIA_PHONE",
+            "name": "KNOWS_PHONE",
             "start_node": "Person",
             "end_node": "Person",
             "properties": []
@@ -296,7 +308,7 @@
             "properties": []
         },
         {
-            "name": "IS_PARTY_TO",
+            "name": "PARTY_TO",
             "start_node": "Person",
             "end_node": "Crime",
             "properties": []

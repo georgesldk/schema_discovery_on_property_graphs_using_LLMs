@@ -11,18 +11,45 @@ _NODE_ID_ALIASES = {"id", "node_id", "nodeid"}
 
 
 def _clean_col(c: Any) -> str:
-    # strip whitespace + surrounding quotes/backticks
+    """
+    Normalize a raw column header value.
+
+    This helper function converts the input to a string and removes
+    surrounding whitespace and quoting characters. It is used to
+    standardize column names before role detection logic is applied.
+
+    Args:
+        c (Any): Raw column header value.
+
+    Returns:
+        str: Cleaned column name.
+    """
     return str(c).strip().strip('"').strip("'").strip("`")
 
 
 def detect_file_role(df) -> Tuple[str, Dict[str, str]]:
     """
-    Detect whether a CSV file is a node file or edge file based on headers.
+    Detect the semantic role of a CSV file based on its column headers.
+
+    This function inspects dataframe headers to determine whether the
+    file represents nodes or edges in a property graph. It supports
+    Neo4j-style headers as well as common generic naming conventions
+    used across heterogeneous datasets.
+
+    The detection follows a priority order:
+    1. Explicit Neo4j edge headers (:START_ID, :END_ID)
+    2. Generic source/target aliases
+    3. Neo4j node identifiers (:ID)
+    4. Generic or heuristic identifier patterns
+
+    Args:
+        df (pd.DataFrame): Dataframe containing CSV header information.
 
     Returns:
-      ("edge", {"start": <col>, "end": <col>})
-      ("node", {"id": <col>})
-      ("unknown", {})
+        Tuple[str, Dict[str, str]]:
+            - ("edge", {"start": <column>, "end": <column>}) if an edge file
+            - ("node", {"id": <column>}) if a node file
+            - ("unknown", {}) if no role can be reliably inferred
     """
     cols_raw: List[Any] = list(df.columns)
     cols: List[str] = [_clean_col(c) for c in cols_raw]

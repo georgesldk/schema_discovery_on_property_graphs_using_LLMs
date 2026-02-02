@@ -1,14 +1,41 @@
 def _norm_label(x: str) -> str:
-    # keep only the base label if you have "Label:Something" formats
+    """
+    Normalize a node label to its base form.
+
+    This helper strips secondary qualifiers from labels (e.g., converting
+    'Label:Something' to 'Label') to ensure consistent topology matching
+    and comparison.
+
+    Args:
+        x (str): Raw label string.
+
+    Returns:
+        str: Normalized base label.
+    """
+
     return x.split(":")[0].strip() if x else ""
 
 def normalize_topology(edge_map, label_to_primary_labels=None):
     """
-    Normalizes topology without changing semantics:
-    - keeps each topology rule separate (NO union/collapse)
-    - normalizes label formatting
-    - optionally maps labels -> primary labels
+    Normalize edge topology definitions without altering semantics.
+
+    This function cleans and deduplicates topology constraints by:
+    - Normalizing label formatting
+    - Optionally mapping labels to canonical primary labels
+    - Preserving each topology rule independently (no union or collapse)
+
+    The procedure ensures stable, comparable topology representations
+    while maintaining the original structural intent.
+
+    Args:
+        edge_map (dict): Mapping of edge definitions containing topology rules.
+        label_to_primary_labels (Optional[dict]): Optional mapping from
+            secondary labels to primary canonical labels.
+
+    Returns:
+        None
     """
+
     for edge_def in edge_map.values():
         new_topology = []
         seen = set()

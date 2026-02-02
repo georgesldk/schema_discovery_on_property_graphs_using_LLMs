@@ -2,7 +2,7 @@
 venv/
 __pycache__/
 .venv/
-outputs/
+03_outputs/schemas/
 
 pg_data_ldbc/
 pg_data_pole/

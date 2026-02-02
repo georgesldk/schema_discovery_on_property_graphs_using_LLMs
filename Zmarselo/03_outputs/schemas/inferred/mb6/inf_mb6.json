@@ -109,7 +109,7 @@
                 },
                 {
                     "name": "alpha1",
-                    "type": "Boolean",
+                    "type": "Double",
                     "mandatory": true
                 },
                 {
@@ -119,7 +119,7 @@
                 },
                 {
                     "name": "alpha3",
-                    "type": "Double",
+                    "type": "Boolean",
                     "mandatory": true
                 }
             ]
@@ -149,7 +149,7 @@
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "HAS",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
@@ -177,7 +177,7 @@
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "INCLUDES",
             "start_node": "SynapseSet",
             "end_node": "Synapses",
             "properties": []

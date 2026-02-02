@@ -1,13 +1,19 @@
 """
 I/O utilities for dataset parsing and Property Graph construction.
 
-This package exposes the dataset ingestion layer:
-- CSV role detection (node vs edge)
-- Row normalization
-- CSV helpers (sniff/read/chunks)
-- Naming utilities
-- Streaming typestats builder
-- (Legacy) NetworkX graph builder
+This package provides the dataset ingestion layer and exposes a stable public API for:
+- Detecting CSV file roles (node vs edge)
+- Normalizing rows into a consistent internal representation
+- Reading CSVs reliably (delimiter sniffing, previews, full reads, chunk iteration)
+- Cleaning and standardizing names/types across heterogeneous datasets
+- Building streaming type statistics for schema inference
+- (Legacy) Constructing a NetworkX graph when needed
+
+Notes:
+- This module intentionally re-exports selected functions to keep imports concise
+  (e.g., `from pg_schema_llm.io import detect_file_role`).
+- `__all__` defines the supported public surface; anything not listed should be
+  treated as internal and subject to change.
 """
 
 from pg_schema_llm.io.detect import detect_file_role

@@ -7,8 +7,18 @@ from typing import Sequence, Tuple
 
 def get_common_affixes(filenames: Sequence[str]) -> Tuple[str, str]:
     """
-    Dataset-agnostic noise detector: common prefix/suffix across *all* filenames.
-    Works best when most files share a wrapper like 'mb6_' or '_edges'.
+    Detect common filename prefix and suffix across a dataset.
+
+    This function identifies shared leading and trailing substrings
+    present in all filenames. These affixes typically represent
+    dataset-level wrappers or noise (e.g., dataset identifiers or
+    role indicators) and can be safely removed during name normalization.
+
+    Args:
+        filenames (Sequence[str]): Collection of filenames.
+
+    Returns:
+        Tuple[str, str]: Common (prefix, suffix) shared by all filenames.
     """
     if not filenames:
         return "", ""
@@ -31,8 +41,18 @@ _TOKEN_SPLIT_RE = re.compile(r"[^\w]+", re.UNICODE)  # splits on _ - . space etc
 
 def _strip_role_tokens(tokens: Sequence[str]) -> Tuple[str, ...]:
     """
-    Remove role tokens only if they appear as whole tokens at the start/end.
-    This avoids assumptions like nodes_/rels_ and avoids damaging names like 'Knowledge'.
+    Remove generic role tokens from tokenized filenames.
+
+    This function removes role-related tokens (e.g., 'nodes', 'edges')
+    only when they appear as complete tokens at the beginning or end
+    of the token sequence. This conservative strategy avoids accidental
+    modification of meaningful type names.
+
+    Args:
+        tokens (Sequence[str]): Tokenized filename components.
+
+    Returns:
+        Tuple[str, ...]: Tokens with role indicators removed from boundaries.
     """
     toks = [t for t in tokens if t]  # drop empties
     if not toks:
@@ -51,18 +71,20 @@ def _strip_role_tokens(tokens: Sequence[str]) -> Tuple[str, ...]:
 
 def clean_name_smart(filename: str, prefix: str, suffix: str) -> str:
     """
-    Fully dataset-agnostic type name cleaner:
-    - removes global common prefix/suffix across files
-    - strips extension
-    - strips leading/trailing separators
-    - removes generic role tokens only when standalone tokens at the start/end
+    Derive a clean, dataset-agnostic type name from a filename.
 
-    Examples (no hardcoded 'nodes_'/'rels_'):
-      "mb6_nodes_Person.csv"      -> "Person"
-      "FIB25-edges-PURCHASED.csv" -> "PURCHASED"
-      "relationships_user_tag.csv"-> "user_tag"
-      "node.Person.csv"           -> "Person"
-      "KnowledgeGraph.csv"        -> "KnowledgeGraph"   (unchanged, no token match)
+    This function removes dataset-level noise such as shared prefixes
+    and suffixes, file extensions, separator artifacts, and generic
+    role tokens. It is designed to operate without hardcoded dataset
+    assumptions and preserves semantic identifiers whenever possible.
+
+    Args:
+        filename (str): Original filename.
+        prefix (str): Common dataset prefix to remove.
+        suffix (str): Common dataset suffix to remove.
+
+    Returns:
+        str: Normalized type name suitable for schema inference.
     """
     base = os.path.basename(filename)
 
@@ -92,4 +114,17 @@ def clean_name_smart(filename: str, prefix: str, suffix: str) -> str:
 
 # --- Legacy support ---
 def clean_type_name(filename: str) -> str:
+    """
+    Extract a basic type name from a filename (legacy behavior).
+
+    This function strips directory paths and file extensions without
+    performing any dataset-agnostic normalization. It is retained for
+    backward compatibility with earlier code paths.
+
+    Args:
+        filename (str): Original filename.
+
+    Returns:
+        str: Filename stem without extension.
+    """
     return os.path.splitext(os.path.basename(filename))[0]

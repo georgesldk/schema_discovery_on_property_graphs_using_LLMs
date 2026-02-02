@@ -22,8 +22,19 @@ from pg_schema_llm.io.kv_store import sqlite_kv_get_many, sqlite_kv_open, sqlite
 
 def resolve_col(actual_cols: Sequence[str], detected: Optional[str]) -> Optional[str]:
     """
-    Map a detected column name to an actual column name in the dataframe.
-    Handles neo4j forms and common aliases.
+    Resolve a detected column name to an actual dataframe column.
+
+    This function maps a column name inferred during header inspection
+    to the corresponding concrete column name in a dataframe. It handles
+    Neo4j-style headers, common aliases, quoting artifacts, and
+    case-insensitive matches.
+
+    Args:
+        actual_cols (Sequence[str]): Column names present in the dataframe.
+        detected (Optional[str]): Detected column name or alias.
+
+    Returns:
+        Optional[str]: Resolved column name if found, otherwise None.
     """
     if not detected:
         return None
@@ -82,8 +93,18 @@ def resolve_col(actual_cols: Sequence[str], detected: Optional[str]) -> Optional
 
 def extract_json_keys_sample(series: pd.Series, max_rows: int = 200) -> List[str]:
     """
-    Extract JSON keys from a sample of values.
-    StarWars stores all properties inside a JSON blob column called "props".
+    Extract property keys from JSON blobs stored as string values.
+
+    This function samples values from a dataframe column and attempts
+    to parse them as JSON objects. It is primarily used for datasets
+    where properties are embedded inside a single JSON column.
+
+    Args:
+        series (pd.Series): Column containing JSON-encoded strings.
+        max_rows (int): Maximum number of rows to sample.
+
+    Returns:
+        List[str]: Sorted list of discovered JSON object keys.
     """
     keys = set()
     vals = series.dropna().head(max_rows).tolist()
@@ -102,6 +123,20 @@ def extract_json_keys_sample(series: pd.Series, max_rows: int = 200) -> List[str
 # ============================================================
 
 def _infer_simple_kind(v: Any) -> Optional[str]:
+    """
+    Infer a coarse-grained data type from a value.
+
+    This helper function performs lightweight type inference suitable
+    for schema discovery, distinguishing between booleans, integers,
+    floats, and strings using conservative parsing rules.
+
+    Args:
+        v (Any): Input value.
+
+    Returns:
+        Optional[str]: Inferred type name, or None if the value is blank.
+    """
+
     if v is None:
         return None
     if isinstance(v, str):
@@ -132,7 +167,16 @@ def _infer_simple_kind(v: Any) -> Optional[str]:
 
 def _is_reserved_property(col: str) -> bool:
     """
-    Drop Neo4j import / technical columns from schema properties.
+    Determine whether a column represents a reserved or technical property.
+
+    This function filters out Neo4j import columns and other technical
+    fields that should not be included in inferred schema properties.
+
+    Args:
+        col (str): Column name.
+
+    Returns:
+        bool: True if the column should be excluded from schema inference.
     """
     if not col:
         return True
@@ -148,12 +192,32 @@ def _is_reserved_property(col: str) -> bool:
 # ============================================================
 
 def _list_csv_files(data_folder: str) -> List[str]:
+    """
+    List all CSV files in a dataset directory.
+
+    Args:
+        data_folder (str): Path to the dataset directory.
+
+    Returns:
+        List[str]: Absolute paths to CSV files found in the directory.
+    """
+    
     return glob.glob(os.path.join(data_folder, "*.csv"))
 
 
 def build_graph(data_folder: str) -> nx.MultiDiGraph:
     """
-    Legacy: materializes full NetworkX MultiDiGraph.
+    Construct a full in-memory property graph using NetworkX.
+
+    This legacy function materializes all nodes and edges into a
+    NetworkX MultiDiGraph. It is intended only for small datasets
+    and debugging purposes, as it does not scale to large graphs.
+
+    Args:
+        data_folder (str): Path to the dataset directory.
+
+    Returns:
+        nx.MultiDiGraph: Constructed property graph.
     """
     print(f"--- Building Graph from: {data_folder} ---")
     G = nx.MultiDiGraph()
@@ -254,13 +318,23 @@ def build_typestats(
     sample_values_per_prop: int = 3,
 ) -> Dict[str, dict]:
     """
-    Streaming stats builder for schema discovery.
+    Build streaming type statistics for property-graph schema discovery.
 
-    Output:
-    {
-      "node_types": { type: {count, prop_fill, prop_kind, prop_samples}, ... },
-      "edge_types": { edge: {count, prop_fill, prop_kind, prop_keys, topology}, ... }
-    }
+    This function processes CSV-based graph datasets in a streaming
+    fashion to infer node types, edge types, property presence,
+    property kinds, and topology patterns. It avoids materializing
+    the full graph in memory and uses a lightweight SQLite store to
+    track node identifier to type mappings across passes.
+
+    Args:
+        data_folder (str): Path to the dataset directory.
+        chunksize (int): Number of rows per CSV chunk.
+        db_path (Optional[str]): Path to the SQLite key?value store.
+        sample_values_per_prop (int): Maximum number of sample values
+            retained per property.
+
+    Returns:
+        Dict[str, dict]: Dictionary containing node and edge type statistics.
     """
     print(f"--- Building TypeStats (streaming) from: {data_folder} ---")
 

@@ -13,7 +13,18 @@ import networkx as nx
 
 def iter_edge_attrdicts(G, u, v):
     """
-    Return list of attr dicts for all parallel edges u->v (MultiGraph-safe).
+    Return attribute dictionaries for all parallel edges between two nodes.
+
+    This helper safely retrieves edge attribute dictionaries for graphs
+    that may contain parallel edges (MultiGraph or MultiDiGraph).
+
+    Args:
+        G: Input NetworkX graph.
+        u: Source node identifier.
+        v: Target node identifier.
+
+    Returns:
+        List[dict]: List of edge attribute dictionaries.
     """
     data = G.get_edge_data(u, v)
     if not data:
@@ -31,9 +42,22 @@ def suggest_edge_label_from_data(
     max_pairs: int = 2000,
 ):
     """
-    Domain-agnostic:
-    If edges carry a 'type' attribute, return the most frequent observed label on direct edges.
-    Otherwise return None.
+    Suggest an edge label based on observed graph data.
+
+    This function inspects direct edges between nodes of the given source
+    and target types and returns the most frequently observed edge label,
+    if available. It is fully data-driven and domain-agnostic.
+
+    Args:
+        G: Input NetworkX graph.
+        source_type (str): Source node type.
+        target_type (str): Target node type.
+        edge_type_key (str): Attribute key storing edge labels.
+        max_pairs (int): Maximum number of node pairs to inspect.
+
+    Returns:
+        Tuple[Optional[str], dict]: Suggested edge label (if any) and
+        diagnostic metadata describing the decision.
     """
     source_nodes = [n for n, a in G.nodes(data=True) if a.get("node_type") == source_type]
     if not source_nodes:
@@ -74,6 +98,13 @@ def suggest_edge_label_from_data(
 
 @dataclass
 class StatsHeuristicConfig:
+    """
+    Configuration container for statistics-based structural heuristics.
+
+    This dataclass defines thresholds and limits used to detect technical
+    containers, logical paths, bidirectional patterns, and summary verbosity.
+    """
+
     # container detection thresholds (tuned to avoid false positives on MB6/FIB25)
     max_meaningful_props: int = 1
     meaningful_prop_min_fill: float = 0.20   # property considered meaningful if appears in >= 20% nodes
@@ -95,10 +126,19 @@ class StatsHeuristicConfig:
 
 def _build_type_adjacency_counts(ts) -> Tuple[Dict[str, Counter], Dict[str, Counter]]:
     """
-    Build weighted adjacency among node types using observed edge topology across ALL edge types.
+    Build weighted adjacency counts between node types.
+
+    This helper aggregates edge topology statistics across all edge types
+    to produce weighted outgoing and incoming adjacency maps between
+    node types.
+
+    Args:
+        ts: TypeStats object containing edge topology statistics.
+
     Returns:
-      out_counts[A][B] = total edges A->B across all edge labels
-      in_counts[B][A]  = total edges A->B (same info reversed)
+        Tuple[Dict[str, Counter], Dict[str, Counter]]:
+            - Outgoing adjacency counts per node type
+            - Incoming adjacency counts per node type
     """
     out_counts: Dict[str, Counter] = defaultdict(Counter)
     in_counts: Dict[str, Counter] = defaultdict(Counter)
@@ -114,10 +154,18 @@ def _build_type_adjacency_counts(ts) -> Tuple[Dict[str, Counter], Dict[str, Coun
 
 def identify_technical_containers_from_stats(ts, cfg: Optional[StatsHeuristicConfig] = None) -> Set[str]:
     """
-    Better container/join detection using BOTH:
-      - property sparsity (very few meaningful props)
-      - topology "join-ness" (many distinct in/out neighbors)
-    This reduces false positives on large datasets.
+    Identify technical container or join node types using statistics.
+
+    This function combines property sparsity and topology-based signals
+    to detect node types that primarily serve as technical intermediates
+    rather than meaningful domain entities.
+
+    Args:
+        ts: TypeStats object.
+        cfg (Optional[StatsHeuristicConfig]): Heuristic configuration.
+
+    Returns:
+        Set[str]: Set of node type names classified as technical containers.
     """
     cfg = cfg or StatsHeuristicConfig()
     out_counts, in_counts = _build_type_adjacency_counts(ts)
@@ -159,8 +207,20 @@ def identify_technical_containers_from_stats(ts, cfg: Optional[StatsHeuristicCon
 
 def analyze_logical_paths_from_stats(ts, tech_containers: Set[str], cfg: Optional[StatsHeuristicConfig] = None) -> List[Tuple[str, str, str, int]]:
     """
-    Detect A -> C -> B patterns using weighted adjacency.
-    Returns tuples (A, C, B, support_votes) where support_votes is min(A->C, C->B).
+    Analyze indirect logical paths through technical containers.
+
+    This function detects A ? C ? B patterns where C is a technical
+    container node type and aggregates support counts based on observed
+    edge frequencies.
+
+    Args:
+        ts: TypeStats object.
+        tech_containers (Set[str]): Identified technical container types.
+        cfg (Optional[StatsHeuristicConfig]): Heuristic configuration.
+
+    Returns:
+        List[Tuple[str, str, str, int]]: Detected logical paths with
+        support vote counts.
     """
     cfg = cfg or StatsHeuristicConfig()
     out_counts, in_counts = _build_type_adjacency_counts(ts)
@@ -196,8 +256,18 @@ def analyze_logical_paths_from_stats(ts, tech_containers: Set[str], cfg: Optiona
 
 def analyze_bidirectional_patterns_from_stats(ts, cfg: Optional[StatsHeuristicConfig] = None) -> List[Tuple[str, str, int]]:
     """
-    Symmetry on weighted adjacency: A->B and B->A observed.
-    Returns (A, B, support=min(count(A->B), count(B->A))) for A < B.
+    Detect bidirectional or symmetric relationships between node types.
+
+    This function identifies pairs of node types with observed edges in
+    both directions and reports a support score based on edge frequencies.
+
+    Args:
+        ts: TypeStats object.
+        cfg (Optional[StatsHeuristicConfig]): Heuristic configuration.
+
+    Returns:
+        List[Tuple[str, str, int]]: Bidirectional node type pairs with
+        support counts.
     """
     cfg = cfg or StatsHeuristicConfig()
     out_counts, _ = _build_type_adjacency_counts(ts)
@@ -217,8 +287,18 @@ def analyze_bidirectional_patterns_from_stats(ts, cfg: Optional[StatsHeuristicCo
 
 def generate_logical_relationship_summary_from_stats(ts, cfg: Optional[StatsHeuristicConfig] = None) -> str:
     """
-    Stats-only summary compatible with your prompt format.
-    Now includes support counts and is less likely to mislead the LLM.
+    Generate a structured summary of inferred logical relationships.
+
+    This function synthesizes detected technical containers, indirect
+    logical paths, and bidirectional patterns into a textual summary
+    compatible with the LLM prompt format.
+
+    Args:
+        ts: TypeStats object.
+        cfg (Optional[StatsHeuristicConfig]): Heuristic configuration.
+
+    Returns:
+        str: Human-readable logical relationship summary.
     """
     cfg = cfg or StatsHeuristicConfig()
 

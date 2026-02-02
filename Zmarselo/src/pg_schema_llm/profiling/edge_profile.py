@@ -13,6 +13,13 @@ import networkx as nx
 
 @dataclass
 class EdgeProfileConfig:
+    """
+    Configuration container for edge profiling.
+
+    This dataclass defines sampling limits, safety bounds, and reporting
+    parameters used during graph-based edge profiling.
+    """
+
     # graph-mode sampling
     sample_limit: int = 1_000_000          # hard cap on accepted edges (across this edge type)
     prop_sample_limit: int = 500          # how many edges to inspect for property keys
@@ -30,12 +37,20 @@ class EdgeProfileConfig:
 
 def build_edge_type_index(G: nx.MultiDiGraph) -> Dict[str, List[Tuple[str, str, int]]]:
     """
-    Optional accelerator:
-    Build an index: edge_type -> list of (u, v, key)
+    Build an index mapping edge types to their occurrences in a graph.
 
-    Use it if you profile many edge types on a big graph.
-    Without this, profiling each edge type requires scanning all edges.
+    This optional accelerator constructs a dictionary that maps each
+    edge type to a list of (source, target, key) tuples. It enables
+    efficient profiling of specific edge types without scanning the
+    entire graph.
+
+    Args:
+        G (nx.MultiDiGraph): Input property graph.
+
+    Returns:
+        Dict[str, List[Tuple[str, str, int]]]: Edge type index.
     """
+
     idx: Dict[str, List[Tuple[str, str, int]]] = {}
     for u, v, k, attr in G.edges(keys=True, data=True):
         et = attr.get("type")
@@ -51,10 +66,21 @@ def _iter_edges_of_type(
     edge_index: Optional[Dict[str, List[Tuple[str, str, int]]]] = None,
 ) -> Iterable[Tuple[str, str, int, dict]]:
     """
-    Yield (u, v, key, attr) for edges of the requested type.
-    If edge_index is supplied, only iterate those edges (fast).
-    Otherwise scan all edges (slow).
+    Iterate over edges of a specific type in a graph.
+
+    This generator yields edges matching the requested type. When an
+    edge index is provided, iteration is restricted to indexed edges
+    for improved performance; otherwise, the full graph is scanned.
+
+    Args:
+        G (nx.MultiDiGraph): Input property graph.
+        target_type (str): Edge type to iterate.
+        edge_index (Optional[dict]): Optional edge type index.
+
+    Yields:
+        Tuple[str, str, int, dict]: Source, target, edge key, and attributes.
     """
+
     if edge_index is not None:
         for (u, v, k) in edge_index.get(str(target_type), []):
             attr = G.get_edge_data(u, v, key=k) or {}
@@ -81,13 +107,21 @@ def profile_edge_type(
     config: Optional[EdgeProfileConfig] = None,
 ) -> str:
     """
-    Graph-based edge profiler.
+    Profile an edge type using a materialized graph.
 
-    Improvements vs your version:
-    - Can use a prebuilt edge_index to avoid scanning all edges per type.
-    - Deterministic sampling if seed is set.
-    - Always preserves "rare" topology pairs via safety net.
-    - Property sampling is bounded and cheap.
+    This function performs probabilistic sampling over edges of a given
+    type to infer topology patterns and property keys. It supports
+    deterministic runs, bounded sampling, and optional acceleration via
+    a precomputed edge index.
+
+    Args:
+        G (nx.MultiDiGraph): Input property graph.
+        target_type (str): Edge type to profile.
+        edge_index (Optional[dict]): Optional edge type index.
+        config (Optional[EdgeProfileConfig]): Profiling configuration.
+
+    Returns:
+        str: Human-readable edge profile summary.
     """
     cfg = config or EdgeProfileConfig()
 
@@ -182,8 +216,20 @@ def profile_edge_type(
 
 def profile_edge_type_from_stats(ts, target_type: str, top_k_topology: int = 12, top_props: int = 80) -> str:
     """
-    Stats-based edge profiler (no NetworkX).
-    Expects ts: TypeStats.
+    Profile an edge type using streaming TypeStats.
+
+    This function generates an edge profile directly from aggregated
+    statistics without requiring graph materialization. It reports
+    observed topology patterns and property presence frequencies.
+
+    Args:
+        ts: TypeStats object containing edge statistics.
+        target_type (str): Edge type to profile.
+        top_k_topology (int): Maximum number of topology patterns to report.
+        top_props (int): Maximum number of properties to list.
+
+    Returns:
+        str: Human-readable edge profile summary.
     """
     es = ts.edge_types.get(str(target_type))
     if not es or es.count == 0:
