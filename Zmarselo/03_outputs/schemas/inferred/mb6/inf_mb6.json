@@ -149,35 +149,19 @@
             ]
         },
         {
-            "name": "HAS",
+            "name": "INCLUDES",
             "start_node": "Neurons",
             "end_node": "SynapseSet",
             "properties": []
         },
         {
-            "name": "CONNECTS",
+            "name": "RELATES_TO",
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "INCLUDES",
+            "name": "CONTAINS",
             "start_node": "SynapseSet",
             "end_node": "Synapses",
             "properties": []

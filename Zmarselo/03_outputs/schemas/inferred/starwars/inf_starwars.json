@@ -403,61 +403,61 @@
     ],
     "edge_types": [
         {
-            "name": "APPEARED_IN",
+            "name": "APPEARS_IN",
             "start_node": "Character",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARED_IN",
+            "name": "APPEARS_IN",
             "start_node": "Species",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARED_IN",
+            "name": "APPEARS_IN",
             "start_node": "Starship",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARED_IN",
+            "name": "APPEARS_IN",
             "start_node": "Vehicle",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARED_IN",
+            "name": "APPEARS_IN",
             "start_node": "Planet",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "HOMEWORLD",
+            "name": "HAS_HOMEWORLD",
             "start_node": "Character",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "HOMEWORLD",
+            "name": "HAS_HOMEWORLD",
             "start_node": "Species",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "OF",
+            "name": "IS_A",
             "start_node": "Character",
             "end_node": "Species",
             "properties": []
         },
         {
-            "name": "PILOT",
+            "name": "PILOTS",
             "start_node": "Character",
             "end_node": "Starship",
             "properties": []
         },
         {
-            "name": "PILOT",
+            "name": "PILOTS",
             "start_node": "Character",
             "end_node": "Vehicle",
             "properties": []

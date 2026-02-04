@@ -9,3 +9,6 @@ python scripts/infer.py datasetName
 
 # How to compare infer with GT
 python scripts/compare.py datasetName
+
+# How to run webapp
+python app.py 
