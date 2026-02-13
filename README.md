@@ -1,5 +1,4 @@
-# Dataset Used so far
-fib25 , pole , starwars , mb6 , ldbc
+# All commands should be run from the root /Zmarselo/ directory.
 
 # How to extract its GT
 python scripts/extract_gt.py datasetName
@@ -10,14 +9,20 @@ python scripts/infer.py datasetName
 # How to compare infer with GT
 python scripts/compare.py datasetName
 
-# How to run webapp
+# Launch Web Interface from /Zmarselo/webapp/ directory
 python app.py 
 
+
+
+# Dataset Used so far
+fib25 , pole , starwars , mb6 , ldbc
+
 # Example Performance of Outputs
-STARWARS							  100%
-POLE						    95%
-MB6						  	    66%
-FIB25						    68%
+STARWARS					    96.18%
+POLE						    95.83%
+MB6						  	    65.89%
+FIB25						    69.90%
+LDBC                            92.91%
 
 
 # How to get the datasets
@@ -29,5 +34,13 @@ FIB25						    68%
  - In 02_pts create folder named pt_data_<datasetName>
     - Put the Property Graph files here
 
-- Navigate to /Zmarselo/ and run commands
-- Or navigate to /Zmarselo/webapp and run webapp
+
+# If you encounter ModuleNotFoundError or shell errors:
+
+# Ensure conda is deactivated and your local venv is active:
+source venv/bin/activate
+
+# If scripts cannot find the src folder, export the Python path: 
+export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+
+# Complete informative report in PDF
