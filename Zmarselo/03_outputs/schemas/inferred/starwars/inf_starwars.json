@@ -403,49 +403,49 @@
     ],
     "edge_types": [
         {
-            "name": "APPEARS_IN",
+            "name": "APPEARED_IN",
             "start_node": "Character",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARS_IN",
+            "name": "APPEARED_IN",
             "start_node": "Species",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARS_IN",
+            "name": "APPEARED_IN",
             "start_node": "Starship",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARS_IN",
+            "name": "APPEARED_IN",
             "start_node": "Vehicle",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "APPEARS_IN",
+            "name": "APPEARED_IN",
             "start_node": "Planet",
             "end_node": "Film",
             "properties": []
         },
         {
-            "name": "HAS_HOMEWORLD",
+            "name": "HOMEWORLD",
             "start_node": "Character",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "HAS_HOMEWORLD",
+            "name": "HOMEWORLD",
             "start_node": "Species",
             "end_node": "Planet",
             "properties": []
         },
         {
-            "name": "IS_A",
+            "name": "BELONGS_TO",
             "start_node": "Character",
             "end_node": "Species",
             "properties": []
