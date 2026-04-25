@@ -12,35 +12,16 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 # Config
 # ============================================================
 
-RESERVED_PROP_PREFIXES = (":",)  # anything starting with ":" like :ID, :LABEL
-RESERVED_PROP_NAMES = {
-    "id", "label", "labels", "type",
-}
-
-# Semantic matching model (optional)
+RESERVED_PROP_PREFIXES = (":",)  
+RESERVED_PROP_NAMES = {"id", "label", "labels", "type"}
 DEFAULT_SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 # ============================================================
-# Helpers: JSON load
+# Helpers
 # ============================================================
 
 def load_json(path: str) -> dict:
-    """
-    Load a JSON file from disk with UTF-8 compatibility.
-
-    This function provides a thin wrapper around json loading that
-    raises a clear, contextual error message when loading fails.
-
-    Args:
-        path (str): Path to the JSON file.
-
-    Returns:
-        dict: Parsed JSON content.
-
-    Raises:
-        RuntimeError: If the file cannot be loaded or parsed.
-    """
     try:
         with open(path, "r", encoding="utf-8-sig") as f:
             return json.load(f)
@@ -48,205 +29,56 @@ def load_json(path: str) -> dict:
         raise RuntimeError(f"Error loading {path}: {e}") from e
 
 
-# ============================================================
-# Helpers: property normalization + filtering
-# ============================================================
-
-def avg_defined(values: Sequence[Optional[float]]) -> float:
-    """
-    Compute the average of defined (non-None) numeric values.
-
-    This helper is used to aggregate multiple metric scores while
-    automatically excluding undefined values from the computation.
-
-    Args:
-        values (Sequence[Optional[float]]): Collection of numeric values.
-
-    Returns:
-        float: Average of defined values, or 0.0 if none are defined.
-    """
-    xs = [v for v in values if v is not None]
-    return (sum(xs) / len(xs)) if xs else 0.0
-
-
 def normalize_prop_name(name: str) -> str:
-    """
-    Normalize a property name for comparison.
+    if not name: return ""
+    return name.strip().lower().replace("`", "")
 
-    This function lowercases the name, strips whitespace, and removes
-    quoting artifacts to enable robust property matching across schemas.
-
-    Args:
-        name (str): Raw property name.
-
-    Returns:
-        str: Normalized property name.
-    """
-    if not name:
-        return ""
-    n = name.strip().lower()
-    n = n.replace("`", "")
-    return n
 
 def is_reserved_prop(name: str) -> bool:
-    """
-    Determine whether a property name is reserved or technical.
-
-    This function filters out internal identifiers, Neo4j import
-    artifacts, and schema-level technical fields that should not
-    participate in property accuracy evaluation.
-
-    Args:
-        name (str): Property name.
-
-    Returns:
-        bool: True if the property should be excluded, False otherwise.
-    """
-    if not name:
-        return True
+    if not name: return True
     raw = name.strip()
-
-    if raw.startswith(RESERVED_PROP_PREFIXES):
-        return True
-
+    if raw.startswith(RESERVED_PROP_PREFIXES): return True
     n = normalize_prop_name(raw)
-
-    if n in RESERVED_PROP_NAMES:
-        return True
-
-    # patterns like "id(...)" if they ever show up
-    if re.match(r"^id\s*\(.*\)$", n):
-        return True
-    if re.match(r"^label\s*\(.*\)$", n):
-        return True
-
+    if n in RESERVED_PROP_NAMES: return True
+    if re.match(r"^id\s*\(.*\)$", n) or re.match(r"^label\s*\(.*\)$", n): return True
     return False
 
-def prop_set(props: Sequence[dict]) -> Set[str]:
-    """
-    Extract a normalized set of comparable property names.
 
-    This function converts a list of property descriptors into a
-    normalized set of property names, excluding reserved or invalid
-    entries.
-
-    Args:
-        props (Sequence[dict]): Property definitions.
-
-    Returns:
-        Set[str]: Normalized property name set.
-    """
-    out: Set[str] = set()
-    for p in props or []:
-        nm = p.get("name", "")
-        if not nm or is_reserved_prop(nm):
-            continue
-        out.add(normalize_prop_name(nm))
-    return out
-
-def compare_properties(gt_props: Sequence[dict], inf_props: Sequence[dict], verbose: bool = False) -> Tuple[int, int, int]:
-    """
-    Compare ground-truth and inferred property sets.
-
-    This function measures how many ground-truth properties are matched
-    by inferred properties, how many are missing, and how many extra
-    properties were inferred.
-
-    Args:
-        gt_props (Sequence[dict]): Ground-truth property definitions.
-        inf_props (Sequence[dict]): Inferred property definitions.
-        verbose (bool): Whether to print debug output on mismatches.
-
-    Returns:
-        Tuple[int, int, int]:
-            - Number of matched properties
-            - Total number of ground-truth properties
-            - Number of extra inferred properties
-    """
-    gt_set = prop_set(gt_props)
-    inf_set = prop_set(inf_props)
-
-    matches = len(gt_set & inf_set)
-    total = len(gt_set)
-    extra = len(inf_set - gt_set)
-
-    if verbose and total > 0 and matches == 0:
-        print("   [PROP DEBUG] Mismatch!")
-        print(f"     GT Properties: {list(sorted(gt_set))[:8]}")
-        print(f"     Inf Properties: {list(sorted(inf_set))[:8]}")
-
-    return matches, total, extra
+def norm_data_type(t: str) -> str:
+    if not t: return "STRING"
+    t = t.upper()
+    if t in ("LONG", "INT", "INTEGER"): return "INTEGER"
+    if t in ("DOUBLE", "FLOAT", "NUMBER"): return "DOUBLE"
+    if t in ("BOOLEAN", "BOOL"): return "BOOLEAN"
+    if "DATE" in t or "TIME" in t: return "DATE"
+    if "ARRAY" in t or "LIST" in t: return "LIST"
+    if t == "POINT": return "POINT"
+    return "STRING"
 
 
-# ============================================================
-# Helpers: string normalization + similarity
-# ============================================================
+def calculate_f1(matches: int, pred_total: int, gt_total: int) -> Tuple[float, float, float]:
+    precision = (matches / pred_total) if pred_total > 0 else 0.0
+    recall = (matches / gt_total) if gt_total > 0 else 0.0
+    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+    return precision, recall, f1
+
 
 def _norm_label(s: str) -> str:
-    if not s:
-        return ""
-    s = s.strip().lower()
-    s = s.replace("_", " ").replace("-", " ").replace(".", " ")
-    s = re.sub(r"\s+", " ", s)
-    return s
+    if not s: return ""
+    s = s.strip().lower().replace("_", " ").replace("-", " ").replace(".", " ")
+    return re.sub(r"\s+", " ", s)
+
 
 def similar_string(a: str, b: str) -> float:
-    """
-    Compute a normalized string similarity score.
-
-    This function applies light normalization and computes a similarity
-    ratio suitable for approximate label matching.
-
-    Args:
-        a (str): First string.
-        b (str): Second string.
-
-    Returns:
-        float: Similarity score in the range [0.0, 1.0].
-    """
-
-    if not a or not b:
-        return 0.0
+    if not a or not b: return 0.0
     return SequenceMatcher(None, _norm_label(a), _norm_label(b)).ratio()
-
-def find_best_string_match(target: str, candidates: Sequence[str], threshold: float) -> Optional[str]:
-    """
-    Find the best string match above a similarity threshold.
-
-    This function selects the most similar candidate label to a target
-    string using normalized string similarity.
-
-    Args:
-        target (str): Target label.
-        candidates (Sequence[str]): Candidate labels.
-        threshold (float): Minimum similarity score for acceptance.
-
-    Returns:
-        Optional[str]: Best matching candidate, or None if no match
-        satisfies the threshold.
-    """
-    best = None
-    best_score = 0.0
-    for c in candidates:
-        s = similar_string(target, c)
-        if s > best_score:
-            best_score = s
-            best = c
-    return best if best and best_score >= threshold else None
 
 
 # ============================================================
-# Semantic matcher (lazy, cached)
+# Semantic Edge Matcher
 # ============================================================
 
 class SemanticEdgeMatcher:
-    """
-    Semantic edge label matcher using sentence embeddings.
-
-    This class lazily loads a sentence-transformer model and uses
-    cosine similarity to match ground-truth edge labels with inferred
-    edge labels when string matching is insufficient.
-    """
     def __init__(self, model_name: str = DEFAULT_SEMANTIC_MODEL_NAME):
         self.model_name = model_name
         self._model = None
@@ -256,7 +88,7 @@ class SemanticEdgeMatcher:
     def _load(self):
         if self._model is None:
             os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-            from sentence_transformers import SentenceTransformer, util  # type: ignore
+            from sentence_transformers import SentenceTransformer, util # type: ignore
             self._util = util
             self._model = SentenceTransformer(self.model_name)
 
@@ -269,37 +101,10 @@ class SemanticEdgeMatcher:
             self._cache[text] = self._model.encode(text, convert_to_tensor=True)
         return self._cache[text]
 
-    def find_match(
-        self,
-        target: str,
-        candidates: Sequence[str],
-        threshold: float = 0.75,
-        margin: float = 0.05,
-        verbose: bool = False,
-    ) -> Optional[str]:
-        """
-        Find a semantically similar edge label using embeddings.
-
-        This method compares a target edge label against candidate labels
-        using cosine similarity and applies confidence thresholds and
-        margins to avoid ambiguous matches.
-
-        Args:
-            target (str): Ground-truth edge label.
-            candidates (Sequence[str]): Inferred edge label candidates.
-            threshold (float): Minimum similarity score for acceptance.
-            margin (float): Minimum gap to the second-best candidate.
-            verbose (bool): Whether to print debug information.
-
-        Returns:
-            Optional[str]: Matched candidate label, or None if rejected.
-        """
-
-        if not candidates:
-            return None
+    def find_match(self, target: str, candidates: Sequence[str], threshold: float = 0.75, margin: float = 0.05) -> Optional[str]:
+        if not candidates: return None
         self._load()
-
-        import torch  # type: ignore
+        import torch # type: ignore
 
         target_clean = self._clean(target)
         cand_clean = [self._clean(c) for c in candidates]
@@ -316,509 +121,304 @@ class SemanticEdgeMatcher:
         second = float(topk[1]) if topk.numel() > 1 else -1.0
 
         if best_score >= threshold and (best_score - second) >= margin:
-            if verbose:
-                print(f"   [Edge Semantic Match] ACCEPTED: '{target}' -> '{best_match}' (Score: {best_score:.3f}, 2nd: {second:.3f})")
             return best_match
-
-        if verbose:
-            print(f"   [Edge Semantic Match] REJECTED: '{target}' best='{best_match}' (Score: {best_score:.3f}, 2nd: {second:.3f})")
         return None
 
 
 # ============================================================
-# Compare configuration + result
+# Config & Data Classes
 # ============================================================
 
 @dataclass
 class CompareConfig:
-    """
-    Configuration container for schema comparison.
-
-    This dataclass defines thresholds, matching strategies, and
-    reporting options used during schema comparison.
-    """
-
     verbose: bool = True
-
-    # node matching
-    node_string_threshold: float = 0.80
-
-    # edge label mapping
+    node_jaccard_threshold: float = 0.50
     edge_string_threshold: float = 0.78
     use_semantic_edge_match: bool = True
     semantic_threshold: float = 0.75
     semantic_margin: float = 0.05
 
-    # reporting
-    list_limit: int = 15
-
-
-@dataclass
-class CompareResult:
-    """
-    Structured result of a schema comparison run.
-
-    This dataclass aggregates all computed accuracy metrics along
-    with auxiliary matching information for downstream analysis.
-    """
-
-    real_node_accuracy: float
-    real_edge_accuracy: float
-    real_node_property_accuracy: float
-    real_edge_property_accuracy: float
-    topology_score_f1: float
-    overall_performance: float
-
-    node_matches: Dict[str, str]
-    extra_nodes: List[str]
-    extra_edges: int
-
 
 # ============================================================
-# Scoring helpers
+# Core logic
 # ============================================================
 
-def calculate_real_score(matches: int, total_gt: int, total_extra: int) -> float:
-    """
-    Compute a normalized accuracy score accounting for extra predictions.
-
-    This function penalizes both missing and extra inferred elements,
-    while treating empty comparisons as fully correct by definition.
-
-    Args:
-        matches (int): Number of correct matches.
-        total_gt (int): Total number of ground-truth elements.
-        total_extra (int): Number of extra inferred elements.
-
-    Returns:
-        float: Accuracy score as a percentage.
-    """
-
-    denom = total_gt + total_extra
-    # Nothing to score (0/0): treat as N/A at print-time.
-    # Here we return 100.0 so it doesn't unfairly penalize the overall score.
-    if denom == 0:
-        return 100.0
-    return (matches / denom) * 100.0
-
-
-
-
-# ============================================================
-# Reporting helpers (same style, cleaner)
-# ============================================================
-
-def _make_printer(verbose: bool):
-    if not verbose:
-        def _p(*a, **k):  # noqa
-            return
-        return _p
-    return print
-
-def _header(p, title: str):
-    p("\n" + "=" * 60)
-    p(f"[ {title} ]")
-    p("=" * 60)
-
-def _section(p, title: str):
-    p("\n" + "-" * 60)
-    p(f"[ {title} ]")
-    p("-" * 60)
-
-def _kv(p, key: str, value: Any):
-    p(f"  [ {key} ] {value}")
-
-def _item(p, tag: str, text: str):
-    p(f"  [ {tag} ] {text}")
-
-def _list_block(p, title: str, tag: str, rows: Sequence[str], limit: int, suffix_note: Optional[str] = None):
-    p(f"\n[ {title} ]")
-    if suffix_note:
-        p(f"  [ NOTE ] {suffix_note}")
-    if not rows:
-        _item(p, "INFO", "None")
-        return
-    for r in rows[:limit]:
-        _item(p, tag, r)
-    if len(rows) > limit:
-        _item(p, "INFO", f"... +{len(rows)-limit} more")
-
-
-# ============================================================
-# Core compare
-# ============================================================
-
-def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig] = None) -> Optional[CompareResult]:
-    """
-    Compare an inferred schema against a ground-truth schema.
-
-    This function performs node matching, edge label mapping, topology
-    validation, property comparison, and metric aggregation. It produces
-    both a detailed report and a structured result object.
-
-    Args:
-        gt_file (str): Path to the ground-truth schema JSON file.
-        inferred_file (str): Path to the inferred schema JSON file.
-        config (Optional[CompareConfig]): Comparison configuration.
-
-    Returns:
-        Optional[CompareResult]: Comparison result object, or None if
-        comparison could not be performed.
-    """
-
+def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig] = None) -> Optional[dict]:
     cfg = config or CompareConfig()
-    p = _make_printer(cfg.verbose)
-
-    _header(p, "SCHEMA COMPARISON REPORT")
-    _section(p, "INPUT")
+    
+    if not cfg.verbose:
+        p = lambda *a, **k: None
+    else:
+        p = print
 
     if not os.path.exists(gt_file) or not os.path.exists(inferred_file):
-        _item(p, "ERROR", "One or both input files do not exist.")
-        _kv(p, "GT", gt_file)
-        _kv(p, "INFERRED", inferred_file)
+        p("Error: Missing input files.")
         return None
 
     gt = load_json(gt_file)
     inf = load_json(inferred_file)
 
-    _kv(p, "GT", os.path.basename(gt_file))
-    _kv(p, "INFERRED", os.path.basename(inferred_file))
+    p(f"\n========================================================")
+    p(f"                 DEEP SCHEMA EVALUATION                 ")
+    p(f"========================================================")
+    p(f" GT:  {os.path.basename(gt_file)}")
+    p(f" INF: {os.path.basename(inferred_file)}\n")
 
-    gt_nodes = gt.get("node_types", [])
-    inf_nodes = inf.get("node_types", [])
+    # ---- 1. NODE MATCHING ----
+    gt_nodes = {n.get("name") or (n.get("labels") or [""])[0]: n for n in gt.get("node_types", [])}
+    inf_nodes = {n.get("name") or (n.get("labels") or [""])[0]: n for n in inf.get("node_types", [])}
 
-    gt_node_names = [n.get("name") or (n.get("labels") or [""])[0] for n in gt_nodes]
-    inf_node_names = [n.get("name") or (n.get("labels") or [""])[0] for n in inf_nodes]
+    node_map_inf_to_gt = {}
+    matched_gt_nodes = set()
 
-    # sanity: inferred edges referencing unknown node-types
-    inf_node_set = set(inf_node_names)
-    bad_edges = []
-    for e in inf.get("edge_types", []):
-        s, t = e.get("start_node"), e.get("end_node")
-        if s and t and (s not in inf_node_set or t not in inf_node_set):
-            bad_edges.append(f"{e.get('name')}: {s} -> {t}")
+    for inf_name, inf_n in inf_nodes.items():
+        inf_labels = set(inf_n.get("labels", []))
+        best_gt = None
+        best_score = 0.0
 
-    _section(p, "NODE MATCHING")
-    _kv(p, "GT Nodes", len(gt_node_names))
-    _kv(p, "Inferred Nodes", len(inf_node_names))
+        for gt_name, gt_n in gt_nodes.items():
+            if gt_name in matched_gt_nodes: continue
+            gt_labels = set(gt_n.get("labels", []))
+            score = len(inf_labels & gt_labels) / len(inf_labels | gt_labels) if (inf_labels or gt_labels) else 1.0
+            
+            if score > best_score:
+                best_score = score
+                best_gt = gt_name
+        
+        if best_score >= cfg.node_jaccard_threshold and best_gt:
+            node_map_inf_to_gt[inf_name] = best_gt
+            matched_gt_nodes.add(best_gt)
 
-    if cfg.verbose:
-        _list_block(p, "RAW GT NODES", "NODE", gt_node_names, limit=min(15, cfg.list_limit))
-        _list_block(p, "RAW INFERRED NODES", "NODE", inf_node_names, limit=min(15, cfg.list_limit))
+    n_prec, n_rec, n_f1 = calculate_f1(len(node_map_inf_to_gt), len(inf_nodes), len(gt_nodes))
 
-    if bad_edges:
-        _list_block(
-            p,
-            "INFERRED EDGES REFERENCING UNKNOWN NODES",
-            "EDGE",
-            bad_edges,
-            limit=10,
-            suffix_note="These can invalidate topology checks."
-        )
+    p(f"--- 1. EXHAUSTIVE NODE & LABEL LIST ---")
+    p("  GROUND TRUTH NODES (Expected):")
+    for gt_name in sorted(gt_nodes.keys()):
+        if gt_name in matched_gt_nodes:
+            inf_mapped = [k for k, v in node_map_inf_to_gt.items() if v == gt_name][0]
+            p(f"    [✓] Node: {gt_name} (Found as '{inf_mapped}')")
+            
+            # --- LABEL COMPARISON FOR MATCHED NODES ---
+            gt_labels = set(gt_nodes[gt_name].get("labels", []))
+            inf_labels = set(inf_nodes[inf_mapped].get("labels", []))
+            
+            if gt_labels or inf_labels:
+                p(f"        Labels:")
+                for l in sorted(gt_labels & inf_labels):
+                    p(f"          [✓] {l}")
+                for l in sorted(gt_labels - inf_labels):
+                    p(f"          [X] {l} (MISSING IN INF)")
+                for l in sorted(inf_labels - gt_labels):
+                    p(f"          [+] {l} (EXTRA IN INF)")
+        else:
+            p(f"    [X] Node: {gt_name} (MISSING)")
+            gt_labels = set(gt_nodes[gt_name].get("labels", []))
+            if gt_labels:
+                p(f"        Expected Labels: {', '.join(sorted(gt_labels))}")
 
-    # Node matching (string)
-    node_matches_map: Dict[str, str] = {}
-    used_inf = set()
-    for gt_name in gt_node_names:
-        candidates = [n for n in inf_node_names if n not in used_inf]
-        match = find_best_string_match(gt_name, candidates, threshold=cfg.node_string_threshold)
-        if match:
-            node_matches_map[gt_name] = match
-            used_inf.add(match)
+    unmatched_inf = [n for n in inf_nodes if n not in node_map_inf_to_gt]
+    if unmatched_inf:
+        p("\n  EXTRA / HALLUCINATED NODES:")
+        for inf_name in sorted(unmatched_inf):
+            p(f"    [+] Node: {inf_name}")
+            inf_labels = set(inf_nodes[inf_name].get("labels", []))
+            if inf_labels:
+                p(f"        Labels Found: {', '.join(sorted(inf_labels))}")
 
-    node_matches = len(node_matches_map)
-    extra_nodes = [n for n in inf_node_names if n not in used_inf]
 
-    _section(p, "NODE TYPE MATCHING RESULTS")
-    _kv(p, "Matched GT Nodes", f"{node_matches} / {len(gt_node_names)}")
-    _kv(p, "Extra Inferred Nodes", len(extra_nodes))
-
-    if node_matches_map:
-        rows = [f"{gt_n} -> {inf_n}" for gt_n, inf_n in node_matches_map.items()]
-        _list_block(p, "NODE MATCHES", "MAP", rows, limit=20)
-    if extra_nodes:
-        _list_block(p, "EXTRA INFERRED NODES", "NODE", extra_nodes, limit=min(15, cfg.list_limit))
-
-    # --- EDGE MATCHING ---
+    # ---- 2. EDGE MAPPING & TOPOLOGY ----
     gt_edges = gt.get("edge_types", [])
     inf_edges = inf.get("edge_types", [])
 
-    # GT allowed combos in GT label space: (edge_label, gt_src, gt_tgt)
-    gt_allowed_combos: Set[Tuple[str, str, str]] = set()
-    for edge in gt_edges:
-        e_name = edge.get("type") or edge.get("name")
-        for topo in edge.get("topology", []) or []:
-            for s in topo.get("allowed_sources", []) or []:
-                for t in topo.get("allowed_targets", []) or []:
-                    gt_allowed_combos.add((e_name, s, t))
+    gt_combos = set()
+    gt_edge_dict = {}
+    for e in gt_edges:
+        ename = e.get("name") or e.get("type")
+        gt_edge_dict[ename] = e
+        for t in e.get("topology", []):
+            for s in t.get("allowed_sources", []):
+                for tgt in t.get("allowed_targets", []):
+                    gt_combos.add((ename, s, tgt))
 
-    # Inferred combos: (edge_label, inf_src, inf_tgt)
-    inf_combo_set: Set[Tuple[str, str, str]] = set()
-    inf_edges_by_combo: Dict[Tuple[str, str, str], dict] = {}
-    for e in inf_edges:
-        name = e.get("name")
-        s = e.get("start_node")
-        t = e.get("end_node")
-        if not (name and s and t):
-            continue
-        combo = (name, s, t)
-        inf_combo_set.add(combo)
-        inf_edges_by_combo[combo] = e
+    gt_edge_names = list(set(c[0] for c in gt_combos))
+    inf_edge_names = list(set(e.get("name") for e in inf_edges if e.get("name")))
 
-    inf_edge_names = sorted({c[0] for c in inf_combo_set})
-    gt_edge_names = sorted({c[0] for c in gt_allowed_combos})
-
-    _section(p, "EDGE LABEL MAPPING")
-    _kv(p, "GT Edge Types", len(gt_edge_names))
-    _kv(p, "Inferred Edge Types", len(inf_edge_names))
-    if cfg.verbose:
-        _list_block(p, "RAW GT EDGE TYPES", "EDGE", gt_edge_names, limit=20)
-        _list_block(p, "RAW INFERRED EDGE TYPES", "EDGE", inf_edge_names, limit=20)
-
-    # Edge label mapping: exact -> string -> semantic (optional)
-    edge_label_map: Dict[str, str] = {}
-    missing_edge_labels: List[str] = []
-
-    # exact
+    edge_label_map = {}
     for gt_name in gt_edge_names:
         if gt_name in inf_edge_names:
-            edge_label_map[gt_name] = gt_name
-
-    # lightweight normalizer for edge label matching
-    def _edge_norm(x: str) -> str:
-        if not x:
-            return ""
-        x = x.strip().upper()
-        # conservative: only strip IS_ prefix (HAS_ can change meaning)
-        if x.startswith("IS_"):
-            x = x[3:]
-        if x.endswith("_OF"):
-            x = x[:-3]
-        x = x.replace("_", "").replace(" ", "").replace("-", "")
-        return x
-
-    # string similarity fallback
-    for gt_name in gt_edge_names:
-        if gt_name in edge_label_map:
+            edge_label_map[gt_name] = gt_name 
             continue
-        gt_norm = _edge_norm(gt_name)
-        best = None
-        best_score = 0.0
+        best, best_score = None, 0.0
         for cand in inf_edge_names:
-            cand_norm = _edge_norm(cand)
-            score = similar_string(gt_norm, cand_norm)
+            score = similar_string(gt_name, cand)
             if score > best_score:
                 best_score = score
                 best = cand
         if best and best_score >= cfg.edge_string_threshold:
-            if cfg.verbose:
-                p(f"   [Edge String Match] ACCEPTED: '{gt_name}' -> '{best}' (Score: {best_score:.3f})")
-            edge_label_map[gt_name] = best
+            edge_label_map[best] = gt_name
 
-    # semantic fallback
-    matcher = SemanticEdgeMatcher() if cfg.use_semantic_edge_match else None
-    for gt_name in gt_edge_names:
-        if gt_name in edge_label_map:
-            continue
-        if matcher is None:
-            missing_edge_labels.append(gt_name)
-            continue
-        mapped = matcher.find_match(
-            gt_name,
-            inf_edge_names,
-            threshold=cfg.semantic_threshold,
-            margin=cfg.semantic_margin,
-            verbose=cfg.verbose,
-        )
-        if mapped:
-            edge_label_map[gt_name] = mapped
+    if cfg.use_semantic_edge_match:
+        matcher = SemanticEdgeMatcher() 
+        unmapped_gt = [g for g in gt_edge_names if g not in edge_label_map.values()]
+        for gt_name in unmapped_gt:
+            match = matcher.find_match(gt_name, inf_edge_names, threshold=cfg.semantic_threshold, margin=cfg.semantic_margin)
+            if match: edge_label_map[match] = gt_name
+
+    inf_combos_mapped = set()
+    inf_edges_by_combo = {}
+
+    for e in inf_edges:
+        inf_ename = e.get("name")
+        gt_ename = edge_label_map.get(inf_ename, inf_ename) 
+        s_inf = e.get("source") or e.get("start_node")
+        t_inf = e.get("target") or e.get("end_node")
+        
+        s_gt = node_map_inf_to_gt.get(s_inf)
+        t_gt = node_map_inf_to_gt.get(t_inf)
+
+        if s_gt and t_gt:
+            combo = (gt_ename, s_gt, t_gt)
+            inf_combos_mapped.add(combo)
+            inf_edges_by_combo[combo] = e
+
+    valid_edges = inf_combos_mapped & gt_combos
+    invalid_edges = inf_combos_mapped - gt_combos
+    missing_edges = gt_combos - inf_combos_mapped
+
+    p(f"\n--- 2. EXHAUSTIVE EDGE TOPOLOGY & LABEL LIST ---")
+    p("  GROUND TRUTH EDGES (Expected Allowed Combos):")
+    for combo in sorted(gt_combos):
+        if combo in valid_edges:
+            p(f"    [✓] Topology: {combo[0]} ({combo[1]} -> {combo[2]})")
+            
+            # --- LABEL COMPARISON FOR MATCHED EDGES ---
+            gt_e_data = gt_edge_dict.get(combo[0], {})
+            inf_e_data = inf_edges_by_combo.get(combo, {})
+            
+            gt_labels = set(gt_e_data.get("labels", [combo[0]]))
+            inf_labels = set(inf_e_data.get("labels", [inf_e_data.get("name")]))
+            
+            if gt_labels != {combo[0]} or inf_labels != {inf_e_data.get("name")}:
+                p(f"        Labels:")
+                for l in sorted(gt_labels & inf_labels):
+                    p(f"          [✓] {l}")
+                for l in sorted(gt_labels - inf_labels):
+                    p(f"          [X] {l} (MISSING IN INF)")
+                for l in sorted(inf_labels - gt_labels):
+                    p(f"          [+] {l} (EXTRA IN INF)")
+                    
         else:
-            missing_edge_labels.append(gt_name)
+            p(f"    [X] Topology: {combo[0]} ({combo[1]} -> {combo[2]}) (MISSING IN INF)")
 
-    if edge_label_map:
-        rows = [f"{gt_l} -> {inf_l}" for gt_l, inf_l in edge_label_map.items()]
-        _list_block(p, "EDGE LABEL MAP", "MAP", rows, limit=30)
+    if invalid_edges:
+        p("\n  EXTRA / INVALID INFERRED EDGES:")
+        for c in sorted(invalid_edges):
+            p(f"    [+] Topology: {c[0]} ({c[1]} -> {c[2]})")
 
-    if missing_edge_labels:
-        _list_block(
-            p,
-            "GT EDGE TYPES WITH NO MATCH",
-            "MISS",
-            missing_edge_labels,
-            limit=20,
-            suffix_note="This is name-level. Structural validity is handled by topology."
-        )
+    e_prec, e_rec, e_f1 = calculate_f1(len(valid_edges), len(inf_combos_mapped), len(gt_combos))
 
-    # Map GT allowed combos into inferred label/node space
-    mapped_gt_allowed: Set[Tuple[str, str, str]] = set()
-    for gt_e, gt_s, gt_t in gt_allowed_combos:
-        mapped_edge = edge_label_map.get(gt_e)
-        mapped_s = node_matches_map.get(gt_s)
-        mapped_t = node_matches_map.get(gt_t)
-        if mapped_edge and mapped_s and mapped_t:
-            mapped_gt_allowed.add((mapped_edge, mapped_s, mapped_t))
+    # ---- 3. PROPERTIES & CONSTRAINTS ----
+    p(f"\n--- 3. EXHAUSTIVE PROPERTY LIST ---")
+    total_prop_matches = 0
+    total_inf_props = 0
+    total_gt_props = 0
+    type_matches = 0
+    constraint_matches = 0
 
-    valid_inf = inf_combo_set & mapped_gt_allowed
-    invalid_inf = inf_combo_set - mapped_gt_allowed
-    missing_allowed = mapped_gt_allowed - inf_combo_set
+    def eval_props(inf_prop_list, gt_prop_list, context_name):
+        nonlocal total_prop_matches, total_inf_props, total_gt_props, type_matches, constraint_matches
+        
+        inf_dict = {normalize_prop_name(p.get("name")): p for p in inf_prop_list if not is_reserved_prop(p.get("name"))}
+        gt_dict = {normalize_prop_name(p.get("name")): p for p in gt_prop_list if not is_reserved_prop(p.get("name"))}
+        
+        total_inf_props += len(inf_dict)
+        total_gt_props += len(gt_dict)
+        
+        p(f"\n  [{context_name}]")
+        if not gt_dict and not inf_dict:
+            p("    (No properties defined in GT or INF)")
+            return
 
-    def _fmt_combo(c: Tuple[str, str, str]) -> str:
-        return f"{c[0]}: {c[1]} -> {c[2]}"
+        for k, gt_p in gt_dict.items():
+            gt_type = norm_data_type(gt_p.get("type"))
+            gt_mand = gt_p.get("mandatory", False)
+            gt_mand_str = "MANDATORY" if gt_mand else "OPTIONAL"
 
-    _section(p, "TOPOLOGY SUMMARY")
-    _kv(p, "GT Allowed Combos (mapped)", len(mapped_gt_allowed))
-    _kv(p, "Inferred Combos", len(inf_combo_set))
-    _kv(p, "Valid Inferred", len(valid_inf))
-    _kv(p, "Invalid Inferred", len(invalid_inf))
-    _kv(p, "Missing Allowed (coverage gap)", len(missing_allowed))
+            if k in inf_dict:
+                total_prop_matches += 1
+                inf_p = inf_dict[k]
+                
+                inf_type = norm_data_type(inf_p.get("type"))
+                inf_mand_str = inf_p.get("constraint", "").upper()
+                inf_mand = inf_mand_str == "MANDATORY"
+                
+                type_ok = gt_type == inf_type
+                mand_ok = gt_mand == inf_mand
 
-    _section(p, "TOPOLOGY DETAILS")
-    _list_block(p, "VALID (COUNTED AS CORRECT)", "EDGE", [_fmt_combo(c) for c in sorted(valid_inf)], limit=cfg.list_limit)
-    _list_block(p, "INVALID (COUNTED AS WRONG)", "EDGE", [_fmt_combo(c) for c in sorted(invalid_inf)], limit=cfg.list_limit)
-    _list_block(
-        p,
-        "MISSING ALLOWED (COVERAGE GAP)",
-        "EDGE",
-        [_fmt_combo(c) for c in sorted(missing_allowed)],
-        limit=cfg.list_limit,
-        suffix_note="Not necessarily an error: GT lists allowed possibilities."
-    )
+                if type_ok: type_matches += 1
+                if mand_ok: constraint_matches += 1
+                
+                if type_ok and mand_ok:
+                    p(f"    [✓] {k} ({gt_type}, {gt_mand_str})")
+                else:
+                    errs = []
+                    if not type_ok: errs.append(f"Type: GT=[{gt_type}] INF=[{inf_type}]")
+                    if not mand_ok: errs.append(f"Constraint: GT=[{gt_mand_str}] INF=[{inf_mand_str}]")
+                    p(f"    [!] {k} -> " + " | ".join(errs))
+            else:
+                p(f"    [X] {k} ({gt_type}, {gt_mand_str}) -> MISSING IN INF")
 
-    # Scores
-    inf_total = len(inf_combo_set)
-    valid_count = len(valid_inf)
-    invalid_count = len(invalid_inf)
+        for k, inf_p in inf_dict.items():
+            if k not in gt_dict:
+                inf_type = norm_data_type(inf_p.get("type"))
+                inf_mand_str = inf_p.get("constraint", "").upper()
+                p(f"    [+] {k} ({inf_type}, {inf_mand_str}) -> EXTRA IN INF (Hallucinated)")
 
-    topo_precision = (valid_count / inf_total) if inf_total else 0.0
-    topo_recall = (valid_count / len(mapped_gt_allowed)) if mapped_gt_allowed else 0.0
-    topo_f1 = (2 * topo_precision * topo_recall / (topo_precision + topo_recall)) if (topo_precision + topo_recall) else 0.0
+    # Node Props
+    for inf_name, gt_name in node_map_inf_to_gt.items():
+        eval_props(inf_nodes[inf_name].get("properties", []), gt_nodes[gt_name].get("properties", []), f"Node: {gt_name}")
 
-    _section(p, "TOPOLOGY SCORE")
-    _kv(p, "Precision (Correctness)", f"{topo_precision*100:.2f}%")
-    _kv(p, "Recall (Coverage)", f"{topo_recall*100:.2f}%")
-    _kv(p, "F1", f"{topo_f1*100:.2f}%")
+    # Edge Props
+    for combo in valid_edges:
+        inf_e = inf_edges_by_combo[combo]
+        gt_props = gt_edge_dict[combo[0]].get("properties", [])
+        eval_props(inf_e.get("properties", []), gt_props, f"Edge Topology: {combo[0]} ({combo[1]} -> {combo[2]})")
 
-    matched_combo_set = valid_inf  # for edge prop scoring
+    p_prec, p_rec, p_f1 = calculate_f1(total_prop_matches, total_inf_props, total_gt_props)
+    type_acc = (type_matches / total_prop_matches) if total_prop_matches else 0.0
+    const_acc = (constraint_matches / total_prop_matches) if total_prop_matches else 0.0
 
-    # --- PROPERTY MATCHING ---
-    _section(p, "PROPERTY MATCHING")
+    p(f"\n========================================================")
+    p(f"        PG-HIVE EVALUATION METRICS (PAPER FORMAT)       ")
+    p(f"========================================================")
+    
+    # Paper Section 5: Nodes & Edges (F1*)
+    p(f"1. TYPE DISCOVERY (CLUSTERING QUALITY)")
+    p(f"   Node Types F1*-Score: {n_f1:.2%}  (Precision: {n_prec:.2%} | Recall: {n_rec:.2%})")
+    p(f"   Edge Types F1*-Score: {e_f1:.2%}  (Precision: {e_prec:.2%} | Recall: {e_rec:.2%})")
+    
+    # Paper Section 5: Constraints & Datatypes
+    p(f"\n2. SCHEMA CONSTRAINTS")
+    p(f"   Property Completeness: {p_f1:.2%}  (Found {total_prop_matches} of {total_gt_props} expected)")
+    p(f"   Data Type Accuracy:    {type_acc:.2%}  (Error: {1 - type_acc:.2%})")
+    p(f"   Constraint Accuracy:   {const_acc:.2%}  (Mandatory/Optional)")
+    p(f"========================================================\n")
 
-    # Node properties
-    prop_matches = 0
-    total_props = 0
-    total_extra_props = 0
-    node_prop_rows = []
+    return {
+        "nodes": {"precision": n_prec, "recall": n_rec, "f1": n_f1},
+        "edges": {"precision": e_prec, "recall": e_rec, "f1": e_f1},
+        "props": {
+            "precision": p_prec, 
+            "recall": p_rec, 
+            "f1": p_f1, 
+            "type_accuracy": type_acc, 
+            "constraint_accuracy": const_acc
+        }
+    }
 
-    # build quick lookup for inferred nodes by name
-    inf_node_by_name = { (n.get("name") or (n.get("labels") or [""])[0]) : n for n in inf_nodes }
-
-    for gt_node in gt_nodes:
-        gt_name = gt_node.get("name") or (gt_node.get("labels") or [""])[0]
-        inf_name = node_matches_map.get(gt_name)
-        if not inf_name:
-            continue
-        inf_node = inf_node_by_name.get(inf_name)
-        if not inf_node:
-            continue
-
-        m, t, e = compare_properties(gt_node.get("properties", []), inf_node.get("properties", []), verbose=False)
-        prop_matches += m
-        total_props += t
-        total_extra_props += e
-
-        if cfg.verbose:
-            gt_props_list = sorted(list(prop_set(gt_node.get("properties", []))))
-            inf_props_list = sorted(list(prop_set(inf_node.get("properties", []))))
-            node_prop_rows.append(f"{gt_name}: {m}/{t} (extra={e}) | GT={len(gt_props_list)} INF={len(inf_props_list)}")
-        else:
-            node_prop_rows.append(f"{gt_name}: {m}/{t} (extra={e})")
-
-    _list_block(p, "NODE PROPERTY SUMMARY", "NODE", node_prop_rows, limit=30)
-
-    # Edge properties
-    edge_prop_matches = 0
-    total_edge_props = 0
-    total_extra_edge_props = 0
-
-    gt_edge_props_by_name = {}
-    for gt_edge in gt_edges:
-        gn = gt_edge.get("type") or gt_edge.get("name")
-        gt_edge_props_by_name[gn] = gt_edge.get("properties", [])
-
-    edge_prop_rows = []
-    for combo in matched_combo_set:
-        inf_edge_obj = inf_edges_by_combo.get(combo)
-        if not inf_edge_obj:
-            continue
-
-        inf_name = combo[0]
-        gt_prop_candidates = []
-        for gt_label, mapped_label in edge_label_map.items():
-            if mapped_label == inf_name:
-                gt_prop_candidates.extend(gt_edge_props_by_name.get(gt_label, []))
-
-        # de-dup
-        seen = set()
-        merged_gt_props = []
-        for p0 in gt_prop_candidates:
-            nm = p0.get("name")
-            if nm and nm not in seen:
-                seen.add(nm)
-                merged_gt_props.append(p0)
-
-        m, t, e = compare_properties(merged_gt_props, inf_edge_obj.get("properties", []), verbose=False)
-        edge_prop_matches += m
-        total_edge_props += t
-        total_extra_edge_props += e
-
-        edge_prop_rows.append(f"{inf_name} ({combo[1]}->{combo[2]}): {m}/{t} (extra={e})")
-
-    _list_block(p, "EDGE PROPERTY SUMMARY (VALID TOPOLOGY ONLY)", "EDGE", sorted(edge_prop_rows), limit=30)
-
-    real_node_score = calculate_real_score(node_matches, len(gt_nodes), len(extra_nodes))
-    real_edge_score = topo_precision * 100.0
-    real_prop_score = calculate_real_score(prop_matches, total_props, total_extra_props)
-    topology_score = topo_f1 * 100.0
-
-    # Edge property accuracy is only defined if GT has edge properties.
-    real_edge_prop_score: Optional[float]
-    if total_edge_props > 0:
-        real_edge_prop_score = calculate_real_score(edge_prop_matches, total_edge_props, total_extra_edge_props)
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 2:
+        run_compare(sys.argv[1], sys.argv[2])
     else:
-        real_edge_prop_score = None
-
-    overall = avg_defined([
-        real_node_score,
-        real_edge_score,
-        real_prop_score,
-        real_edge_prop_score,   # excluded automatically when None
-        topology_score,
-    ])
-
-    
-    node_prop_label = f"{real_prop_score:.2f}%" if (total_props + total_extra_props) > 0 else "N/A"
-    
-    # If GT defines no edge properties at all, accuracy is N/A by definition.
-    edge_prop_label = f"{real_edge_prop_score:.2f}%" if total_edge_props > 0 else "N/A"
-
-
-    _header(p, "FINAL SCORES")
-    _kv(p, "NODE ACCURACY", f"{real_node_score:.2f}%")
-    _kv(p, "EDGE CORRECTNESS", f"{real_edge_score:.2f}%")
-    _kv(p, "NODE PROPERTY ACC", node_prop_label)
-    _kv(p, "EDGE PROPERTY ACC", edge_prop_label)
-    _kv(p, "TOPOLOGY SCORE (F1)", f"{topology_score:.2f}%")
-    p("-" * 60)
-    _kv(p, "OVERALL PERFORMANCE", f"{overall:.2f}%")
-
-    return CompareResult(
-        real_node_accuracy=real_node_score,
-        real_edge_accuracy=real_edge_score,
-        real_node_property_accuracy=real_prop_score,
-        real_edge_property_accuracy=real_edge_prop_score,
-        topology_score_f1=topology_score,
-        overall_performance=overall,
-        node_matches=node_matches_map,
-        extra_nodes=extra_nodes,
-        extra_edges=invalid_count,
-    )
+        print("Usage: python compare.py <gt_json> <inferred_json>")
