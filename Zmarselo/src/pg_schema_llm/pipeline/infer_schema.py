@@ -31,8 +31,8 @@ class InferConfig:
     neo4j_password: str = ""
     neo4j_database: Optional[str] = None
 
-    # pattern mining
-    type_sample_limit: int = 500
+    # pattern mining (None -> use mine_patterns default)
+    type_sample_limit: Optional[int] = None
 
     # LLM
     gemini_model: str = "gemini-2.5-flash"
@@ -137,6 +137,70 @@ def extract_json(text: Optional[str]) -> Optional[dict]:
         return json.loads(cleaned)
     except Exception:
         return None
+
+
+def _normalize_property(prop: dict) -> dict:
+    """
+    Normalize one property record to required shape:
+      {"name": str, "type": str, "mandatory": bool}
+    """
+    name = prop.get("name")
+    ptype = prop.get("type", "STRING")
+    if "mandatory" in prop:
+        mandatory = bool(prop.get("mandatory"))
+    else:
+        mandatory = str(prop.get("constraint", "")).upper() == "MANDATORY"
+    return {
+        "name": name,
+        "type": ptype,
+        "mandatory": mandatory,
+    }
+
+
+def normalize_inferred_schema(schema: dict) -> dict:
+    """
+    Enforce canonical inferred schema contract before saving:
+    - Node/edge properties use mandatory boolean.
+    - Edge fields are labels[], start_node, end_node.
+    - Legacy source/target fields are removed.
+    """
+    out = dict(schema or {})
+
+    norm_nodes: List[dict] = []
+    for n in out.get("node_types", []) or []:
+        nn = dict(n)
+        labels = nn.get("labels")
+        if not isinstance(labels, list):
+            labels = []
+        nn["labels"] = labels
+        props = nn.get("properties", []) or []
+        nn["properties"] = [_normalize_property(p) for p in props if isinstance(p, dict)]
+        norm_nodes.append(nn)
+    out["node_types"] = norm_nodes
+
+    norm_edges: List[dict] = []
+    for e in out.get("edge_types", []) or []:
+        ne = dict(e)
+        name = ne.get("name")
+
+        labels = ne.get("labels")
+        if isinstance(labels, list):
+            final_labels = labels
+        else:
+            final_labels = [name] if name else []
+        ne["labels"] = final_labels
+
+        ne["start_node"] = ne.get("start_node") or ne.get("source")
+        ne["end_node"] = ne.get("end_node") or ne.get("target")
+        ne.pop("source", None)
+        ne.pop("target", None)
+
+        props = ne.get("properties", []) or []
+        ne["properties"] = [_normalize_property(p) for p in props if isinstance(p, dict)]
+        norm_edges.append(ne)
+    out["edge_types"] = norm_edges
+
+    return out
 
 
 # ============================================================
@@ -256,11 +320,10 @@ def infer_schema_from_folder(
 
     driver = _make_driver(cfg)
     try:
-        patterns = mine_patterns(
-            driver,
-            type_sample_limit=cfg.type_sample_limit,
-            database=cfg.neo4j_database,
-        )
+        mine_kw: Dict[str, Any] = {"database": cfg.neo4j_database}
+        if cfg.type_sample_limit is not None:
+            mine_kw["type_sample_limit"] = cfg.type_sample_limit
+        patterns = mine_patterns(driver, **mine_kw)
     finally:
         driver.close()
 
@@ -283,6 +346,7 @@ def infer_schema_from_folder(
     if not schema:
         _p(cfg.verbose, "LLM returned no JSON schema (parse failed).")
         return None
+    schema = normalize_inferred_schema(schema)
 
     # attach raw patterns for downstream use / comparison
     schema["_mined_patterns"] = patterns

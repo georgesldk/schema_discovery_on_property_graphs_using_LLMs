@@ -30,8 +30,8 @@ def build_inference_prompt(profile_text):
       same *type* when they share labels but differ in property-key sets.
 
       Node Type  Vs = (labels, properties)
-        Each property: name, data_type, constraint ∈ {{MANDATORY, OPTIONAL}}.
-        MANDATORY = fill_ratio = 1.0 (appears in every instance of the type).
+        Each property: name, data_type, mandatory ∈ {{true, false}}.
+        mandatory=true means fill_ratio = 1.0 (appears in every instance of the type).
 
       Edge Type  Es = (labels, properties, endpoints, cardinality)
         endpoints = (source_node_type, target_node_type).
@@ -52,6 +52,7 @@ def build_inference_prompt(profile_text):
          {{Person, Actor}} are two different types.
        - Preserve every label set exactly as mined.
        - An empty label set {{}} becomes an ABSTRACT type — suggest a descriptive name.
+       - Label names can be empty, one or many.  Preserve them all.
 
     3. **PATTERN PRESERVATION:**
        - Report the number of distinct patterns per type.
@@ -73,7 +74,9 @@ def build_inference_prompt(profile_text):
        - **Correct:** "name": "id", "type": "INTEGER".
        - **Forbidden:** Do NOT output internal Neo4j keys like ":START_ID" or ":END_ID".
        - Respect the mined data type (STRING, INTEGER, DOUBLE, BOOLEAN, DATE, LIST).
-       - Respect the mined constraint (MANDATORY / OPTIONAL).
+       - Use `mandatory: true|false`:
+         * `mandatory: true` when mined constraint is MANDATORY
+         * `mandatory: false` when mined constraint is OPTIONAL
 
     6. **EDGE NAMING METHODOLOGY (SEMANTIC DERIVATION):**
        - **Constraint:** Do not use a pre-set list of verbs. Deriving the name must follow this 3-step logic:
@@ -98,9 +101,9 @@ def build_inference_prompt(profile_text):
     7. **CARDINALITY:**
        - Preserve the mined cardinality for every edge type.  It is derived
          from observed max in/out-degree:
-           (max_out ≤ 1, max_in ≤ 1) → 1:1
-           (max_out > 1, max_in ≤ 1) → N:1
-           (max_out ≤ 1, max_in > 1) → 1:N
+           (max_out = 1, max_in = 1) → 1:1
+           (max_out > 1, max_in = 1) → N:1
+           (max_out = 1, max_in > 1) → 1:N
            (max_out > 1, max_in > 1) → M:N
 
     ============================================================
@@ -111,20 +114,21 @@ def build_inference_prompt(profile_text):
       "node_types": [
         {{
           "name": "NodeLabel",
-          "labels": ["Label1", "Label2"],
+          "labels": ["Label1", "Label2"], 
           "properties": [
-            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "constraint": "MANDATORY|OPTIONAL"}}
+            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "mandatory": true|false}}
           ]
         }}
       ],
       "edge_types": [
         {{
           "name": "RELATIONSHIP_TYPE",
-          "source": "SourceNodeName",
-          "target": "TargetNodeName",
+          "labels": ["Label1", "Label2"], 
+          "start_node": "SourceNodeName",
+          "end_node": "TargetNodeName",
           "cardinality": "1:1|1:N|N:1|M:N",
           "properties": [
-            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "constraint": "MANDATORY|OPTIONAL"}}
+            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "mandatory": true|false}}
           ]
         }}
       ],

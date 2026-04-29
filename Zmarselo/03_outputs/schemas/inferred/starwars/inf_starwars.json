@@ -1,538 +1,574 @@
 {
     "node_types": [
         {
-            "name": "Meta",
+            "name": "Character",
             "labels": [
-                "Meta",
-                "medulla7column_Meta"
+                "Character"
             ],
             "properties": [
                 {
-                    "name": "dataset",
+                    "name": "birth_year",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "lastDatabaseEdit",
+                    "name": "created",
                     "type": "DATE",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "latestMutationId",
-                    "type": "INTEGER",
+                    "name": "edited",
+                    "type": "DATE",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "logo",
+                    "name": "eye_color",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "meshHost",
+                    "name": "gender",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "neuroglancerInfo",
+                    "name": "hair_color",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "neuroglancerMeta",
+                    "name": "height",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "postHPThreshold",
-                    "type": "DOUBLE",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "postHighAccuracyThreshold",
-                    "type": "DOUBLE",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "preHPThreshold",
-                    "type": "DOUBLE",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "primaryRois",
-                    "type": "LIST",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "roiHierarchy",
+                    "name": "mass",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "roiInfo",
+                    "name": "name",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "statusDefinitions",
+                    "name": "skin_color",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "superLevelRois",
-                    "type": "LIST",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "totalPostCount",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "totalPreCount",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "uuid",
+                    "name": "url",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "NeuronSegmentFull",
+            "name": "Film",
             "labels": [
-                "Neuron",
-                "Segment",
-                "medulla7column_Neuron",
-                "medulla7column_Segment"
+                "Film"
             ],
             "properties": [
                 {
-                    "name": "bodyId",
+                    "name": "created",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "director",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "edited",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "episode_id",
                     "type": "INTEGER",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "cropped",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "distal",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "instance",
-                    "type": "STRING",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "post",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "pre",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "proximal",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "roiInfo",
+                    "name": "opening_crawl",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "size",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "status",
+                    "name": "producer",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "statusLabel",
+                    "name": "release_date",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "title",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "type",
+                    "name": "url",
                     "type": "STRING",
-                    "constraint": "OPTIONAL"
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "NeuronSegment",
+            "name": "Planet",
             "labels": [
-                "Neuron",
-                "Segment",
-                "medulla7column_Segment"
+                "Planet"
             ],
             "properties": [
                 {
-                    "name": "bodyId",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "cropped",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "distal",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "instance",
-                    "type": "STRING",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "post",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "pre",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "proximal",
-                    "type": "STRING",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "roiInfo",
+                    "name": "climate",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "size",
-                    "type": "INTEGER",
+                    "name": "created",
+                    "type": "DATE",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "status",
+                    "name": "diameter",
                     "type": "STRING",
-                    "constraint": "OPTIONAL"
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "statusLabel",
-                    "type": "STRING",
-                    "constraint": "OPTIONAL"
+                    "name": "edited",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "type",
+                    "name": "gravity",
                     "type": "STRING",
-                    "constraint": "OPTIONAL"
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "orbital_period",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "population",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "rotation_period",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "surface_water",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "terrain",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "url",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "Synapse",
+            "name": "Species",
             "labels": [
-                "Synapse",
-                "medulla7column_Synapse"
+                "Species"
             ],
             "properties": [
                 {
-                    "name": "confidence",
-                    "type": "DOUBLE",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "distal",
-                    "type": "BOOLEAN",
-                    "constraint": "OPTIONAL"
-                },
-                {
-                    "name": "location",
+                    "name": "average_height",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 },
                 {
-                    "name": "proximal",
+                    "name": "average_lifespan",
                     "type": "STRING",
-                    "constraint": "OPTIONAL"
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "type",
+                    "name": "classification",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "created",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "designation",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "edited",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "eye_colors",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "hair_colors",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "language",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "skin_colors",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "url",
                     "type": "STRING",
                     "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "SynapseSet",
+            "name": "Starship",
             "labels": [
-                "SynapseSet",
-                "medulla7column_SynapseSet"
+                "Starship"
             ],
-            "properties": []
+            "properties": [
+                {
+                    "name": "MGLT",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "cargo_capacity",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "consumables",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "cost_in_credits",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "created",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "crew",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "edited",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "hyperdrive_rating",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "length",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "manufacturer",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "max_atmosphering_speed",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "model",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "passengers",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "starship_class",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "url",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "Vehicle",
+            "labels": [
+                "Vehicle"
+            ],
+            "properties": [
+                {
+                    "name": "cargo_capacity",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "consumables",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "cost_in_credits",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "created",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "crew",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "edited",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "length",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "manufacturer",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "max_atmosphering_speed",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "model",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "passengers",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "url",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "vehicle_class",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                }
+            ]
         }
     ],
     "edge_types": [
         {
-            "name": "CONNECTS_TO",
-            "source": "NeuronSegmentFull",
-            "target": "NeuronSegmentFull",
+            "name": "APPEARED_IN",
+            "source": "Character",
+            "target": "Film",
             "cardinality": "M:N",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "STRING",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weight",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weightHP",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "CONNECTS_TO",
-            "source": "NeuronSegmentFull",
-            "target": "NeuronSegment",
+            "name": "APPEARED_IN",
+            "source": "Planet",
+            "target": "Film",
             "cardinality": "M:N",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "STRING",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weight",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weightHP",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "CONNECTS_TO",
-            "source": "NeuronSegment",
-            "target": "NeuronSegmentFull",
+            "name": "APPEARED_IN",
+            "source": "Species",
+            "target": "Film",
             "cardinality": "M:N",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "STRING",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weight",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weightHP",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "CONNECTS_TO",
-            "source": "NeuronSegment",
-            "target": "NeuronSegment",
+            "name": "APPEARED_IN",
+            "source": "Starship",
+            "target": "Film",
             "cardinality": "M:N",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "STRING",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weight",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                },
-                {
-                    "name": "weightHP",
-                    "type": "INTEGER",
-                    "constraint": "MANDATORY"
-                }
-            ]
+            "properties": []
         },
         {
-            "name": "CONNECTS_TO",
-            "source": "SynapseSet",
-            "target": "SynapseSet",
+            "name": "APPEARED_IN",
+            "source": "Vehicle",
+            "target": "Film",
+            "cardinality": "M:N",
+            "properties": []
+        },
+        {
+            "name": "HOMEWORLD",
+            "source": "Character",
+            "target": "Planet",
+            "cardinality": "1:N",
+            "properties": []
+        },
+        {
+            "name": "HOMEWORLD",
+            "source": "Species",
+            "target": "Planet",
             "cardinality": "1:1",
             "properties": []
         },
         {
-            "name": "CONTAINS",
-            "source": "NeuronSegmentFull",
-            "target": "SynapseSet",
-            "cardinality": "N:1",
+            "name": "OF",
+            "source": "Character",
+            "target": "Species",
+            "cardinality": "1:N",
             "properties": []
         },
         {
-            "name": "CONTAINS",
-            "source": "NeuronSegment",
-            "target": "SynapseSet",
-            "cardinality": "N:1",
-            "properties": []
-        },
-        {
-            "name": "CONTAINS",
-            "source": "SynapseSet",
-            "target": "Synapse",
+            "name": "PILOT",
+            "source": "Character",
+            "target": "Starship",
             "cardinality": "M:N",
             "properties": []
         },
         {
-            "name": "SYNAPSES_TO",
-            "source": "Synapse",
-            "target": "Synapse",
+            "name": "PILOT",
+            "source": "Character",
+            "target": "Vehicle",
             "cardinality": "M:N",
             "properties": []
         }
     ],
-    "notes": "Node types 'NeuronSegmentFull' and 'NeuronSegment' are distinct due to differing label sets, and also show a type difference for the 'proximal' property (BOOLEAN vs. STRING respectively), which has been preserved. The 'SynapseSet' node type was checked against the Noise Filter and deemed a legitimate entity due to its outgoing relationships to 'Synapse' nodes.",
+    "notes": "The schema reflects the exact physical structure of the provided data profile. All node types are single-label and have only one distinct property pattern with all properties being MANDATORY. No 'fake nodes' were identified based on the specified criteria. Edge names were derived strictly following heuristic 6, utilizing the provided relationship types as they satisfied the grammatical and semantic rules.",
     "_mined_patterns": {
         "node_types": [
             {
                 "labels": [
-                    "Meta",
-                    "medulla7column_Meta"
+                    "Character"
                 ],
-                "count": 1,
+                "count": 82,
                 "patterns": [
                     {
                         "property_keys": [
-                            "dataset",
-                            "lastDatabaseEdit",
-                            "latestMutationId",
-                            "logo",
-                            "meshHost",
-                            "neuroglancerInfo",
-                            "neuroglancerMeta",
-                            "postHPThreshold",
-                            "postHighAccuracyThreshold",
-                            "preHPThreshold",
-                            "primaryRois",
-                            "roiHierarchy",
-                            "roiInfo",
-                            "statusDefinitions",
-                            "superLevelRois",
-                            "totalPostCount",
-                            "totalPreCount",
-                            "uuid"
+                            "birth_year",
+                            "created",
+                            "edited",
+                            "eye_color",
+                            "gender",
+                            "hair_color",
+                            "height",
+                            "mass",
+                            "name",
+                            "skin_color",
+                            "url"
                         ],
-                        "count": 1
+                        "count": 82
                     }
                 ],
                 "properties": {
-                    "dataset": {
+                    "birth_year": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "lastDatabaseEdit": {
+                    "created": {
                         "data_type": "DATE",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "latestMutationId": {
-                        "data_type": "INTEGER",
+                    "edited": {
+                        "data_type": "DATE",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "logo": {
+                    "eye_color": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "meshHost": {
+                    "gender": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "neuroglancerInfo": {
+                    "hair_color": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "neuroglancerMeta": {
+                    "height": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "postHPThreshold": {
-                        "data_type": "DOUBLE",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "postHighAccuracyThreshold": {
-                        "data_type": "DOUBLE",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "preHPThreshold": {
-                        "data_type": "DOUBLE",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "primaryRois": {
-                        "data_type": "LIST",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "roiHierarchy": {
+                    "mass": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "roiInfo": {
+                    "name": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "statusDefinitions": {
+                    "skin_color": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "superLevelRois": {
-                        "data_type": "LIST",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "totalPostCount": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "totalPreCount": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "uuid": {
+                    "url": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
@@ -541,587 +577,67 @@
             },
             {
                 "labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Film"
                 ],
-                "count": 2951,
+                "count": 6,
                 "patterns": [
                     {
                         "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 992
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 517
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
-                        ],
-                        "count": 400
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
-                        ],
-                        "count": 252
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 244
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
-                        ],
-                        "count": 213
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 200
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 88
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 23
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 11
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 9
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 2
-                    }
-                ],
-                "properties": {
-                    "bodyId": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "cropped": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.8994
-                    },
-                    "distal": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.5161
-                    },
-                    "instance": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.8872
-                    },
-                    "post": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "pre": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "proximal": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.7059
-                    },
-                    "roiInfo": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "size": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "status": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "statusLabel": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "type": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.2931
-                    }
-                }
-            },
-            {
-                "labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
-                ],
-                "count": 84183,
-                "patterns": [
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size"
-                        ],
-                        "count": 44376
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size"
-                        ],
-                        "count": 28423
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 5495
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 4732
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size"
-                        ],
-                        "count": 322
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 252
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 180
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 179
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 135
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 45
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
-                        ],
-                        "count": 15
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
-                        ],
-                        "count": 11
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "distal",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 7
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "cropped",
-                            "instance",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel",
-                            "type"
+                            "created",
+                            "director",
+                            "edited",
+                            "episode_id",
+                            "opening_crawl",
+                            "producer",
+                            "release_date",
+                            "title",
+                            "url"
                         ],
                         "count": 6
-                    },
-                    {
-                        "property_keys": [
-                            "bodyId",
-                            "distal",
-                            "post",
-                            "pre",
-                            "proximal",
-                            "roiInfo",
-                            "size",
-                            "status",
-                            "statusLabel"
-                        ],
-                        "count": 5
                     }
                 ],
                 "properties": {
-                    "bodyId": {
+                    "created": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "director": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "edited": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "episode_id": {
                         "data_type": "INTEGER",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "cropped": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.1276
-                    },
-                    "distal": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.4029
-                    },
-                    "instance": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.0056
-                    },
-                    "post": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "pre": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "proximal": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.6017
-                    },
-                    "roiInfo": {
+                    "opening_crawl": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "size": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "status": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.1314
-                    },
-                    "statusLabel": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.1314
-                    },
-                    "type": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.0004
-                    }
-                }
-            },
-            {
-                "labels": [
-                    "Synapse",
-                    "medulla7column_Synapse"
-                ],
-                "count": 366306,
-                "patterns": [
-                    {
-                        "property_keys": [
-                            "confidence",
-                            "location",
-                            "proximal",
-                            "type"
-                        ],
-                        "count": 214536
-                    },
-                    {
-                        "property_keys": [
-                            "confidence",
-                            "distal",
-                            "location",
-                            "type"
-                        ],
-                        "count": 151770
-                    }
-                ],
-                "properties": {
-                    "confidence": {
-                        "data_type": "DOUBLE",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "distal": {
-                        "data_type": "BOOLEAN",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.4143
-                    },
-                    "location": {
+                    "producer": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
                     },
-                    "proximal": {
-                        "data_type": "STRING",
-                        "constraint": "OPTIONAL",
-                        "fill_ratio": 0.5857
+                    "release_date": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
                     },
-                    "type": {
+                    "title": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
                         "data_type": "STRING",
                         "constraint": "MANDATORY",
                         "fill_ratio": 1.0
@@ -1130,327 +646,606 @@
             },
             {
                 "labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
+                    "Planet"
                 ],
-                "count": 349032,
+                "count": 60,
                 "patterns": [
                     {
-                        "property_keys": [],
-                        "count": 349032
+                        "property_keys": [
+                            "climate",
+                            "created",
+                            "diameter",
+                            "edited",
+                            "gravity",
+                            "name",
+                            "orbital_period",
+                            "population",
+                            "rotation_period",
+                            "surface_water",
+                            "terrain",
+                            "url"
+                        ],
+                        "count": 60
                     }
                 ],
-                "properties": {}
+                "properties": {
+                    "climate": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "created": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "diameter": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "edited": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "gravity": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "orbital_period": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "population": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "rotation_period": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "surface_water": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "terrain": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Species"
+                ],
+                "count": 37,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "average_height",
+                            "average_lifespan",
+                            "classification",
+                            "created",
+                            "designation",
+                            "edited",
+                            "eye_colors",
+                            "hair_colors",
+                            "language",
+                            "name",
+                            "skin_colors",
+                            "url"
+                        ],
+                        "count": 37
+                    }
+                ],
+                "properties": {
+                    "average_height": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "average_lifespan": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "classification": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "created": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "designation": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "edited": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "eye_colors": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "hair_colors": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "language": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "skin_colors": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Starship"
+                ],
+                "count": 36,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "MGLT",
+                            "cargo_capacity",
+                            "consumables",
+                            "cost_in_credits",
+                            "created",
+                            "crew",
+                            "edited",
+                            "hyperdrive_rating",
+                            "length",
+                            "manufacturer",
+                            "max_atmosphering_speed",
+                            "model",
+                            "name",
+                            "passengers",
+                            "starship_class",
+                            "url"
+                        ],
+                        "count": 36
+                    }
+                ],
+                "properties": {
+                    "MGLT": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cargo_capacity": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "consumables": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cost_in_credits": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "created": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "crew": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "edited": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "hyperdrive_rating": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "length": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "manufacturer": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "max_atmosphering_speed": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "model": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "passengers": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "starship_class": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Vehicle"
+                ],
+                "count": 39,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "cargo_capacity",
+                            "consumables",
+                            "cost_in_credits",
+                            "created",
+                            "crew",
+                            "edited",
+                            "length",
+                            "manufacturer",
+                            "max_atmosphering_speed",
+                            "model",
+                            "name",
+                            "passengers",
+                            "url",
+                            "vehicle_class"
+                        ],
+                        "count": 39
+                    }
+                ],
+                "properties": {
+                    "cargo_capacity": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "consumables": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cost_in_credits": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "created": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "crew": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "edited": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "length": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "manufacturer": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "max_atmosphering_speed": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "model": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "passengers": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "vehicle_class": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
             }
         ],
         "edge_types": [
             {
                 "labels": [
-                    "CONNECTS_TO"
+                    "APPEARED_IN"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Character"
                 ],
                 "target_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Film"
                 ],
-                "count": 58477,
+                "count": 162,
                 "cardinality": "M:N",
-                "max_out_degree": 313,
-                "max_in_degree": 300,
+                "max_out_degree": 6,
+                "max_in_degree": 40,
                 "patterns": [
                     {
-                        "property_keys": [
-                            "roiInfo",
-                            "weight",
-                            "weightHP"
-                        ],
-                        "count": 58477
+                        "property_keys": [],
+                        "count": 162
                     }
                 ],
-                "properties": {
-                    "roiInfo": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weight": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weightHP": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    }
-                }
+                "properties": {}
             },
             {
                 "labels": [
-                    "CONNECTS_TO"
+                    "APPEARED_IN"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Planet"
                 ],
                 "target_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
+                    "Film"
                 ],
-                "count": 112426,
+                "count": 33,
                 "cardinality": "M:N",
-                "max_out_degree": 944,
-                "max_in_degree": 8,
+                "max_out_degree": 5,
+                "max_in_degree": 13,
                 "patterns": [
                     {
-                        "property_keys": [
-                            "roiInfo",
-                            "weight",
-                            "weightHP"
-                        ],
-                        "count": 112426
+                        "property_keys": [],
+                        "count": 33
                     }
                 ],
-                "properties": {
-                    "roiInfo": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weight": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weightHP": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    }
-                }
+                "properties": {}
             },
             {
                 "labels": [
-                    "CONNECTS_TO"
+                    "APPEARED_IN"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
+                    "Species"
                 ],
                 "target_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Film"
                 ],
-                "count": 1640,
+                "count": 73,
                 "cardinality": "M:N",
-                "max_out_degree": 8,
-                "max_in_degree": 15,
+                "max_out_degree": 6,
+                "max_in_degree": 20,
                 "patterns": [
                     {
-                        "property_keys": [
-                            "roiInfo",
-                            "weight",
-                            "weightHP"
-                        ],
-                        "count": 1640
+                        "property_keys": [],
+                        "count": 73
                     }
                 ],
-                "properties": {
-                    "roiInfo": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weight": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weightHP": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    }
-                }
+                "properties": {}
             },
             {
                 "labels": [
-                    "CONNECTS_TO"
+                    "APPEARED_IN"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
+                    "Starship"
                 ],
                 "target_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
+                    "Film"
                 ],
-                "count": 1973,
+                "count": 55,
                 "cardinality": "M:N",
-                "max_out_degree": 10,
-                "max_in_degree": 3,
+                "max_out_degree": 3,
+                "max_in_degree": 12,
                 "patterns": [
                     {
-                        "property_keys": [
-                            "roiInfo",
-                            "weight",
-                            "weightHP"
-                        ],
-                        "count": 1973
+                        "property_keys": [],
+                        "count": 55
                     }
                 ],
-                "properties": {
-                    "roiInfo": {
-                        "data_type": "STRING",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weight": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    },
-                    "weightHP": {
-                        "data_type": "INTEGER",
-                        "constraint": "MANDATORY",
-                        "fill_ratio": 1.0
-                    }
-                }
+                "properties": {}
             },
             {
                 "labels": [
-                    "CONNECTS_TO"
+                    "APPEARED_IN"
                 ],
                 "source_labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
+                    "Vehicle"
                 ],
                 "target_labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
+                    "Film"
                 ],
-                "count": 174516,
+                "count": 49,
+                "cardinality": "M:N",
+                "max_out_degree": 3,
+                "max_in_degree": 13,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 49
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HOMEWORLD"
+                ],
+                "source_labels": [
+                    "Character"
+                ],
+                "target_labels": [
+                    "Planet"
+                ],
+                "count": 82,
+                "cardinality": "1:N",
+                "max_out_degree": 1,
+                "max_in_degree": 11,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 82
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HOMEWORLD"
+                ],
+                "source_labels": [
+                    "Species"
+                ],
+                "target_labels": [
+                    "Planet"
+                ],
+                "count": 36,
                 "cardinality": "1:1",
                 "max_out_degree": 1,
                 "max_in_degree": 1,
                 "patterns": [
                     {
                         "property_keys": [],
-                        "count": 174516
+                        "count": 36
                     }
                 ],
                 "properties": {}
             },
             {
                 "labels": [
-                    "CONTAINS"
+                    "OF"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Neuron",
-                    "medulla7column_Segment"
+                    "Character"
                 ],
                 "target_labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
+                    "Species"
                 ],
-                "count": 231020,
-                "cardinality": "N:1",
-                "max_out_degree": 1567,
-                "max_in_degree": 1,
+                "count": 78,
+                "cardinality": "1:N",
+                "max_out_degree": 1,
+                "max_in_degree": 32,
                 "patterns": [
                     {
                         "property_keys": [],
-                        "count": 231020
+                        "count": 78
                     }
                 ],
                 "properties": {}
             },
             {
                 "labels": [
-                    "CONTAINS"
+                    "PILOT"
                 ],
                 "source_labels": [
-                    "Neuron",
-                    "Segment",
-                    "medulla7column_Segment"
+                    "Character"
                 ],
                 "target_labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
+                    "Starship"
                 ],
-                "count": 118012,
-                "cardinality": "N:1",
-                "max_out_degree": 21,
-                "max_in_degree": 1,
-                "patterns": [
-                    {
-                        "property_keys": [],
-                        "count": 118012
-                    }
-                ],
-                "properties": {}
-            },
-            {
-                "labels": [
-                    "CONTAINS"
-                ],
-                "source_labels": [
-                    "SynapseSet",
-                    "medulla7column_SynapseSet"
-                ],
-                "target_labels": [
-                    "Synapse",
-                    "medulla7column_Synapse"
-                ],
-                "count": 614160,
+                "count": 30,
                 "cardinality": "M:N",
-                "max_out_degree": 2795,
-                "max_in_degree": 20,
+                "max_out_degree": 5,
+                "max_in_degree": 4,
                 "patterns": [
                     {
                         "property_keys": [],
-                        "count": 614160
+                        "count": 30
                     }
                 ],
                 "properties": {}
             },
             {
                 "labels": [
-                    "SYNAPSES_TO"
+                    "PILOT"
                 ],
                 "source_labels": [
-                    "Synapse",
-                    "medulla7column_Synapse"
+                    "Character"
                 ],
                 "target_labels": [
-                    "Synapse",
-                    "medulla7column_Synapse"
+                    "Vehicle"
                 ],
-                "count": 313204,
+                "count": 13,
                 "cardinality": "M:N",
-                "max_out_degree": 21,
+                "max_out_degree": 2,
                 "max_in_degree": 2,
                 "patterns": [
                     {
                         "property_keys": [],
-                        "count": 313204
+                        "count": 13
                     }
                 ],
                 "properties": {}

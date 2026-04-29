@@ -1,7 +1,26 @@
 {
     "node_types": [
         {
+            "name": "AREA",
+            "type_name": "AREA",
+            "labels": [],
+            "properties": [
+                {
+                    "name": "areaCode",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
             "name": "Crime",
+            "type_name": "Crime",
+            "labels": [],
             "properties": [
                 {
                     "name": "date",
@@ -41,7 +60,26 @@
             ]
         },
         {
+            "name": "Email",
+            "type_name": "Email",
+            "labels": [],
+            "properties": [
+                {
+                    "name": "email_address",
+                    "type": "String",
+                    "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
             "name": "Location",
+            "type_name": "Location",
+            "labels": [],
             "properties": [
                 {
                     "name": "address",
@@ -67,21 +105,13 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
-                {
-                    "name": "areaCode",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "postcode_code",
-                    "type": "String",
-                    "mandatory": true
                 }
             ]
         },
         {
             "name": "Object",
+            "type_name": "Object",
+            "labels": [],
             "properties": [
                 {
                     "name": "description",
@@ -107,6 +137,8 @@
         },
         {
             "name": "Officer",
+            "type_name": "Officer",
+            "labels": [],
             "properties": [
                 {
                     "name": "badge_no",
@@ -137,6 +169,8 @@
         },
         {
             "name": "Person",
+            "type_name": "Person",
+            "labels": [],
             "properties": [
                 {
                     "name": "surname",
@@ -162,21 +196,30 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
-                {
-                    "name": "email_address",
-                    "type": "String",
-                    "mandatory": true
-                },
+                }
+            ]
+        },
+        {
+            "name": "Phone",
+            "type_name": "Phone",
+            "labels": [],
+            "properties": [
                 {
                     "name": "phoneNo",
                     "type": "String",
                     "mandatory": true
+                },
+                {
+                    "name": "id",
+                    "type": "String",
+                    "mandatory": false
                 }
             ]
         },
         {
             "name": "PhoneCall",
+            "type_name": "PhoneCall",
+            "labels": [],
             "properties": [
                 {
                     "name": "call_date",
@@ -202,21 +245,30 @@
                     "name": "id",
                     "type": "String",
                     "mandatory": false
-                },
+                }
+            ]
+        },
+        {
+            "name": "PostCode",
+            "type_name": "PostCode",
+            "labels": [],
+            "properties": [
                 {
-                    "name": "called_phoneNo",
+                    "name": "code",
                     "type": "String",
                     "mandatory": true
                 },
                 {
-                    "name": "caller_phoneNo",
+                    "name": "id",
                     "type": "String",
-                    "mandatory": true
+                    "mandatory": false
                 }
             ]
         },
         {
             "name": "Vehicle",
+            "type_name": "Vehicle",
+            "labels": [],
             "properties": [
                 {
                     "name": "year",
@@ -248,69 +300,179 @@
     ],
     "edge_types": [
         {
-            "name": "HAS_ADDRESS",
-            "start_node": "Person",
-            "end_node": "Location",
+            "name": "CALLED",
+            "labels": [
+                "rels_CALLED"
+            ],
+            "start_node": "PhoneCall",
+            "end_node": "Phone",
+            "cardinality": "MANY_TO_ONE",
             "properties": []
         },
         {
-            "name": "HAS_FAMILY_RELATIONSHIP",
+            "name": "CALLER",
+            "labels": [
+                "rels_CALLER"
+            ],
+            "start_node": "PhoneCall",
+            "end_node": "Phone",
+            "cardinality": "MANY_TO_ONE",
+            "properties": []
+        },
+        {
+            "name": "CURRENT_ADDRESS",
+            "labels": [
+                "rels_CURRENT_ADDRESS"
+            ],
+            "start_node": "Person",
+            "end_node": "Location",
+            "cardinality": "MANY_TO_ONE",
+            "properties": []
+        },
+        {
+            "name": "FAMILY_REL",
+            "labels": [
+                "rels_FAMILY_REL"
+            ],
             "start_node": "Person",
             "end_node": "Person",
+            "cardinality": "MANY_TO_MANY",
             "properties": [
                 {
                     "name": "rel_type",
                     "type": "String",
-                    "mandatory": true
+                    "mandatory": false
                 }
             ]
         },
         {
+            "name": "HAS_EMAIL",
+            "labels": [
+                "rels_HAS_EMAIL"
+            ],
+            "start_node": "Person",
+            "end_node": "Email",
+            "cardinality": "ONE_TO_ONE",
+            "properties": []
+        },
+        {
+            "name": "HAS_PHONE",
+            "labels": [
+                "rels_HAS_PHONE"
+            ],
+            "start_node": "Person",
+            "end_node": "Phone",
+            "cardinality": "ONE_TO_ONE",
+            "properties": []
+        },
+        {
+            "name": "HAS_POSTCODE",
+            "labels": [
+                "rels_HAS_POSTCODE"
+            ],
+            "start_node": "Location",
+            "end_node": "PostCode",
+            "cardinality": "ONE_TO_ONE",
+            "properties": []
+        },
+        {
             "name": "INVESTIGATED_BY",
+            "labels": [
+                "rels_INVESTIGATED_BY"
+            ],
             "start_node": "Crime",
             "end_node": "Officer",
+            "cardinality": "MANY_TO_ONE",
             "properties": []
         },
         {
-            "name": "INVOLVED_IN",
+            "name": "INVOLVED_IN_FROM_VEHICLE",
+            "labels": [
+                "rels_INVOLVED_IN"
+            ],
             "start_node": "Vehicle",
             "end_node": "Crime",
+            "cardinality": "ONE_TO_ONE",
             "properties": []
         },
         {
-            "name": "INVOLVED_IN",
+            "name": "INVOLVED_IN_FROM_OBJECT",
+            "labels": [
+                "rels_INVOLVED_IN"
+            ],
             "start_node": "Object",
             "end_node": "Crime",
+            "cardinality": "ONE_TO_ONE",
             "properties": []
         },
         {
             "name": "KNOWS",
+            "labels": [
+                "rels_KNOWS"
+            ],
             "start_node": "Person",
             "end_node": "Person",
+            "cardinality": "MANY_TO_MANY",
             "properties": []
         },
         {
             "name": "KNOWS_LW",
+            "labels": [
+                "rels_KNOWS_LW"
+            ],
             "start_node": "Person",
             "end_node": "Person",
+            "cardinality": "MANY_TO_MANY",
             "properties": []
         },
         {
             "name": "KNOWS_PHONE",
+            "labels": [
+                "rels_KNOWS_PHONE"
+            ],
             "start_node": "Person",
             "end_node": "Person",
+            "cardinality": "ONE_TO_ONE",
+            "properties": []
+        },
+        {
+            "name": "LOCATION_IN_AREA",
+            "labels": [
+                "rels_LOCATION_IN_AREA"
+            ],
+            "start_node": "Location",
+            "end_node": "AREA",
+            "cardinality": "MANY_TO_ONE",
             "properties": []
         },
         {
             "name": "OCCURRED_AT",
+            "labels": [
+                "rels_OCCURRED_AT"
+            ],
             "start_node": "Crime",
             "end_node": "Location",
+            "cardinality": "MANY_TO_ONE",
             "properties": []
         },
         {
             "name": "PARTY_TO",
+            "labels": [
+                "rels_PARTY_TO"
+            ],
             "start_node": "Person",
             "end_node": "Crime",
+            "cardinality": "ONE_TO_MANY",
+            "properties": []
+        },
+        {
+            "name": "POSTCODE_IN_AREA",
+            "labels": [
+                "rels_POSTCODE_IN_AREA"
+            ],
+            "start_node": "PostCode",
+            "end_node": "AREA",
+            "cardinality": "MANY_TO_ONE",
             "properties": []
         }
     ]

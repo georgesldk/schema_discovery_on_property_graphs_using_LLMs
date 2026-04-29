@@ -6,12 +6,11 @@ import os
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-import networkx as nx
 import pandas as pd
 
 from pg_schema_llm.io.detect import detect_file_role
-from pg_schema_llm.io.normalize import normalize_edge_row, normalize_node_row
-from pg_schema_llm.io.csv_tools import iter_chunks, read_full_df, read_preview, sniff_delimiter
+from pg_schema_llm.io.normalize import normalize_node_row
+from pg_schema_llm.io.csv_tools import iter_chunks, read_preview, sniff_delimiter
 from pg_schema_llm.io.naming import clean_name_smart, get_common_affixes
 from pg_schema_llm.io.kv_store import sqlite_kv_get_many, sqlite_kv_open, sqlite_kv_put_many
 
@@ -187,9 +186,98 @@ def _is_reserved_property(col: str) -> bool:
     return False
 
 
-# ============================================================
-# Legacy graph builder (NetworkX) - small datasets only
-# ============================================================
+def _is_label_column(col: str) -> bool:
+    """
+    Detect columns that encode node labels.
+
+    Supports common conventions like Neo4j :LABEL as well as generic
+    label/labels columns. This is intentionally conservative to avoid
+    misclassifying normal properties such as statusLabel.
+    """
+    if not col:
+        return False
+    c = str(col).strip().strip('"').strip("'").strip("`")
+    cl = c.lower()
+    return c.startswith(":LABEL") or cl in {"label", "labels"}
+
+
+def _extract_labels_from_value(v: Any) -> List[str]:
+    """
+    Parse a raw label cell into a list of normalized labels.
+    """
+    if v is None:
+        return []
+    if isinstance(v, (list, tuple, set)):
+        out = []
+        for x in v:
+            s = str(x).strip().strip('"').strip("'")
+            if s:
+                out.append(s)
+        return out
+
+    s = str(v).strip()
+    if not s:
+        return []
+
+    # Handle JSON-like arrays and simple delimiter-separated lists.
+    if s.startswith("[") and s.endswith("]"):
+        try:
+            arr = json.loads(s)
+            if isinstance(arr, list):
+                out = []
+                for x in arr:
+                    z = str(x).strip().strip('"').strip("'")
+                    if z:
+                        out.append(z)
+                return out
+        except Exception:
+            pass
+
+    if ";" in s:
+        parts = s.split(";")
+    elif "|" in s:
+        parts = s.split("|")
+    elif "&" in s:
+        parts = s.split("&")
+    else:
+        parts = [s]
+
+    out = []
+    for p in parts:
+        z = str(p).strip().strip('"').strip("'")
+        if z:
+            out.append(z)
+    return out
+
+
+def _estimate_edge_cardinality(edge_count: int, distinct_sources: int, distinct_targets: int) -> str:
+    """
+    Estimate coarse edge cardinality class from aggregate counts.
+
+    This is dataset-agnostic and based on average fanout/fanin:
+    - ONE_TO_ONE
+    - ONE_TO_MANY
+    - MANY_TO_ONE
+    - MANY_TO_MANY
+    """
+    if edge_count <= 0 or distinct_sources <= 0 or distinct_targets <= 0:
+        return "UNKNOWN"
+
+    src_avg = edge_count / max(distinct_sources, 1)
+    tgt_avg = edge_count / max(distinct_targets, 1)
+    eps = 1.05
+
+    src_many = src_avg > eps
+    tgt_many = tgt_avg > eps
+
+    if not src_many and not tgt_many:
+        return "ONE_TO_ONE"
+    if src_many and not tgt_many:
+        return "ONE_TO_MANY"
+    if not src_many and tgt_many:
+        return "MANY_TO_ONE"
+    return "MANY_TO_MANY"
+
 
 def _list_csv_files(data_folder: str) -> List[str]:
     """
@@ -203,108 +291,6 @@ def _list_csv_files(data_folder: str) -> List[str]:
     """
     
     return glob.glob(os.path.join(data_folder, "*.csv"))
-
-
-def build_graph(data_folder: str) -> nx.MultiDiGraph:
-    """
-    Construct a full in-memory property graph using NetworkX.
-
-    This legacy function materializes all nodes and edges into a
-    NetworkX MultiDiGraph. It is intended only for small datasets
-    and debugging purposes, as it does not scale to large graphs.
-
-    Args:
-        data_folder (str): Path to the dataset directory.
-
-    Returns:
-        nx.MultiDiGraph: Constructed property graph.
-    """
-    print(f"--- Building Graph from: {data_folder} ---")
-    G = nx.MultiDiGraph()
-
-    if not os.path.isdir(data_folder):
-        print(f" Error: Folder '{data_folder}' does not exist.")
-        return G
-
-    csv_files = _list_csv_files(data_folder)
-    if not csv_files:
-        print(f" No CSV files found in {data_folder}")
-        return G
-
-    all_filenames = [os.path.basename(f) for f in csv_files]
-    common_prefix, common_suffix = get_common_affixes(all_filenames)
-    print(f"   [Auto-Cleaner] Detected Common Prefix: '{common_prefix}'")
-    print(f"   [Auto-Cleaner] Detected Common Suffix: '{common_suffix}'")
-    print(">>> Scanning for Nodes & Edges...")
-
-    for file_path in csv_files:
-        try:
-            clean_type = clean_name_smart(file_path, common_prefix, common_suffix)
-            delim = sniff_delimiter(file_path)
-
-            df_preview = read_preview(file_path, delim)
-            role, cols = detect_file_role(df_preview)
-
-            if role == "node":
-                id_col_prev = resolve_col(df_preview.columns, cols.get("id"))
-                if not id_col_prev:
-                    print(
-                        f"    [SKIP] Node {os.path.basename(file_path)}: cannot resolve id. "
-                        f"detected={cols.get('id')} cols={list(df_preview.columns)[:8]}"
-                    )
-                    continue
-
-                df = read_full_df(file_path, delim)
-                id_col = resolve_col(df.columns, id_col_prev)
-                if not id_col:
-                    print(f"    [SKIP] Node {os.path.basename(file_path)}: cannot resolve id in full df.")
-                    continue
-
-                print(f"   Processing Nodes: {os.path.basename(file_path)} -> '{clean_type}' (id={id_col})")
-
-                for _, row in df.iterrows():
-                    node_id, props = normalize_node_row(row.to_dict(), id_col=id_col)
-                    if node_id is None:
-                        continue
-                    G.add_node(node_id, node_type=clean_type, **props)
-
-            elif role == "edge":
-                start_prev = resolve_col(df_preview.columns, cols.get("start"))
-                end_prev = resolve_col(df_preview.columns, cols.get("end"))
-                if not start_prev or not end_prev:
-                    print(
-                        f"    [SKIP] Edge {os.path.basename(file_path)}: cannot resolve start/end. "
-                        f"detected=({cols.get('start')},{cols.get('end')}) cols={list(df_preview.columns)[:8]}"
-                    )
-                    continue
-
-                df = read_full_df(file_path, delim)
-                start_col = resolve_col(df.columns, start_prev)
-                end_col = resolve_col(df.columns, end_prev)
-                if not start_col or not end_col:
-                    print(f"    [SKIP] Edge {os.path.basename(file_path)}: cannot resolve start/end in full df.")
-                    continue
-
-                print(
-                    f"   Processing Edges: {os.path.basename(file_path)} -> '{clean_type}' "
-                    f"(start={start_col}, end={end_col})"
-                )
-
-                for _, row in df.iterrows():
-                    u, v, props = normalize_edge_row(row.to_dict(), start_col=start_col, end_col=end_col)
-                    if u is None or v is None:
-                        continue
-                    if not G.has_node(u):
-                        G.add_node(u, node_type="Inferred")
-                    if not G.has_node(v):
-                        G.add_node(v, node_type="Inferred")
-                    G.add_edge(u, v, type=clean_type, **props)
-
-        except Exception as e:
-            print(f"    Error reading {file_path}: {e}")
-
-    print(f"\n Graph Built. Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}")
-    return G
 
 
 # ============================================================
@@ -394,6 +380,7 @@ def build_typestats(
                 "prop_fill": Counter(),
                 "prop_kind": Counter(),
                 "prop_samples": defaultdict(list),
+                "label_counts": Counter(),
             },
         )
 
@@ -404,6 +391,14 @@ def build_typestats(
                 id_col = resolve_col(chunk.columns, id_col_preview)
                 if not id_col:
                     continue
+
+                # Collect labels from dedicated label columns if present.
+                label_cols = [c for c in chunk.columns if _is_label_column(c)]
+                if label_cols:
+                    for lc in label_cols:
+                        for v in chunk[lc].dropna().tolist():
+                            for lab in _extract_labels_from_value(v):
+                                st["label_counts"][lab] += 1
 
                 total_rows_this_file += len(chunk)
 
@@ -532,6 +527,8 @@ def build_typestats(
                 "prop_kind": Counter(),
                 "prop_keys": set(),
                 "topology": Counter(),
+                "source_ids": set(),
+                "target_ids": set(),
             },
         )
 
@@ -593,6 +590,8 @@ def build_typestats(
                 # topology via sqlite id->type
                 start_vals = chunk[start_col].astype(str).tolist()
                 end_vals = chunk[end_col].astype(str).tolist()
+                st["source_ids"].update(start_vals)
+                st["target_ids"].update(end_vals)
                 ids = list(set(start_vals + end_vals))
                 id2type = sqlite_kv_get_many(conn, ids)
 
@@ -607,6 +606,21 @@ def build_typestats(
     print("\n TypeStats built.")
     print(f"   Node types: {len(node_stats)}")
     print(f"   Edge types: {len(edge_stats)}")
+
+    # Compress cardinality helpers to lightweight scalar stats.
+    for _, st in edge_stats.items():
+        src_distinct = len(st.get("source_ids", set()) or [])
+        tgt_distinct = len(st.get("target_ids", set()) or [])
+        st["source_distinct"] = int(src_distinct)
+        st["target_distinct"] = int(tgt_distinct)
+        st["estimated_cardinality"] = _estimate_edge_cardinality(
+            int(st.get("count", 0)),
+            int(src_distinct),
+            int(tgt_distinct),
+        )
+        # prevent carrying large raw sets downstream
+        st.pop("source_ids", None)
+        st.pop("target_ids", None)
 
     conn.close()
     return {"node_types": node_stats, "edge_types": edge_stats}

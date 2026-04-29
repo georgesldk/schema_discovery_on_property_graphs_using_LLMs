@@ -2,6 +2,8 @@
     "node_types": [
         {
             "name": "comment",
+            "type_name": "comment",
+            "labels": [],
             "properties": [
                 {
                     "name": "creationDate",
@@ -32,6 +34,8 @@
         },
         {
             "name": "forum",
+            "type_name": "forum",
+            "labels": [],
             "properties": [
                 {
                     "name": "title",
@@ -47,6 +51,8 @@
         },
         {
             "name": "organisation",
+            "type_name": "organisation",
+            "labels": [],
             "properties": [
                 {
                     "name": "type",
@@ -67,6 +73,8 @@
         },
         {
             "name": "person",
+            "type_name": "person",
+            "labels": [],
             "properties": [
                 {
                     "name": "firstName",
@@ -102,21 +110,13 @@
                     "name": "browserUsed",
                     "type": "String",
                     "mandatory": true
-                },
-                {
-                    "name": "email",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "language",
-                    "type": "String",
-                    "mandatory": true
                 }
             ]
         },
         {
             "name": "place",
+            "type_name": "place",
+            "labels": [],
             "properties": [
                 {
                     "name": "name",
@@ -137,6 +137,8 @@
         },
         {
             "name": "post",
+            "type_name": "post",
+            "labels": [],
             "properties": [
                 {
                     "name": "imageFile",
@@ -177,6 +179,8 @@
         },
         {
             "name": "tag",
+            "type_name": "tag",
+            "labels": [],
             "properties": [
                 {
                     "name": "name",
@@ -192,6 +196,8 @@
         },
         {
             "name": "tagclass",
+            "type_name": "tagclass",
+            "labels": [],
             "properties": [
                 {
                     "name": "name",
@@ -204,47 +210,66 @@
                     "mandatory": true
                 }
             ]
+        },
+        {
+            "name": "emailaddress",
+            "type_name": "emailaddress",
+            "labels": [],
+            "properties": []
+        },
+        {
+            "name": "language",
+            "type_name": "language",
+            "labels": [],
+            "properties": []
         }
     ],
     "edge_types": [
         {
-            "name": "HAS_CREATOR",
-            "start_node": "person",
-            "end_node": "comment",
+            "name": "comment_hasCreator_person",
+            "labels": [],
+            "start_node": "comment",
+            "end_node": "person",
             "properties": []
         },
         {
-            "name": "HAS_TAG",
+            "name": "comment_hasTag_tag",
+            "labels": [],
             "start_node": "comment",
             "end_node": "tag",
             "properties": []
         },
         {
-            "name": "LOCATED_IN",
+            "name": "comment_isLocatedIn_place",
+            "labels": [],
             "start_node": "comment",
             "end_node": "place",
             "properties": []
         },
         {
-            "name": "REPLY_OF",
+            "name": "comment_replyOf_comment",
+            "labels": [],
             "start_node": "comment",
             "end_node": "comment",
             "properties": []
         },
         {
-            "name": "REPLY_OF",
+            "name": "comment_replyOf_post",
+            "labels": [],
             "start_node": "comment",
             "end_node": "post",
             "properties": []
         },
         {
-            "name": "CONTAINS",
+            "name": "forum_containerOf_post",
+            "labels": [],
             "start_node": "forum",
             "end_node": "post",
             "properties": []
         },
         {
-            "name": "HAS_MEMBER",
+            "name": "forum_hasMember_person",
+            "labels": [],
             "start_node": "forum",
             "end_node": "person",
             "properties": [
@@ -256,37 +281,56 @@
             ]
         },
         {
-            "name": "MODERATES",
+            "name": "forum_hasModerator_person",
+            "labels": [],
             "start_node": "forum",
             "end_node": "person",
             "properties": []
         },
         {
-            "name": "HAS_TAG",
+            "name": "forum_hasTag_tag",
+            "labels": [],
             "start_node": "forum",
             "end_node": "tag",
             "properties": []
         },
         {
-            "name": "LOCATED_IN",
+            "name": "organisation_isLocatedIn_place",
+            "labels": [],
             "start_node": "organisation",
             "end_node": "place",
             "properties": []
         },
         {
-            "name": "HAS_INTEREST",
+            "name": "person_email_emailaddress",
+            "labels": [],
+            "start_node": "person",
+            "end_node": "emailaddress",
+            "properties": [
+                {
+                    "name": "email",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "person_hasInterest_tag",
+            "labels": [],
             "start_node": "person",
             "end_node": "tag",
             "properties": []
         },
         {
-            "name": "LOCATED_IN",
+            "name": "person_isLocatedIn_place",
+            "labels": [],
             "start_node": "person",
             "end_node": "place",
             "properties": []
         },
         {
-            "name": "KNOWS",
+            "name": "person_knows_person",
+            "labels": [],
             "start_node": "person",
             "end_node": "person",
             "properties": [
@@ -298,7 +342,8 @@
             ]
         },
         {
-            "name": "LIKES",
+            "name": "person_likes_comment",
+            "labels": [],
             "start_node": "person",
             "end_node": "comment",
             "properties": [
@@ -310,7 +355,8 @@
             ]
         },
         {
-            "name": "LIKES",
+            "name": "person_likes_post",
+            "labels": [],
             "start_node": "person",
             "end_node": "post",
             "properties": [
@@ -322,7 +368,21 @@
             ]
         },
         {
-            "name": "STUDIES_AT",
+            "name": "person_speaks_language",
+            "labels": [],
+            "start_node": "person",
+            "end_node": "language",
+            "properties": [
+                {
+                    "name": "language",
+                    "type": "String",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "person_studyAt_organisation",
+            "labels": [],
             "start_node": "person",
             "end_node": "organisation",
             "properties": [
@@ -334,7 +394,8 @@
             ]
         },
         {
-            "name": "WORKS_AT",
+            "name": "person_workAt_organisation",
+            "labels": [],
             "start_node": "person",
             "end_node": "organisation",
             "properties": [
@@ -346,37 +407,43 @@
             ]
         },
         {
-            "name": "IS_PART_OF",
+            "name": "place_isPartOf_place",
+            "labels": [],
             "start_node": "place",
             "end_node": "place",
             "properties": []
         },
         {
-            "name": "HAS_CREATOR",
+            "name": "post_hasCreator_person",
+            "labels": [],
             "start_node": "post",
             "end_node": "person",
             "properties": []
         },
         {
-            "name": "HAS_TAG",
+            "name": "post_hasTag_tag",
+            "labels": [],
             "start_node": "post",
             "end_node": "tag",
             "properties": []
         },
         {
-            "name": "LOCATED_IN",
+            "name": "post_isLocatedIn_place",
+            "labels": [],
             "start_node": "post",
             "end_node": "place",
             "properties": []
         },
         {
-            "name": "HAS_TYPE",
+            "name": "tag_hasType_tagclass",
+            "labels": [],
             "start_node": "tag",
             "end_node": "tagclass",
             "properties": []
         },
         {
-            "name": "IS_SUBCLASS_OF",
+            "name": "tagclass_isSubclassOf_tagclass",
+            "labels": [],
             "start_node": "tagclass",
             "end_node": "tagclass",
             "properties": []

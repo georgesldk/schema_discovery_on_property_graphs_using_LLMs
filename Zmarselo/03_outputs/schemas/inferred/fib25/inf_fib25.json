@@ -1,198 +1,1487 @@
 {
     "node_types": [
         {
-            "name": "Neurons",
+            "name": "Meta",
+            "labels": [
+                "Meta",
+                "medulla7column_Meta"
+            ],
             "properties": [
                 {
-                    "name": "bodyId",
-                    "type": "Long",
+                    "name": "dataset",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "pre",
-                    "type": "Long",
+                    "name": "lastDatabaseEdit",
+                    "type": "DATE",
                     "mandatory": true
                 },
                 {
-                    "name": "post",
-                    "type": "Long",
+                    "name": "latestMutationId",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
-                    "name": "status",
-                    "type": "String",
+                    "name": "logo",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "statusLabel",
-                    "type": "String",
+                    "name": "meshHost",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "cropped",
-                    "type": "Boolean",
+                    "name": "neuroglancerInfo",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "instance",
-                    "type": "String",
+                    "name": "neuroglancerMeta",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "type",
-                    "type": "String",
+                    "name": "postHPThreshold",
+                    "type": "DOUBLE",
                     "mandatory": true
                 },
                 {
-                    "name": "primaryNeurite",
-                    "type": "String",
+                    "name": "postHighAccuracyThreshold",
+                    "type": "DOUBLE",
                     "mandatory": true
                 },
                 {
-                    "name": "somaLocation",
-                    "type": "Point",
+                    "name": "preHPThreshold",
+                    "type": "DOUBLE",
                     "mandatory": true
                 },
                 {
-                    "name": "somaRadius",
-                    "type": "Float",
+                    "name": "primaryRois",
+                    "type": "LIST",
                     "mandatory": true
                 },
                 {
-                    "name": "size",
-                    "type": "Long",
+                    "name": "roiHierarchy",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
                     "name": "roiInfo",
-                    "type": "String",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
+                    "name": "statusDefinitions",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "superLevelRois",
+                    "type": "LIST",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPostCount",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPreCount",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "uuid",
+                    "type": "STRING",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "NeuronSegment_A",
+            "labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "properties": [
+                {
+                    "name": "bodyId",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "cropped",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
                     "name": "distal",
-                    "type": "Boolean",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "instance",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "post",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "pre",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "size",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "status",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "NeuronSegment_B",
+            "labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "properties": [
+                {
+                    "name": "bodyId",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "cropped",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "distal",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "instance",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "post",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "pre",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "size",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "status",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Synapse",
+            "labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "properties": [
+                {
+                    "name": "confidence",
+                    "type": "DOUBLE",
+                    "mandatory": true
+                },
+                {
+                    "name": "distal",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "location",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "proximal",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
                     "mandatory": true
                 }
             ]
         },
         {
             "name": "SynapseSet",
+            "labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
             "properties": []
-        },
-        {
-            "name": "Synapses",
-            "properties": [
-                {
-                    "name": "type",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "confidence",
-                    "type": "Float",
-                    "mandatory": true
-                },
-                {
-                    "name": "location",
-                    "type": "Point",
-                    "mandatory": true
-                },
-                {
-                    "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": true
-                }
-            ]
         }
     ],
     "edge_types": [
         {
-            "name": "CONNECTS",
-            "start_node": "Neurons",
-            "end_node": "Neurons",
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "NeuronSegment_A",
+            "end_node": "NeuronSegment_A",
+            "cardinality": "M:N",
             "properties": [
                 {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
                     "name": "weight",
-                    "type": "Long",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
                     "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "type": "INTEGER",
                     "mandatory": true
                 }
             ]
         },
         {
-            "name": "HAS",
-            "start_node": "Neurons",
-            "end_node": "SynapseSet",
-            "properties": []
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "NeuronSegment_A",
+            "end_node": "NeuronSegment_B",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
         },
         {
-            "name": "CONNECTS",
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "NeuronSegment_B",
+            "end_node": "NeuronSegment_A",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "NeuronSegment_B",
+            "end_node": "NeuronSegment_B",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
             "start_node": "SynapseSet",
             "end_node": "SynapseSet",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
+            "cardinality": "1:1",
+            "properties": []
         },
         {
             "name": "CONTAINS",
-            "start_node": "SynapseSet",
-            "end_node": "Synapses",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "NeuronSegment_A",
+            "end_node": "SynapseSet",
+            "cardinality": "N:1",
             "properties": []
         },
         {
-            "name": "CONNECTS",
-            "start_node": "Synapses",
-            "end_node": "Synapses",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
+            "name": "CONTAINS",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "NeuronSegment_B",
+            "end_node": "SynapseSet",
+            "cardinality": "N:1",
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "SynapseSet",
+            "end_node": "Synapse",
+            "cardinality": "M:N",
+            "properties": []
+        },
+        {
+            "name": "SYNAPSES_TO",
+            "labels": [
+                "SYNAPSES_TO"
+            ],
+            "start_node": "Synapse",
+            "end_node": "Synapse",
+            "cardinality": "M:N",
+            "properties": []
         }
-    ]
+    ],
+    "notes": "Node types 'NeuronSegment_A' (labels={Neuron, Segment, medulla7column_Neuron, medulla7column_Segment}) and 'NeuronSegment_B' (labels={Neuron, Segment, medulla7column_Segment}) are distinct due to their differing full label sets, as per the strict distinctness rule. The 'SynapseSet' node type has no properties but is retained as it plays a structural role with outgoing edges, indicating it is not a 'Fake Node'.",
+    "_mined_patterns": {
+        "node_types": [
+            {
+                "labels": [
+                    "Meta",
+                    "medulla7column_Meta"
+                ],
+                "count": 1,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "dataset",
+                            "lastDatabaseEdit",
+                            "latestMutationId",
+                            "logo",
+                            "meshHost",
+                            "neuroglancerInfo",
+                            "neuroglancerMeta",
+                            "postHPThreshold",
+                            "postHighAccuracyThreshold",
+                            "preHPThreshold",
+                            "primaryRois",
+                            "roiHierarchy",
+                            "roiInfo",
+                            "statusDefinitions",
+                            "superLevelRois",
+                            "totalPostCount",
+                            "totalPreCount",
+                            "uuid"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "dataset": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "lastDatabaseEdit": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "latestMutationId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "logo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "meshHost": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "neuroglancerInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "neuroglancerMeta": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "postHPThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "postHighAccuracyThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "preHPThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "primaryRois": {
+                        "data_type": "LIST",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiHierarchy": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "statusDefinitions": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "superLevelRois": {
+                        "data_type": "LIST",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "totalPostCount": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "totalPreCount": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "uuid": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "count": 2951,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 992
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 517
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 400
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 252
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 244
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 213
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 200
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 88
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 23
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 11
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 9
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    }
+                ],
+                "properties": {
+                    "bodyId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cropped": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.8994
+                    },
+                    "distal": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.5161
+                    },
+                    "instance": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.8872
+                    },
+                    "post": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "pre": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "proximal": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.7059
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "size": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "status": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "statusLabel": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2931
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "count": 84183,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 44376
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 28423
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 5495
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 4732
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 322
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 252
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 180
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 179
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 135
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 45
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 15
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 11
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "distal",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 7
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 6
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "distal",
+                            "post",
+                            "pre",
+                            "proximal",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 5
+                    }
+                ],
+                "properties": {
+                    "bodyId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cropped": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.1276
+                    },
+                    "distal": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.4029
+                    },
+                    "instance": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0056
+                    },
+                    "post": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "pre": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "proximal": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.6017
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "size": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "status": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.1314
+                    },
+                    "statusLabel": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.1314
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0004
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Synapse",
+                    "medulla7column_Synapse"
+                ],
+                "count": 366306,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "confidence",
+                            "location",
+                            "proximal",
+                            "type"
+                        ],
+                        "count": 214536
+                    },
+                    {
+                        "property_keys": [
+                            "confidence",
+                            "distal",
+                            "location",
+                            "type"
+                        ],
+                        "count": 151770
+                    }
+                ],
+                "properties": {
+                    "confidence": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "distal": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.4143
+                    },
+                    "location": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "proximal": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.5857
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "count": 349032,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 349032
+                    }
+                ],
+                "properties": {}
+            }
+        ],
+        "edge_types": [
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "count": 58477,
+                "cardinality": "M:N",
+                "max_out_degree": 313,
+                "max_in_degree": 300,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 58477
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "count": 112426,
+                "cardinality": "M:N",
+                "max_out_degree": 944,
+                "max_in_degree": 8,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 112426
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "count": 1640,
+                "cardinality": "M:N",
+                "max_out_degree": 8,
+                "max_in_degree": 15,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 1640
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "count": 1973,
+                "cardinality": "M:N",
+                "max_out_degree": 10,
+                "max_in_degree": 3,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 1973
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "count": 174516,
+                "cardinality": "1:1",
+                "max_out_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 174516
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Neuron",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "count": 231020,
+                "cardinality": "N:1",
+                "max_out_degree": 1567,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 231020
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "medulla7column_Segment"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "count": 118012,
+                "cardinality": "N:1",
+                "max_out_degree": 21,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 118012
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "SynapseSet",
+                    "medulla7column_SynapseSet"
+                ],
+                "target_labels": [
+                    "Synapse",
+                    "medulla7column_Synapse"
+                ],
+                "count": 614160,
+                "cardinality": "M:N",
+                "max_out_degree": 2795,
+                "max_in_degree": 20,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 614160
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "SYNAPSES_TO"
+                ],
+                "source_labels": [
+                    "Synapse",
+                    "medulla7column_Synapse"
+                ],
+                "target_labels": [
+                    "Synapse",
+                    "medulla7column_Synapse"
+                ],
+                "count": 313204,
+                "cardinality": "M:N",
+                "max_out_degree": 21,
+                "max_in_degree": 2,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 313204
+                    }
+                ],
+                "properties": {}
+            }
+        ]
+    }
 }

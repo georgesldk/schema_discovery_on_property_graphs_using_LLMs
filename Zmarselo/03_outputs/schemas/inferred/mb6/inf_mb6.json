@@ -1,192 +1,1803 @@
 {
     "node_types": [
         {
-            "name": "Neurons",
+            "name": "Meta_medulla7column_Meta",
+            "labels": [
+                "Meta",
+                "medulla7column_Meta"
+            ],
             "properties": [
                 {
+                    "name": "dataset",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "lastDatabaseEdit",
+                    "type": "DATE",
+                    "mandatory": true
+                },
+                {
+                    "name": "latestMutationId",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "logo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "meshHost",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "neuroglancerMeta",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHPThreshold",
+                    "type": "DOUBLE",
+                    "mandatory": true
+                },
+                {
+                    "name": "postHighAccuracyThreshold",
+                    "type": "DOUBLE",
+                    "mandatory": true
+                },
+                {
+                    "name": "preHPThreshold",
+                    "type": "DOUBLE",
+                    "mandatory": true
+                },
+                {
+                    "name": "primaryRois",
+                    "type": "LIST",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiHierarchy",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "statusDefinitions",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "superLevelRois",
+                    "type": "LIST",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPostCount",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "totalPreCount",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "uuid",
+                    "type": "STRING",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "labels": [
+                "Neuron",
+                "Segment",
+                "mushroombody_Neuron",
+                "mushroombody_Segment"
+            ],
+            "properties": [
+                {
+                    "name": "alpha1",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha2",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha3",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
                     "name": "bodyId",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "pre",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "post",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "status",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "statusLabel",
-                    "type": "String",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
                     "name": "cropped",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "BOOLEAN",
+                    "mandatory": false
                 },
                 {
                     "name": "instance",
-                    "type": "String",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "post",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
-                    "name": "type",
-                    "type": "String",
+                    "name": "pre",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
-                    "name": "primaryNeurite",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "somaLocation",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "somaRadius",
-                    "type": "Double",
+                    "name": "roiInfo",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
                     "name": "size",
-                    "type": "Long",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "name": "status",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha1",
-                    "type": "Boolean",
+                    "name": "statusLabel",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha2",
-                    "type": "Boolean",
-                    "mandatory": true
-                },
-                {
-                    "name": "alpha3",
-                    "type": "Boolean",
-                    "mandatory": true
+                    "name": "type",
+                    "type": "STRING",
+                    "mandatory": false
                 }
             ]
         },
         {
-            "name": "SynapseSet",
-            "properties": []
-        },
-        {
-            "name": "Synapses",
+            "name": "Neuron_Segment_mushroombody_Segment",
+            "labels": [
+                "Neuron",
+                "Segment",
+                "mushroombody_Segment"
+            ],
             "properties": [
                 {
-                    "name": "type",
-                    "type": "String",
+                    "name": "alpha1",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha2",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha3",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "bodyId",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
+                    "name": "cropped",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "instance",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "post",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "pre",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "size",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "status",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "statusLabel",
+                    "type": "STRING",
+                    "mandatory": false
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "mandatory": false
+                }
+            ]
+        },
+        {
+            "name": "Synapse_mushroombody_Synapse",
+            "labels": [
+                "Synapse",
+                "mushroombody_Synapse"
+            ],
+            "properties": [
+                {
+                    "name": "alpha1",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha2",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
+                    "name": "alpha3",
+                    "type": "BOOLEAN",
+                    "mandatory": false
+                },
+                {
                     "name": "confidence",
-                    "type": "Double",
+                    "type": "DOUBLE",
                     "mandatory": true
                 },
                 {
                     "name": "location",
-                    "type": "String",
+                    "type": "STRING",
                     "mandatory": true
                 },
                 {
-                    "name": "alpha1",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "alpha2",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "alpha3",
-                    "type": "Boolean",
+                    "name": "type",
+                    "type": "STRING",
                     "mandatory": true
                 }
             ]
+        },
+        {
+            "name": "SynapseSet_mushroombody_SynapseSet",
+            "labels": [
+                "SynapseSet",
+                "mushroombody_SynapseSet"
+            ],
+            "properties": []
         }
     ],
     "edge_types": [
         {
-            "name": "CONNECTS",
-            "start_node": "Neurons",
-            "end_node": "Neurons",
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "end_node": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "cardinality": "M:N",
             "properties": [
                 {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
                     "name": "weight",
-                    "type": "Long",
+                    "type": "INTEGER",
                     "mandatory": true
                 },
                 {
                     "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "roiInfo",
-                    "type": "String",
+                    "type": "INTEGER",
                     "mandatory": true
                 }
             ]
         },
         {
-            "name": "INCLUDES",
-            "start_node": "Neurons",
-            "end_node": "SynapseSet",
-            "properties": []
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "end_node": "Neuron_Segment_mushroombody_Segment",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
         },
         {
-            "name": "RELATES_TO",
-            "start_node": "SynapseSet",
-            "end_node": "SynapseSet",
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Segment",
+            "end_node": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Segment",
+            "end_node": "Neuron_Segment_mushroombody_Segment",
+            "cardinality": "M:N",
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "mandatory": true
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "mandatory": true
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "mandatory": true
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "labels": [
+                "CONNECTS_TO"
+            ],
+            "start_node": "SynapseSet_mushroombody_SynapseSet",
+            "end_node": "SynapseSet_mushroombody_SynapseSet",
+            "cardinality": "1:1",
             "properties": []
         },
         {
             "name": "CONTAINS",
-            "start_node": "SynapseSet",
-            "end_node": "Synapses",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Neuron_mushroombody_Segment",
+            "end_node": "SynapseSet_mushroombody_SynapseSet",
+            "cardinality": "N:1",
             "properties": []
         },
         {
-            "name": "CONNECTS",
-            "start_node": "Synapses",
-            "end_node": "Synapses",
-            "properties": [
-                {
-                    "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "weight",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
+            "name": "CONTAINS",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "Neuron_Segment_mushroombody_Segment",
+            "end_node": "SynapseSet_mushroombody_SynapseSet",
+            "cardinality": "N:1",
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "labels": [
+                "CONTAINS"
+            ],
+            "start_node": "SynapseSet_mushroombody_SynapseSet",
+            "end_node": "Synapse_mushroombody_Synapse",
+            "cardinality": "M:N",
+            "properties": []
+        },
+        {
+            "name": "SYNAPSES_TO",
+            "labels": [
+                "SYNAPSES_TO"
+            ],
+            "start_node": "Synapse_mushroombody_Synapse",
+            "end_node": "Synapse_mushroombody_Synapse",
+            "cardinality": "M:N",
+            "properties": []
         }
-    ]
+    ],
+    "notes": "Node types were named by concatenating their full label sets to ensure uniqueness and adherence to the 'Distinctness Rule'. The 'SynapseSet_mushroombody_SynapseSet' node type was initially considered for the 'Noise Filter' due to having no properties, but was retained as it has outgoing edges, indicating it serves a structural role rather than being a 'fake node'.",
+    "_mined_patterns": {
+        "node_types": [
+            {
+                "labels": [
+                    "Meta",
+                    "medulla7column_Meta"
+                ],
+                "count": 1,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "dataset",
+                            "lastDatabaseEdit",
+                            "latestMutationId",
+                            "logo",
+                            "meshHost",
+                            "neuroglancerInfo",
+                            "neuroglancerMeta",
+                            "postHPThreshold",
+                            "postHighAccuracyThreshold",
+                            "preHPThreshold",
+                            "primaryRois",
+                            "roiHierarchy",
+                            "roiInfo",
+                            "statusDefinitions",
+                            "superLevelRois",
+                            "totalPostCount",
+                            "totalPreCount",
+                            "uuid"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "dataset": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "lastDatabaseEdit": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "latestMutationId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "logo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "meshHost": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "neuroglancerInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "neuroglancerMeta": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "postHPThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "postHighAccuracyThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "preHPThreshold": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "primaryRois": {
+                        "data_type": "LIST",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiHierarchy": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "statusDefinitions": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "superLevelRois": {
+                        "data_type": "LIST",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "totalPostCount": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "totalPreCount": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "uuid": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "count": 1213,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 946
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 67
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 35
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 34
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 17
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 13
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 8
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 8
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 8
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 8
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 7
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 7
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 7
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 5
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 4
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 3
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 3
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "alpha1": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.8326
+                    },
+                    "alpha2": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.8631
+                    },
+                    "alpha3": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.9176
+                    },
+                    "bodyId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cropped": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0198
+                    },
+                    "instance": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.9415
+                    },
+                    "post": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "pre": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "size": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "status": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "statusLabel": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.8096
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "count": 6551,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 2519
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 1941
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 1288
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size"
+                        ],
+                        "count": 310
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 242
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 163
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 25
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 14
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 10
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 9
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 8
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 6
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "alpha3",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 5
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "alpha2",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 3
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "cropped",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "bodyId",
+                            "instance",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel",
+                            "type"
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "property_keys": [
+                            "bodyId",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "bodyId",
+                            "cropped",
+                            "post",
+                            "pre",
+                            "roiInfo",
+                            "size",
+                            "status",
+                            "statusLabel"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "alpha1": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.3877
+                    },
+                    "alpha2": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2245
+                    },
+                    "alpha3": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.3367
+                    },
+                    "bodyId": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "cropped": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0041
+                    },
+                    "instance": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0733
+                    },
+                    "post": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "pre": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "size": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "status": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0753
+                    },
+                    "statusLabel": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0753
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0003
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Synapse",
+                    "mushroombody_Synapse"
+                ],
+                "count": 317986,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "alpha3",
+                            "confidence",
+                            "location",
+                            "type"
+                        ],
+                        "count": 121319
+                    },
+                    {
+                        "property_keys": [
+                            "alpha1",
+                            "confidence",
+                            "location",
+                            "type"
+                        ],
+                        "count": 120870
+                    },
+                    {
+                        "property_keys": [
+                            "alpha2",
+                            "confidence",
+                            "location",
+                            "type"
+                        ],
+                        "count": 71933
+                    },
+                    {
+                        "property_keys": [
+                            "confidence",
+                            "location",
+                            "type"
+                        ],
+                        "count": 3864
+                    }
+                ],
+                "properties": {
+                    "alpha1": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.3801
+                    },
+                    "alpha2": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2262
+                    },
+                    "alpha3": {
+                        "data_type": "BOOLEAN",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.3815
+                    },
+                    "confidence": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "location": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "count": 160516,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 160516
+                    }
+                ],
+                "properties": {}
+            }
+        ],
+        "edge_types": [
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "count": 68287,
+                "cardinality": "M:N",
+                "max_out_degree": 916,
+                "max_in_degree": 994,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 68287
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "count": 7135,
+                "cardinality": "M:N",
+                "max_out_degree": 226,
+                "max_in_degree": 9,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 7135
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "count": 3947,
+                "cardinality": "M:N",
+                "max_out_degree": 7,
+                "max_in_degree": 276,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 3947
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "count": 889,
+                "cardinality": "M:N",
+                "max_out_degree": 9,
+                "max_in_degree": 4,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "roiInfo",
+                            "weight",
+                            "weightHP"
+                        ],
+                        "count": 889
+                    }
+                ],
+                "properties": {
+                    "roiInfo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weight": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "weightHP": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "CONNECTS_TO"
+                ],
+                "source_labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "count": 80258,
+                "cardinality": "1:1",
+                "max_out_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 80258
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Neuron",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "count": 147656,
+                "cardinality": "N:1",
+                "max_out_degree": 2412,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 147656
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "Neuron",
+                    "Segment",
+                    "mushroombody_Segment"
+                ],
+                "target_labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "count": 12860,
+                "cardinality": "N:1",
+                "max_out_degree": 11,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 12860
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CONTAINS"
+                ],
+                "source_labels": [
+                    "SynapseSet",
+                    "mushroombody_SynapseSet"
+                ],
+                "target_labels": [
+                    "Synapse",
+                    "mushroombody_Synapse"
+                ],
+                "count": 413987,
+                "cardinality": "M:N",
+                "max_out_degree": 65505,
+                "max_in_degree": 9,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 413987
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "SYNAPSES_TO"
+                ],
+                "source_labels": [
+                    "Synapse",
+                    "mushroombody_Synapse"
+                ],
+                "target_labels": [
+                    "Synapse",
+                    "mushroombody_Synapse"
+                ],
+                "count": 226552,
+                "cardinality": "M:N",
+                "max_out_degree": 10,
+                "max_in_degree": 2,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 226552
+                    }
+                ],
+                "properties": {}
+            }
+        ]
+    }
 }

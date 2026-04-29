@@ -1,0 +1,344 @@
+PG Schema Discovery Pipeline - Full Sequence and Neo4j Communication
+====================================================================
+
+This file explains the full runtime sequence of the program, from dataset name input to final evaluation metrics.
+It also explains how communication with Neo4j works, which Cypher queries are sent, and what data comes back.
+
+
+0) Big Picture
+--------------
+The project has three main stages:
+
+1. Ground-truth extraction (from .pgs + CSV metadata)
+2. Inference (from live Neo4j graph + LLM)
+3. Evaluation/Comparison (GT vs inferred JSON)
+
+Primary script entry points:
+- scripts/extract_gt.py
+- scripts/infer.py
+- scripts/compare.py
+
+
+1) Ground-Truth Extraction Stage
+--------------------------------
+Goal:
+- Produce a normalized GT schema JSON from provided PG-Schema files.
+
+Entry:
+- python scripts/extract_gt.py <dataset>
+
+Input folder pattern:
+- 01_gts/gt_data_<dataset>/
+
+Main file:
+- src/pg_schema_llm/pipeline/extract_gt.py
+
+Detailed flow:
+
+1. Discover files:
+   - finds .pgs file(s)
+   - optionally finds edge topology CSV
+   - optionally loads node label and edge label validation CSVs
+
+2. Parse .pgs definitions:
+   - remove comments
+   - parse CREATE NODE TYPE statements
+   - parse CREATE EDGE TYPE statements
+   - parse properties from property blocks
+   - parse types and optionality
+
+3. Standardize property types:
+   - maps raw pgs types into canonical labels:
+     String, Long, Double, Boolean, StringArray, Point, etc.
+
+4. Build node type list:
+   - each node type gets:
+     - name
+     - labels
+     - properties with:
+       - name
+       - type
+       - mandatory (true/false)
+
+5. Build edge topology map:
+   - resolve source/target label expressions
+   - produce allowed source-target combinations for each edge name
+   - edge format in GT is topology-oriented:
+     - edge name
+     - properties
+     - topology = allowed_sources + allowed_targets
+
+6. Save GT JSON:
+   - output path:
+     03_outputs/schemas/ground_truth/<dataset>/gt_<dataset>.json
+
+Output characteristics:
+- GT is deterministic (parser-based)
+- Properties already use mandatory true/false
+
+
+2) Inference Stage (Neo4j + LLM)
+--------------------------------
+Goal:
+- Mine structural patterns from Neo4j and ask LLM to generate inferred schema JSON.
+
+Entry:
+- python scripts/infer.py <dataset>
+
+Main files:
+- src/pg_schema_llm/pipeline/infer_schema.py
+- src/pg_schema_llm/io/neo4j_io.py
+- src/pg_schema_llm/llm/prompts.py
+
+2.1 Config and connection setup
+-------------------------------
+infer_schema.py loads environment variables:
+- NEO4J_URI
+- NEO4J_USER
+- NEO4J_PASSWORD
+- NEO4J_DATABASE (optional)
+
+Default behavior:
+- Opens a Neo4j driver via GraphDatabase.driver(uri, auth=(user, password))
+- Opens a session (optionally for a specific database)
+
+Important:
+- At this stage, data_dir argument is legacy and ignored for actual graph read.
+- Data is read directly from Neo4j.
+
+
+2.2 Neo4j communication: what is sent and what returns
+------------------------------------------------------
+File:
+- io/neo4j_io.py
+
+Function:
+- mine_patterns(driver, type_sample_limit=..., database=...)
+
+The code sends Cypher queries in this sequence:
+
+A) Node pattern query (full scan)
+   Cypher:
+   MATCH (n)
+   RETURN labels(n) AS labels, keys(n) AS props, count(*) AS cnt
+
+   Meaning:
+   - Groups nodes by exact label set and exact property-key set.
+   - Returns:
+     - labels: list of labels on node
+     - props: list of property keys on node
+     - cnt: number of nodes with that combination
+
+B) Node type sampling query (per label-set)
+   Cypher pattern:
+   MATCH (n) WHERE <exact-label-set-match>
+   WITH n LIMIT $lim
+   UNWIND keys(n) AS k
+   WITH k, n[k] AS val
+   RETURN k AS prop, collect(val) AS vals
+
+   Meaning:
+   - For each node type, sample values for each property key.
+   - Used for type inference only (INTEGER/DOUBLE/DATE/STRING/etc).
+
+C) Edge pattern query (full scan)
+   Cypher:
+   MATCH (a)-[r]->(b)
+   RETURN type(r) AS rt, labels(a) AS sl, labels(b) AS tl, keys(r) AS props, count(*) AS cnt
+
+   Meaning:
+   - Groups edges by:
+     - relationship type
+     - source label set
+     - target label set
+     - edge property-key set
+   - Returns grouped counts.
+
+D) Edge max out-degree query (cardinality support)
+   Cypher:
+   MATCH (a)-[r]->(b)
+   WITH type(r) AS rt, labels(a) AS sl, labels(b) AS tl, a, count(b) AS od
+   RETURN rt, sl, tl, max(od) AS mx
+
+   Meaning:
+   - For each (rel type, source labels, target labels), find max outgoing degree.
+
+E) Edge max in-degree query (cardinality support)
+   Cypher:
+   MATCH (a)-[r]->(b)
+   WITH type(r) AS rt, labels(a) AS sl, labels(b) AS tl, b, count(a) AS id
+   RETURN rt, sl, tl, max(id) AS mx
+
+   Meaning:
+   - For each edge type key, find max incoming degree.
+
+F) Edge property sampling query (per edge type key)
+   Cypher pattern:
+   MATCH (a)-[r:REL_TYPE]->(b)
+   WHERE <source-label-set-exact-match> AND <target-label-set-exact-match>
+   WITH r LIMIT $lim
+   UNWIND keys(r) AS k
+   WITH k, r[k] AS val
+   RETURN k AS prop, collect(val) AS vals
+
+   Meaning:
+   - Samples edge property values for type inference.
+
+
+2.3 What we compute from Neo4j results
+--------------------------------------
+From returned rows, we compute:
+
+For each node type (exact label set):
+- total count
+- distinct property-key patterns
+- property fill ratio
+- mandatory/optional at mining level (based on fill ratio == 1.0)
+- inferred data type
+
+For each edge type key (rel + source label set + target label set):
+- total count
+- distinct property-key patterns
+- property fill ratio
+- mandatory/optional at mining level
+- inferred data type
+- max out-degree, max in-degree
+- cardinality class:
+  - 1:1
+  - 1:N
+  - N:1
+  - M:N
+
+
+2.4 Profile text -> Prompt -> LLM
+---------------------------------
+1. Build profile text:
+   - infer_schema.py transforms mined structures into text summary.
+   - includes node types, edge types, properties, cardinality, pattern counts.
+
+2. Build inference prompt:
+   - llm/prompts.py wraps profile text with instructions and output schema contract.
+   - current expected property contract is mandatory true/false.
+
+3. Call Gemini API:
+   - model set in config (default gemini-2.5-flash)
+   - response requested as application/json
+
+4. Parse JSON:
+   - extract_json() removes markdown fences and json.loads() the text.
+
+5. Save inferred output:
+   - 03_outputs/schemas/inferred/<dataset>/inf_<dataset>.json
+   - includes "_mined_patterns" for debugging/traceability.
+
+
+3) Comparison Stage (Evaluation)
+--------------------------------
+Goal:
+- Compare inferred schema against GT schema and compute metrics.
+
+Entry:
+- python scripts/compare.py <dataset>
+
+Main file:
+- src/pg_schema_llm/pipeline/compare.py
+
+Detailed flow:
+
+3.1 Load JSON files
+- GT: 03_outputs/schemas/ground_truth/<dataset>/gt_<dataset>.json
+- INF: 03_outputs/schemas/inferred/<dataset>/inf_<dataset>.json
+
+3.2 Node matching
+- Build candidate node maps from node_types.
+- Compare label sets by Jaccard similarity.
+- Assign each inferred node to best GT node above threshold.
+
+Output:
+- node_map_inf_to_gt
+- node precision/recall/F1
+
+3.3 Edge topology matching
+- Build GT combos from GT edge topology:
+  (edge_name, allowed_source, allowed_target)
+
+- Map inferred edge names:
+  - exact string first
+  - then fuzzy string
+  - optional semantic embedding match
+
+- Convert inferred source/target endpoints into GT-space using node_map_inf_to_gt.
+- Build inferred combos:
+  (mapped_edge_name, mapped_source, mapped_target)
+
+- Compute:
+  - valid edges (intersection)
+  - missing edges (in GT only)
+  - invalid/extra edges (in INF only)
+
+Output:
+- edge precision/recall/F1
+
+3.4 Property evaluation
+- For matched nodes and valid edges:
+  - compare property presence
+  - compare normalized data type
+  - compare mandatory/optional
+
+Metrics:
+- property completeness (F1-like)
+- data type accuracy
+- constraint (mandatory/optional) accuracy
+
+
+4) Why Edge Score Usually Drops First
+-------------------------------------
+Most common reasons:
+- edge endpoint mismatch after node mapping
+- edge name drift (semantic rename by LLM)
+- GT topology is broad/aggregated while inferred may split by subtype
+- format drift in inferred edge fields
+
+
+5) Practical Run Sequence
+-------------------------
+Use this order:
+
+1. Extract GT
+   python scripts/extract_gt.py fib25
+
+2. Infer from Neo4j
+   python scripts/infer.py fib25
+
+3. Compare
+   python scripts/compare.py fib25
+
+
+6) What Neo4j gives us vs what LLM gives us
+-------------------------------------------
+Neo4j gives factual mined structure:
+- exact labels on nodes
+- exact relationship types
+- exact property key presence and frequencies
+- cardinality evidence (max in/out degree)
+
+LLM gives semantic packaging:
+- final node type names
+- final edge names/organization
+- final property list formatting
+- final JSON schema shape
+
+So:
+- Neo4j = factual source of structure
+- LLM = formatter/interpreter layer
+
+
+7) Reliability Notes
+--------------------
+For reproducible output, enforce a canonical inferred schema contract before saving:
+- properties must have mandatory true/false
+- edge endpoints must use one canonical naming convention
+- edge labels must always be an array
+- required keys must exist on every node/edge object
+
+Without that guardrail, LLM can return slightly different shapes between runs.

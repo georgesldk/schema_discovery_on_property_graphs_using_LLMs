@@ -36,7 +36,6 @@ LDBC                            92.91%
 
 
 # If you encounter ModuleNotFoundError or shell errors:
-
 # Ensure conda is deactivated and your local venv is active:
 source venv/bin/activate
 

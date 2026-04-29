@@ -143,7 +143,7 @@ def _build_label_match(var: str, label_set: Tuple[str, ...]) -> str:
 def mine_patterns(
     driver,
     *,
-    type_sample_limit: int = 500,
+    type_sample_limit: int = 5000, # how many to sample
     database: Optional[str] = None,
 ) -> dict:
     """
@@ -164,10 +164,10 @@ def mine_patterns(
     it additionally computes **cardinality** from the observed maximum
     in-degree and out-degree (paper §4.4):
 
-    - ``(max_out ≤ 1, max_in ≤ 1)`` → ``1:1``
-    - ``(max_out > 1, max_in ≤ 1)`` → ``N:1``
-    - ``(max_out ≤ 1, max_in > 1)`` → ``1:N``
-    - ``(max_out > 1, max_in > 1)`` → ``M:N``
+    - ``(max_out = 1, max_in = 1)`` is ``1:1``
+    - ``(max_out > 1, max_in = 1)`` is ``N:1``
+    - ``(max_out = 1, max_in > 1)`` is ``1:N``
+    - ``(max_out > 1, max_in > 1)`` is ``M:N``
 
     Args:
         driver: Open ``neo4j.Driver``.
@@ -206,7 +206,7 @@ def mine_patterns(
             if lk not in node_acc:
                 node_acc[lk] = {
                     "count": 0,
-                    "patterns_map": Counter(),   # props_key → count
+                    "patterns_map": Counter(),   # props_key -> count
                     "all_props": set(),
                 }
             acc = node_acc[lk]
@@ -399,11 +399,11 @@ def mine_patterns(
             # cardinality
             mx_out = card_out.get(ekey, 1)
             mx_in = card_in.get(ekey, 1)
-            if mx_out <= 1 and mx_in <= 1:
+            if mx_out == 1 and mx_in == 1:
                 cardinality = "1:1"
-            elif mx_out > 1 and mx_in <= 1:
+            elif mx_out > 1 and mx_in == 1:
                 cardinality = "N:1"
-            elif mx_out <= 1 and mx_in > 1:
+            elif mx_out == 1 and mx_in > 1:
                 cardinality = "1:N"
             else:
                 cardinality = "M:N"

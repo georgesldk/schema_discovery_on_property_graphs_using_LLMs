@@ -4,6 +4,7 @@ import json
 import os
 import re
 from dataclasses import dataclass
+from collections import Counter
 from difflib import SequenceMatcher
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
@@ -12,28 +13,29 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 # Config
 # ============================================================
 
-RESERVED_PROP_PREFIXES = (":",)  
+RESERVED_PROP_PREFIXES = (":",) # any property starting with : is treated technical/import metadata.
 RESERVED_PROP_NAMES = {"id", "label", "labels", "type"}
-DEFAULT_SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+DEFAULT_SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2" # embedding model used for semantic edge matching. 
 
 
 # ============================================================
 # Helpers
 # ============================================================
 
-def load_json(path: str) -> dict:
+# Load JSON with UTF-8-SIG encoding to handle potential BOM issues, and provide clear error messages if loading fails.
+def load_json(path: str) -> dict: 
     try:
         with open(path, "r", encoding="utf-8-sig") as f:
             return json.load(f)
     except Exception as e:
         raise RuntimeError(f"Error loading {path}: {e}") from e
 
-
+# normalize the property names before comparison (e.g. "Name", " name ", "`name`" should all be treated as the same property "name")
 def normalize_prop_name(name: str) -> str:
     if not name: return ""
     return name.strip().lower().replace("`", "")
 
-
+# decides whether a property should beignored during evaluation  (like id label etc)
 def is_reserved_prop(name: str) -> bool:
     if not name: return True
     raw = name.strip()
@@ -43,7 +45,7 @@ def is_reserved_prop(name: str) -> bool:
     if re.match(r"^id\s*\(.*\)$", n) or re.match(r"^label\s*\(.*\)$", n): return True
     return False
 
-
+# normalize datatype names before comparing gt vs inferred. 
 def norm_data_type(t: str) -> str:
     if not t: return "STRING"
     t = t.upper()
@@ -55,20 +57,76 @@ def norm_data_type(t: str) -> str:
     if t == "POINT": return "POINT"
     return "STRING"
 
-
+# precision = matches / pred_total
+# recall = matches / gt_total
+# F1 = 2 * (precision * recall) / (precision + recall)
+# PG-hive's evaluation, uses comparing discovered schema elements against expected ones. 
 def calculate_f1(matches: int, pred_total: int, gt_total: int) -> Tuple[float, float, float]:
-    precision = (matches / pred_total) if pred_total > 0 else 0.0
+    precision = (matches / pred_total) if pred_total > 0 else 0.0 
     recall = (matches / gt_total) if gt_total > 0 else 0.0
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
     return precision, recall, f1
 
+# CO-OCCURENCE
+def build_gt_edge_cooccurrence(gt_edges: List[dict]) -> Counter:
+    """
+    Build edge-label co-occurrence counts from GT topology definitions.
 
+    Key shape:
+      (edge_name, source_node_name, target_node_name)
+    """
+    co = Counter()
+    for e in gt_edges:
+        ename = e.get("name") or e.get("type") or ""
+        for topo in e.get("topology", []) or []:
+            for s in topo.get("allowed_sources", []) or []:
+                for t in topo.get("allowed_targets", []) or []:
+                    co[(ename, s, t)] += 1
+    return co
+
+
+def build_inf_edge_cooccurrence(inf_edges: List[dict], node_map_inf_to_gt: Dict[str, str], edge_label_map: Dict[str, str]) -> Counter:
+    """
+    Build inferred edge-label co-occurrence counts mapped into GT node/edge space.
+
+    Key shape:
+      (mapped_edge_name, mapped_source_node_name, mapped_target_node_name)
+    """
+    co = Counter()
+    for e in inf_edges:
+        inf_ename = e.get("name") or ""
+        mapped_ename = edge_label_map.get(inf_ename, inf_ename)
+
+        s_inf = e.get("start_node") or e.get("source")
+        t_inf = e.get("end_node") or e.get("target")
+        s_gt = node_map_inf_to_gt.get(s_inf)
+        t_gt = node_map_inf_to_gt.get(t_inf)
+        if not s_gt or not t_gt:
+            continue
+        co[(mapped_ename, s_gt, t_gt)] += 1
+    return co
+
+
+def _infer_mandatory_bool(prop: dict) -> bool:
+    """
+    Read mandatory/optional from the required schema format.
+
+    Required:
+      - mandatory: true|false
+    """
+    return bool(prop.get("mandatory", False))
+
+
+def _mandatory_label(prop: dict) -> str:
+    return "MANDATORY" if _infer_mandatory_bool(prop) else "OPTIONAL"
+
+# normalize labels/edge names for string comparison
 def _norm_label(s: str) -> str:
     if not s: return ""
     s = s.strip().lower().replace("_", " ").replace("-", " ").replace(".", " ")
     return re.sub(r"\s+", " ", s)
 
-
+# similarity of strings (like WORKS_AT, 'works at')
 def similar_string(a: str, b: str) -> float:
     if not a or not b: return 0.0
     return SequenceMatcher(None, _norm_label(a), _norm_label(b)).ratio()
@@ -78,7 +136,14 @@ def similar_string(a: str, b: str) -> float:
 # Semantic Edge Matcher
 # ============================================================
 
+# This class is used when simple string similarity is not enough.
+#  Example:
+# GT edge: WORKS_AT
+# Inferred edge: EMPLOYED_BY
+# String similarity may be low, but semantically they are related.
 class SemanticEdgeMatcher:
+    
+    
     def __init__(self, model_name: str = DEFAULT_SEMANTIC_MODEL_NAME):
         self.model_name = model_name
         self._model = None
@@ -90,17 +155,19 @@ class SemanticEdgeMatcher:
             os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
             from sentence_transformers import SentenceTransformer, util # type: ignore
             self._util = util
-            self._model = SentenceTransformer(self.model_name)
+            self._model = SentenceTransformer(self.model_name) # all-MiniLM-L6-v2
 
     @staticmethod
-    def _clean(label: str) -> str:
+    def _clean(label: str) -> str: # prepare for semantic comparison
         return (label or "").replace("_", " ").replace(".", " ").lower().strip()
 
+    # cache to avoid recompuitng embeddings for the same label 
     def _embed(self, text: str):
         if text not in self._cache:
             self._cache[text] = self._model.encode(text, convert_to_tensor=True)
         return self._cache[text]
 
+    # Finds the best semantic match for one GT edge name among inferred edge candidates.
     def find_match(self, target: str, candidates: Sequence[str], threshold: float = 0.75, margin: float = 0.05) -> Optional[str]:
         if not candidates: return None
         self._load()
@@ -112,7 +179,7 @@ class SemanticEdgeMatcher:
         target_emb = self._embed(target_clean)
         cand_embs = torch.stack([self._embed(c) for c in cand_clean], dim=0)
 
-        scores = self._util.cos_sim(target_emb, cand_embs)[0]
+        scores = self._util.cos_sim(target_emb, cand_embs)[0] # cosine similarity scores between target and candidates
         best_idx = int(scores.argmax())
         best_score = float(scores[best_idx])
         best_match = candidates[best_idx]
@@ -132,17 +199,20 @@ class SemanticEdgeMatcher:
 @dataclass
 class CompareConfig:
     verbose: bool = True
-    node_jaccard_threshold: float = 0.50
-    edge_string_threshold: float = 0.78
-    use_semantic_edge_match: bool = True
-    semantic_threshold: float = 0.75
-    semantic_margin: float = 0.05
+    node_jaccard_threshold: float = 0.50 # Minimum Jaccard similarity of node labels to consider a match
+    edge_string_threshold: float = 0.78 # Minimum edge similarity needed to map edge labels
+    use_semantic_edge_match: bool = True 
+    semantic_threshold: float = 0.75 # Minimum cosine similarity for semantic edge matching
+    semantic_margin: float = 0.05 # Minimum margin between best and second-best match for semantic edge matching
 
 
 # ============================================================
 # Core logic
 # ============================================================
 
+# GT schema
+# vs
+# inferred schema
 def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig] = None) -> Optional[dict]:
     cfg = config or CompareConfig()
     
@@ -315,6 +385,21 @@ def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig
         for c in sorted(invalid_edges):
             p(f"    [+] Topology: {c[0]} ({c[1]} -> {c[2]})")
 
+    # ---- 2b. EDGE LABEL CO-OCCURRENCE ----
+    gt_co = build_gt_edge_cooccurrence(gt_edges)
+    inf_co = build_inf_edge_cooccurrence(inf_edges, node_map_inf_to_gt, edge_label_map)
+
+    p(f"\n--- 2b. EDGE LABEL CO-OCCURRENCE (GT vs INF) ---")
+    if not gt_co and not inf_co:
+        p("  (No edge co-occurrence entries in GT or INF)")
+    else:
+        all_keys = sorted(set(gt_co.keys()) | set(inf_co.keys()))
+        for k in all_keys:
+            gt_n = gt_co.get(k, 0)
+            inf_n = inf_co.get(k, 0)
+            tag = "[✓]" if gt_n == inf_n else "[!]"
+            p(f"  {tag} {k[0]} ({k[1]} -> {k[2]}): GT={gt_n} INF={inf_n}")
+
     e_prec, e_rec, e_f1 = calculate_f1(len(valid_edges), len(inf_combos_mapped), len(gt_combos))
 
     # ---- 3. PROPERTIES & CONSTRAINTS ----
@@ -349,8 +434,8 @@ def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig
                 inf_p = inf_dict[k]
                 
                 inf_type = norm_data_type(inf_p.get("type"))
-                inf_mand_str = inf_p.get("constraint", "").upper()
-                inf_mand = inf_mand_str == "MANDATORY"
+                inf_mand = _infer_mandatory_bool(inf_p)
+                inf_mand_str = _mandatory_label(inf_p)
                 
                 type_ok = gt_type == inf_type
                 mand_ok = gt_mand == inf_mand
@@ -371,7 +456,7 @@ def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig
         for k, inf_p in inf_dict.items():
             if k not in gt_dict:
                 inf_type = norm_data_type(inf_p.get("type"))
-                inf_mand_str = inf_p.get("constraint", "").upper()
+                inf_mand_str = _mandatory_label(inf_p)
                 p(f"    [+] {k} ({inf_type}, {inf_mand_str}) -> EXTRA IN INF (Hallucinated)")
 
     # Node Props
@@ -389,7 +474,7 @@ def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig
     const_acc = (constraint_matches / total_prop_matches) if total_prop_matches else 0.0
 
     p(f"\n========================================================")
-    p(f"        PG-HIVE EVALUATION METRICS (PAPER FORMAT)       ")
+    p(f"         EVALUATION METRICS (Same as pg-hive but ask Sophia if they are okay xo)       ")
     p(f"========================================================")
     
     # Paper Section 5: Nodes & Edges (F1*)

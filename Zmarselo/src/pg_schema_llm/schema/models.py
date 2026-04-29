@@ -51,6 +51,9 @@ class NodeTypeStats:
     # property -> small list of sample strings
     prop_samples: Dict[str, List[str]] = field(default_factory=lambda: defaultdict(list))
 
+    # observed node labels and their occurrence counts
+    label_counts: Counter = field(default_factory=Counter)
+
 
 @dataclass
 class EdgeTypeStats:
@@ -71,6 +74,11 @@ class EdgeTypeStats:
 
     # (src_type, dst_type) -> occurrences
     topology: Counter = field(default_factory=Counter)
+
+    # distinct endpoint counts + coarse cardinality estimate
+    source_distinct: int = 0
+    target_distinct: int = 0
+    estimated_cardinality: str = "UNKNOWN"
 
 
 @dataclass
@@ -150,6 +158,7 @@ def typestats_from_dict(d: dict) -> TypeStats:
         for k, vals in raw_samples.items():
             if vals:
                 ns.prop_samples[str(k)] = [str(v) for v in list(vals)]
+        ns.label_counts = Counter(st.get("label_counts", {}))
         out.node_types[name] = ns
 
     edge_d = d.get("edge_types") or {}
@@ -160,6 +169,9 @@ def typestats_from_dict(d: dict) -> TypeStats:
         es.prop_kind = Counter(st.get("prop_kind", {}))
         es.prop_keys = set(st.get("prop_keys", set()) or [])
         es.topology = Counter(st.get("topology", {}))
+        es.source_distinct = int(st.get("source_distinct", 0))
+        es.target_distinct = int(st.get("target_distinct", 0))
+        es.estimated_cardinality = str(st.get("estimated_cardinality", "UNKNOWN"))
         out.edge_types[name] = es
 
     return out
