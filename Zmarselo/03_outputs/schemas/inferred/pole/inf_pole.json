@@ -2,298 +2,309 @@
     "node_types": [
         {
             "name": "AREA",
-            "type_name": "AREA",
-            "labels": [],
+            "labels": [
+                "AREA"
+            ],
             "properties": [
                 {
                     "name": "areaCode",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Crime",
-            "type_name": "Crime",
-            "labels": [],
+            "labels": [
+                "Crime"
+            ],
             "properties": [
                 {
-                    "name": "date",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "source_id",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "last_outcome",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "type",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "charge",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
-                    "name": "note",
-                    "type": "String",
-                    "mandatory": false
+                    "name": "date",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "last_outcome",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "note",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "source_id",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 }
             ]
         },
         {
             "name": "Email",
-            "type_name": "Email",
-            "labels": [],
+            "labels": [
+                "Email"
+            ],
             "properties": [
                 {
                     "name": "email_address",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Location",
-            "type_name": "Location",
-            "labels": [],
+            "labels": [
+                "Location"
+            ],
             "properties": [
                 {
                     "name": "address",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "latitude",
-                    "type": "Double",
-                    "mandatory": true
-                },
-                {
-                    "name": "postcode",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "longitude",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "latitude",
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "longitude",
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "postcode",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Object",
-            "type_name": "Object",
-            "labels": [],
+            "labels": [
+                "Object"
+            ],
             "properties": [
                 {
                     "name": "description",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "type",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "source_id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "source_id",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Officer",
-            "type_name": "Officer",
-            "labels": [],
+            "labels": [
+                "Officer"
+            ],
             "properties": [
                 {
                     "name": "badge_no",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "surname",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "name",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "rank",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "rank",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "surname",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Person",
-            "type_name": "Person",
-            "labels": [],
+            "labels": [
+                "Person"
+            ],
             "properties": [
                 {
-                    "name": "surname",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "name",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "nhs_no",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "age",
-                    "type": "Long",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "nhs_no",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "surname",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Phone",
-            "type_name": "Phone",
-            "labels": [],
+            "labels": [
+                "Phone"
+            ],
             "properties": [
                 {
-                    "name": "phoneNo",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "name": "phoneNo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "PhoneCall",
-            "type_name": "PhoneCall",
-            "labels": [],
+            "labels": [
+                "PhoneCall"
+            ],
             "properties": [
                 {
                     "name": "call_date",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "call_time",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "call_type",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "call_duration",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "call_time",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "call_type",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "PostCode",
-            "type_name": "PostCode",
-            "labels": [],
+            "labels": [
+                "PostCode"
+            ],
             "properties": [
                 {
                     "name": "code",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Vehicle",
-            "type_name": "Vehicle",
-            "labels": [],
+            "labels": [
+                "Vehicle"
+            ],
             "properties": [
                 {
-                    "name": "year",
-                    "type": "Long",
-                    "mandatory": true
-                },
-                {
-                    "name": "reg",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "model",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "make",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "id",
-                    "type": "String",
-                    "mandatory": false
+                    "name": "model",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "reg",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "year",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         }
@@ -301,179 +312,1137 @@
     "edge_types": [
         {
             "name": "CALLED",
-            "labels": [
-                "rels_CALLED"
+            "source_labels": [
+                "PhoneCall"
             ],
-            "start_node": "PhoneCall",
-            "end_node": "Phone",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "Phone"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
             "name": "CALLER",
-            "labels": [
-                "rels_CALLER"
+            "source_labels": [
+                "PhoneCall"
             ],
-            "start_node": "PhoneCall",
-            "end_node": "Phone",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "Phone"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
             "name": "CURRENT_ADDRESS",
-            "labels": [
-                "rels_CURRENT_ADDRESS"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Location",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "Location"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
             "properties": []
         },
         {
             "name": "FAMILY_REL",
-            "labels": [
-                "rels_FAMILY_REL"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Person",
-            "cardinality": "MANY_TO_MANY",
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "rel_type",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "HAS_EMAIL",
-            "labels": [
-                "rels_HAS_EMAIL"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Email",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "Email"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 1..1",
             "properties": []
         },
         {
             "name": "HAS_PHONE",
-            "labels": [
-                "rels_HAS_PHONE"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Phone",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "Phone"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 1..1",
             "properties": []
         },
         {
             "name": "HAS_POSTCODE",
-            "labels": [
-                "rels_HAS_POSTCODE"
+            "source_labels": [
+                "Location"
             ],
-            "start_node": "Location",
-            "end_node": "PostCode",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "PostCode"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 1..N",
             "properties": []
         },
         {
             "name": "INVESTIGATED_BY",
-            "labels": [
-                "rels_INVESTIGATED_BY"
+            "source_labels": [
+                "Crime"
             ],
-            "start_node": "Crime",
-            "end_node": "Officer",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "Officer"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 1..N",
             "properties": []
         },
         {
-            "name": "INVOLVED_IN_FROM_VEHICLE",
-            "labels": [
-                "rels_INVOLVED_IN"
+            "name": "INVOLVED_IN",
+            "source_labels": [
+                "Object"
             ],
-            "start_node": "Vehicle",
-            "end_node": "Crime",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "Crime"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
-            "name": "INVOLVED_IN_FROM_OBJECT",
-            "labels": [
-                "rels_INVOLVED_IN"
+            "name": "INVOLVED_IN",
+            "source_labels": [
+                "Vehicle"
             ],
-            "start_node": "Object",
-            "end_node": "Crime",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "Crime"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..1",
             "properties": []
         },
         {
             "name": "KNOWS",
-            "labels": [
-                "rels_KNOWS"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Person",
-            "cardinality": "MANY_TO_MANY",
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": []
         },
         {
             "name": "KNOWS_LW",
-            "labels": [
-                "rels_KNOWS_LW"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Person",
-            "cardinality": "MANY_TO_MANY",
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": []
         },
         {
             "name": "KNOWS_PHONE",
-            "labels": [
-                "rels_KNOWS_PHONE"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Person",
-            "cardinality": "ONE_TO_ONE",
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..1",
             "properties": []
         },
         {
             "name": "LOCATION_IN_AREA",
-            "labels": [
-                "rels_LOCATION_IN_AREA"
+            "source_labels": [
+                "Location"
             ],
-            "start_node": "Location",
-            "end_node": "AREA",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "AREA"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
             "name": "OCCURRED_AT",
-            "labels": [
-                "rels_OCCURRED_AT"
+            "source_labels": [
+                "Crime"
             ],
-            "start_node": "Crime",
-            "end_node": "Location",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "Location"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
             "name": "PARTY_TO",
-            "labels": [
-                "rels_PARTY_TO"
+            "source_labels": [
+                "Person"
             ],
-            "start_node": "Person",
-            "end_node": "Crime",
-            "cardinality": "ONE_TO_MANY",
+            "target_labels": [
+                "Crime"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..1",
             "properties": []
         },
         {
             "name": "POSTCODE_IN_AREA",
-            "labels": [
-                "rels_POSTCODE_IN_AREA"
+            "source_labels": [
+                "PostCode"
             ],
-            "start_node": "PostCode",
-            "end_node": "AREA",
-            "cardinality": "MANY_TO_ONE",
+            "target_labels": [
+                "AREA"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         }
-    ]
+    ],
+    "notes": "The relationship type 'INVOLVED_IN' appears twice as a canonical edge with different endpoint pairs ({Object}->{Crime} and {Vehicle}->{Crime}) and differing cardinalities.",
+    "_mined_patterns": {
+        "node_types": [
+            {
+                "labels": [
+                    "AREA"
+                ],
+                "count": 93,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "areaCode",
+                            "id"
+                        ],
+                        "count": 93
+                    }
+                ],
+                "properties": {
+                    "areaCode": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Crime"
+                ],
+                "count": 28762,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "date",
+                            "id",
+                            "last_outcome",
+                            "source_id",
+                            "type"
+                        ],
+                        "count": 28750
+                    },
+                    {
+                        "property_keys": [
+                            "charge",
+                            "date",
+                            "id",
+                            "last_outcome",
+                            "source_id",
+                            "type"
+                        ],
+                        "count": 10
+                    },
+                    {
+                        "property_keys": [
+                            "charge",
+                            "date",
+                            "id",
+                            "last_outcome",
+                            "note",
+                            "source_id",
+                            "type"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "date",
+                            "id",
+                            "last_outcome",
+                            "source_id"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "charge": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0004
+                    },
+                    "date": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "last_outcome": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "note": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0
+                    },
+                    "source_id": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Email"
+                ],
+                "count": 328,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "email_address",
+                            "id"
+                        ],
+                        "count": 328
+                    }
+                ],
+                "properties": {
+                    "email_address": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Location"
+                ],
+                "count": 14904,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "address",
+                            "id",
+                            "latitude",
+                            "longitude",
+                            "postcode"
+                        ],
+                        "count": 14904
+                    }
+                ],
+                "properties": {
+                    "address": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "latitude": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "longitude": {
+                        "data_type": "DOUBLE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "postcode": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Object"
+                ],
+                "count": 7,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "description",
+                            "id",
+                            "type"
+                        ],
+                        "count": 5
+                    },
+                    {
+                        "property_keys": [
+                            "description",
+                            "id",
+                            "source_id",
+                            "type"
+                        ],
+                        "count": 2
+                    }
+                ],
+                "properties": {
+                    "description": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "source_id": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2857
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Officer"
+                ],
+                "count": 1000,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "badge_no",
+                            "id",
+                            "name",
+                            "rank",
+                            "surname"
+                        ],
+                        "count": 1000
+                    }
+                ],
+                "properties": {
+                    "badge_no": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "rank": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "surname": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Person"
+                ],
+                "count": 369,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "nhs_no",
+                            "surname"
+                        ],
+                        "count": 367
+                    },
+                    {
+                        "property_keys": [
+                            "age",
+                            "id",
+                            "name",
+                            "nhs_no",
+                            "surname"
+                        ],
+                        "count": 1
+                    },
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "surname"
+                        ],
+                        "count": 1
+                    }
+                ],
+                "properties": {
+                    "age": {
+                        "data_type": "INTEGER",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.0027
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "nhs_no": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.9973
+                    },
+                    "surname": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Phone"
+                ],
+                "count": 328,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "phoneNo"
+                        ],
+                        "count": 328
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "phoneNo": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "PhoneCall"
+                ],
+                "count": 534,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "call_date",
+                            "call_duration",
+                            "call_time",
+                            "call_type",
+                            "id"
+                        ],
+                        "count": 534
+                    }
+                ],
+                "properties": {
+                    "call_date": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "call_duration": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "call_time": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "call_type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "PostCode"
+                ],
+                "count": 14196,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "code",
+                            "id"
+                        ],
+                        "count": 14196
+                    }
+                ],
+                "properties": {
+                    "code": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Vehicle"
+                ],
+                "count": 1000,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "make",
+                            "model",
+                            "reg",
+                            "year"
+                        ],
+                        "count": 1000
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "make": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "model": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "reg": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "year": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            }
+        ],
+        "edge_types": [
+            {
+                "labels": [
+                    "CALLED"
+                ],
+                "source_labels": [
+                    "PhoneCall"
+                ],
+                "target_labels": [
+                    "Phone"
+                ],
+                "is_canonical": true,
+                "count": 534,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 8,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 534
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CALLER"
+                ],
+                "source_labels": [
+                    "PhoneCall"
+                ],
+                "target_labels": [
+                    "Phone"
+                ],
+                "is_canonical": true,
+                "count": 534,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 8,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 534
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "CURRENT_ADDRESS"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Location"
+                ],
+                "is_canonical": true,
+                "count": 368,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 5,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 368
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "FAMILY_REL"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 155,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 2,
+                "min_in_degree": 0,
+                "max_in_degree": 2,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "rel_type"
+                        ],
+                        "count": 155
+                    }
+                ],
+                "properties": {
+                    "rel_type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "HAS_EMAIL"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Email"
+                ],
+                "is_canonical": true,
+                "count": 328,
+                "cardinality": "0..1 : 1..1",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 328
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_PHONE"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Phone"
+                ],
+                "is_canonical": true,
+                "count": 328,
+                "cardinality": "0..1 : 1..1",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 328
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_POSTCODE"
+                ],
+                "source_labels": [
+                    "Location"
+                ],
+                "target_labels": [
+                    "PostCode"
+                ],
+                "is_canonical": true,
+                "count": 14904,
+                "cardinality": "1..1 : 1..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 1,
+                "max_in_degree": 4,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 14904
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "INVESTIGATED_BY"
+                ],
+                "source_labels": [
+                    "Crime"
+                ],
+                "target_labels": [
+                    "Officer"
+                ],
+                "is_canonical": true,
+                "count": 28762,
+                "cardinality": "1..1 : 1..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 14,
+                "max_in_degree": 50,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 28762
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "INVOLVED_IN"
+                ],
+                "source_labels": [
+                    "Object"
+                ],
+                "target_labels": [
+                    "Crime"
+                ],
+                "is_canonical": true,
+                "count": 7,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 3,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 7
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "INVOLVED_IN"
+                ],
+                "source_labels": [
+                    "Vehicle"
+                ],
+                "target_labels": [
+                    "Crime"
+                ],
+                "is_canonical": true,
+                "count": 978,
+                "cardinality": "0..1 : 0..1",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 978
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "KNOWS"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 586,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 11,
+                "min_in_degree": 0,
+                "max_in_degree": 6,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 586
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "KNOWS_LW"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 80,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 3,
+                "min_in_degree": 0,
+                "max_in_degree": 3,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 80
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "KNOWS_PHONE"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 118,
+                "cardinality": "0..1 : 0..1",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 118
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "LOCATION_IN_AREA"
+                ],
+                "source_labels": [
+                    "Location"
+                ],
+                "target_labels": [
+                    "AREA"
+                ],
+                "is_canonical": true,
+                "count": 14904,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 427,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 14904
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "OCCURRED_AT"
+                ],
+                "source_labels": [
+                    "Crime"
+                ],
+                "target_labels": [
+                    "Location"
+                ],
+                "is_canonical": true,
+                "count": 28762,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 166,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 28762
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "PARTY_TO"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Crime"
+                ],
+                "is_canonical": true,
+                "count": 55,
+                "cardinality": "0..N : 0..1",
+                "min_out_degree": 0,
+                "max_out_degree": 5,
+                "min_in_degree": 0,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 55
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "POSTCODE_IN_AREA"
+                ],
+                "source_labels": [
+                    "PostCode"
+                ],
+                "target_labels": [
+                    "AREA"
+                ],
+                "is_canonical": true,
+                "count": 14196,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 1139,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 14196
+                    }
+                ],
+                "properties": {}
+            }
+        ]
+    }
 }

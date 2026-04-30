@@ -1,452 +1,1497 @@
 {
     "node_types": [
         {
-            "name": "comment",
-            "type_name": "comment",
-            "labels": [],
+            "name": "Comment",
+            "labels": [
+                "Comment"
+            ],
             "properties": [
                 {
-                    "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "content",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "length",
-                    "type": "Long",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
-            "name": "forum",
-            "type_name": "forum",
-            "labels": [],
-            "properties": [
-                {
-                    "name": "title",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "length",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "locationIP",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "organisation",
-            "type_name": "organisation",
-            "labels": [],
+            "name": "Forum",
+            "labels": [
+                "Forum"
+            ],
             "properties": [
                 {
-                    "name": "type",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "creationDate",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "title",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "Organisation",
+            "labels": [
+                "Organisation"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "type",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "person",
-            "type_name": "person",
-            "labels": [],
+            "name": "Person",
+            "labels": [
+                "Person"
+            ],
             "properties": [
                 {
-                    "name": "firstName",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "birthday",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "lastName",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "browserUsed",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "creationDate",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "firstName",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "gender",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "birthday",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "lastName",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "place",
-            "type_name": "place",
-            "labels": [],
+            "name": "Place",
+            "labels": [
+                "Place"
+            ],
             "properties": [
                 {
-                    "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
-                    "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "name": "name",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "url",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "post",
-            "type_name": "post",
-            "labels": [],
+            "name": "Post",
+            "labels": [
+                "Post"
+            ],
             "properties": [
                 {
-                    "name": "imageFile",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
                     "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
-                },
-                {
-                    "name": "language",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "content",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "creationDate",
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "imageFile",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "language",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "length",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "locationIP",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "tag",
-            "type_name": "tag",
-            "labels": [],
+            "name": "Tag",
+            "labels": [
+                "Tag"
+            ],
             "properties": [
                 {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "tagclass",
-            "type_name": "tagclass",
-            "labels": [],
+            "name": "TagClass",
+            "labels": [
+                "TagClass"
+            ],
             "properties": [
                 {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
-        },
-        {
-            "name": "emailaddress",
-            "type_name": "emailaddress",
-            "labels": [],
-            "properties": []
-        },
-        {
-            "name": "language",
-            "type_name": "language",
-            "labels": [],
-            "properties": []
         }
     ],
     "edge_types": [
         {
-            "name": "comment_hasCreator_person",
-            "labels": [],
-            "start_node": "comment",
-            "end_node": "person",
+            "name": "CONTAINER_OF",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 1..1",
             "properties": []
         },
         {
-            "name": "comment_hasTag_tag",
-            "labels": [],
-            "start_node": "comment",
-            "end_node": "tag",
+            "name": "HAS_CREATOR",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Comment"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 1..1",
             "properties": []
         },
         {
-            "name": "comment_isLocatedIn_place",
-            "labels": [],
-            "start_node": "comment",
-            "end_node": "place",
+            "name": "HAS_CREATOR",
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
-            "name": "comment_replyOf_comment",
-            "labels": [],
-            "start_node": "comment",
-            "end_node": "comment",
+            "name": "HAS_INTEREST",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 0..N",
             "properties": []
         },
         {
-            "name": "comment_replyOf_post",
-            "labels": [],
-            "start_node": "comment",
-            "end_node": "post",
-            "properties": []
-        },
-        {
-            "name": "forum_containerOf_post",
-            "labels": [],
-            "start_node": "forum",
-            "end_node": "post",
-            "properties": []
-        },
-        {
-            "name": "forum_hasMember_person",
-            "labels": [],
-            "start_node": "forum",
-            "end_node": "person",
+            "name": "HAS_MEMBER",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "joinDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "forum_hasModerator_person",
-            "labels": [],
-            "start_node": "forum",
-            "end_node": "person",
+            "name": "HAS_MODERATOR",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 1..N",
             "properties": []
         },
         {
-            "name": "forum_hasTag_tag",
-            "labels": [],
-            "start_node": "forum",
-            "end_node": "tag",
+            "name": "HAS_TAG",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 0..N",
             "properties": []
         },
         {
-            "name": "organisation_isLocatedIn_place",
-            "labels": [],
-            "start_node": "organisation",
-            "end_node": "place",
+            "name": "HAS_TAG",
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": []
         },
         {
-            "name": "person_email_emailaddress",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "emailaddress",
-            "properties": [
-                {
-                    "name": "email",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
-        },
-        {
-            "name": "person_hasInterest_tag",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "tag",
+            "name": "HAS_TYPE",
+            "source_labels": [
+                "Tag"
+            ],
+            "target_labels": [
+                "TagClass"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
-            "name": "person_isLocatedIn_place",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "place",
+            "name": "IS_LOCATED_IN",
+            "source_labels": [
+                "Organisation"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
-            "name": "person_knows_person",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "person",
+            "name": "IS_LOCATED_IN",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
+            "properties": []
+        },
+        {
+            "name": "IS_PART_OF",
+            "source_labels": [
+                "Place"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
+            "properties": []
+        },
+        {
+            "name": "IS_SUBCLASS_OF",
+            "source_labels": [
+                "TagClass"
+            ],
+            "target_labels": [
+                "TagClass"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
+            "properties": []
+        },
+        {
+            "name": "KNOWS",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "person_likes_comment",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "comment",
+            "name": "LIKES",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Comment"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "person_likes_post",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "post",
+            "name": "LIKES",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "DATE",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "person_speaks_language",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "language",
-            "properties": [
-                {
-                    "name": "language",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ]
+            "name": "REPLY_OF",
+            "source_labels": [
+                "Comment"
+            ],
+            "target_labels": [
+                "Comment"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
+            "properties": []
         },
         {
-            "name": "person_studyAt_organisation",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "organisation",
+            "name": "REPLY_OF",
+            "source_labels": [
+                "Comment"
+            ],
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
+            "properties": []
+        },
+        {
+            "name": "STUDIES_AT",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Organisation"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..N",
             "properties": [
                 {
                     "name": "classYear",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "person_workAt_organisation",
-            "labels": [],
-            "start_node": "person",
-            "end_node": "organisation",
+            "name": "WORKS_AT",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Organisation"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": [
                 {
                     "name": "workFrom",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
-        },
-        {
-            "name": "place_isPartOf_place",
-            "labels": [],
-            "start_node": "place",
-            "end_node": "place",
-            "properties": []
-        },
-        {
-            "name": "post_hasCreator_person",
-            "labels": [],
-            "start_node": "post",
-            "end_node": "person",
-            "properties": []
-        },
-        {
-            "name": "post_hasTag_tag",
-            "labels": [],
-            "start_node": "post",
-            "end_node": "tag",
-            "properties": []
-        },
-        {
-            "name": "post_isLocatedIn_place",
-            "labels": [],
-            "start_node": "post",
-            "end_node": "place",
-            "properties": []
-        },
-        {
-            "name": "tag_hasType_tagclass",
-            "labels": [],
-            "start_node": "tag",
-            "end_node": "tagclass",
-            "properties": []
-        },
-        {
-            "name": "tagclass_isSubclassOf_tagclass",
-            "labels": [],
-            "start_node": "tagclass",
-            "end_node": "tagclass",
-            "properties": []
         }
-    ]
+    ],
+    "notes": "Node type 'Post' contains optional properties (content, imageFile, language) due to heterogeneous property-key sets (K) found during pattern mining. All relationship types from the profile are included as canonical edge types.",
+    "_mined_patterns": {
+        "node_types": [
+            {
+                "labels": [
+                    "Comment"
+                ],
+                "count": 2052169,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "browserUsed",
+                            "content",
+                            "creationDate",
+                            "id",
+                            "length",
+                            "locationIP"
+                        ],
+                        "count": 2052169
+                    }
+                ],
+                "properties": {
+                    "browserUsed": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "content": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "length": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "locationIP": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Forum"
+                ],
+                "count": 90492,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "creationDate",
+                            "id",
+                            "title"
+                        ],
+                        "count": 90492
+                    }
+                ],
+                "properties": {
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "title": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Organisation"
+                ],
+                "count": 7955,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "type",
+                            "url"
+                        ],
+                        "count": 7955
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Person"
+                ],
+                "count": 9892,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "birthday",
+                            "browserUsed",
+                            "creationDate",
+                            "firstName",
+                            "gender",
+                            "id",
+                            "lastName",
+                            "locationIP"
+                        ],
+                        "count": 9892
+                    }
+                ],
+                "properties": {
+                    "birthday": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "browserUsed": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "firstName": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "gender": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "lastName": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "locationIP": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Place"
+                ],
+                "count": 1460,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "type",
+                            "url"
+                        ],
+                        "count": 1460
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "type": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Post"
+                ],
+                "count": 1003605,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "browserUsed",
+                            "creationDate",
+                            "id",
+                            "imageFile",
+                            "length",
+                            "locationIP"
+                        ],
+                        "count": 796633
+                    },
+                    {
+                        "property_keys": [
+                            "browserUsed",
+                            "content",
+                            "creationDate",
+                            "id",
+                            "language",
+                            "length",
+                            "locationIP"
+                        ],
+                        "count": 206972
+                    }
+                ],
+                "properties": {
+                    "browserUsed": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "content": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2062
+                    },
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "imageFile": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.7938
+                    },
+                    "language": {
+                        "data_type": "STRING",
+                        "constraint": "OPTIONAL",
+                        "fill_ratio": 0.2062
+                    },
+                    "length": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "locationIP": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "Tag"
+                ],
+                "count": 16080,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "url"
+                        ],
+                        "count": 16080
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "TagClass"
+                ],
+                "count": 71,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "id",
+                            "name",
+                            "url"
+                        ],
+                        "count": 71
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "name": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    },
+                    "url": {
+                        "data_type": "STRING",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            }
+        ],
+        "edge_types": [
+            {
+                "labels": [
+                    "CONTAINER_OF"
+                ],
+                "source_labels": [
+                    "Forum"
+                ],
+                "target_labels": [
+                    "Post"
+                ],
+                "is_canonical": true,
+                "count": 1003605,
+                "cardinality": "0..N : 1..1",
+                "min_out_degree": 0,
+                "max_out_degree": 1208,
+                "min_in_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1003605
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_CREATOR"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Comment"
+                ],
+                "is_canonical": true,
+                "count": 2052169,
+                "cardinality": "0..N : 1..1",
+                "min_out_degree": 0,
+                "max_out_degree": 8915,
+                "min_in_degree": 1,
+                "max_in_degree": 1,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 2052169
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_CREATOR"
+                ],
+                "source_labels": [
+                    "Post"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 1003605,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 1224,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1003605
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_INTEREST"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Tag"
+                ],
+                "is_canonical": true,
+                "count": 229166,
+                "cardinality": "1..N : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 80,
+                "min_in_degree": 0,
+                "max_in_degree": 1128,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 229166
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_MEMBER"
+                ],
+                "source_labels": [
+                    "Forum"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 1611869,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 920,
+                "min_in_degree": 0,
+                "max_in_degree": 4343,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "joinDate"
+                        ],
+                        "count": 1611869
+                    }
+                ],
+                "properties": {
+                    "joinDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "HAS_MODERATOR"
+                ],
+                "source_labels": [
+                    "Forum"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 90492,
+                "cardinality": "1..1 : 1..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 1,
+                "max_in_degree": 38,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 90492
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_TAG"
+                ],
+                "source_labels": [
+                    "Forum"
+                ],
+                "target_labels": [
+                    "Tag"
+                ],
+                "is_canonical": true,
+                "count": 309766,
+                "cardinality": "1..N : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 80,
+                "min_in_degree": 0,
+                "max_in_degree": 2890,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 309766
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_TAG"
+                ],
+                "source_labels": [
+                    "Post"
+                ],
+                "target_labels": [
+                    "Tag"
+                ],
+                "is_canonical": true,
+                "count": 713258,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 15,
+                "min_in_degree": 0,
+                "max_in_degree": 10817,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 713258
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "HAS_TYPE"
+                ],
+                "source_labels": [
+                    "Tag"
+                ],
+                "target_labels": [
+                    "TagClass"
+                ],
+                "is_canonical": true,
+                "count": 16080,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 5061,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 16080
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "IS_LOCATED_IN"
+                ],
+                "source_labels": [
+                    "Organisation"
+                ],
+                "target_labels": [
+                    "Place"
+                ],
+                "is_canonical": true,
+                "count": 7955,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 130,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 7955
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "IS_LOCATED_IN"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Place"
+                ],
+                "is_canonical": true,
+                "count": 9892,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 19,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 9892
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "IS_LOCATED_IN"
+                ],
+                "source_labels": [
+                    "Post"
+                ],
+                "target_labels": [
+                    "Place"
+                ],
+                "is_canonical": true,
+                "count": 1003605,
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 141852,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1003605
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "IS_PART_OF"
+                ],
+                "source_labels": [
+                    "Place"
+                ],
+                "target_labels": [
+                    "Place"
+                ],
+                "is_canonical": true,
+                "count": 1454,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 199,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1454
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "IS_SUBCLASS_OF"
+                ],
+                "source_labels": [
+                    "TagClass"
+                ],
+                "target_labels": [
+                    "TagClass"
+                ],
+                "is_canonical": true,
+                "count": 70,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 19,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 70
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "KNOWS"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Person"
+                ],
+                "is_canonical": true,
+                "count": 180623,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 814,
+                "min_in_degree": 0,
+                "max_in_degree": 766,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "creationDate"
+                        ],
+                        "count": 180623
+                    }
+                ],
+                "properties": {
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "LIKES"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Comment"
+                ],
+                "is_canonical": true,
+                "count": 1438418,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 2080,
+                "min_in_degree": 0,
+                "max_in_degree": 894,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "creationDate"
+                        ],
+                        "count": 1438418
+                    }
+                ],
+                "properties": {
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "LIKES"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Post"
+                ],
+                "is_canonical": true,
+                "count": 751677,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1736,
+                "min_in_degree": 0,
+                "max_in_degree": 902,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "creationDate"
+                        ],
+                        "count": 751677
+                    }
+                ],
+                "properties": {
+                    "creationDate": {
+                        "data_type": "DATE",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "REPLY_OF"
+                ],
+                "source_labels": [
+                    "Comment"
+                ],
+                "target_labels": [
+                    "Comment"
+                ],
+                "is_canonical": true,
+                "count": 1040749,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 14,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1040749
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "REPLY_OF"
+                ],
+                "source_labels": [
+                    "Comment"
+                ],
+                "target_labels": [
+                    "Post"
+                ],
+                "is_canonical": true,
+                "count": 1011420,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 20,
+                "patterns": [
+                    {
+                        "property_keys": [],
+                        "count": 1011420
+                    }
+                ],
+                "properties": {}
+            },
+            {
+                "labels": [
+                    "STUDIES_AT"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Organisation"
+                ],
+                "is_canonical": true,
+                "count": 7949,
+                "cardinality": "0..1 : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 1,
+                "min_in_degree": 0,
+                "max_in_degree": 120,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "classYear"
+                        ],
+                        "count": 7949
+                    }
+                ],
+                "properties": {
+                    "classYear": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            },
+            {
+                "labels": [
+                    "WORKS_AT"
+                ],
+                "source_labels": [
+                    "Person"
+                ],
+                "target_labels": [
+                    "Organisation"
+                ],
+                "is_canonical": true,
+                "count": 21654,
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
+                "max_out_degree": 5,
+                "min_in_degree": 0,
+                "max_in_degree": 190,
+                "patterns": [
+                    {
+                        "property_keys": [
+                            "workFrom"
+                        ],
+                        "count": 21654
+                    }
+                ],
+                "properties": {
+                    "workFrom": {
+                        "data_type": "INTEGER",
+                        "constraint": "MANDATORY",
+                        "fill_ratio": 1.0
+                    }
+                }
+            }
+        ]
+    }
 }

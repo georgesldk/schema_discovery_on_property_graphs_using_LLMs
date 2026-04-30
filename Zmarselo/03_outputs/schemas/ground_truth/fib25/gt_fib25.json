@@ -3,7 +3,6 @@
     "node_types": [
         {
             "name": "Meta",
-            "type_name": "MetaType",
             "labels": [
                 "Meta",
                 "medulla7column_Meta"
@@ -11,99 +10,98 @@
             "properties": [
                 {
                     "name": "logo",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "postHighAccuracyThreshold",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "preHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "postHPThreshold",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "meshHost",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "uuid",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "neuroglancerInfo",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "neuroglancerMeta",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "statusDefinitions",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "latestMutationId",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "totalPreCount",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "totalPostCount",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "lastDatabaseEdit",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "superLevelRois",
-                    "type": "StringArray",
-                    "mandatory": true
+                    "type": "LIST",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "primaryRois",
-                    "type": "StringArray",
-                    "mandatory": true
+                    "type": "LIST",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "roiHierarchy",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "dataset",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Neuron",
-            "type_name": "NeuronSegmentMedullaNeuronType",
             "labels": [
                 "Neuron",
                 "Segment",
@@ -113,69 +111,68 @@
             "properties": [
                 {
                     "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "bodyId",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "pre",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "post",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "status",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "statusLabel",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "cropped",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "instance",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "size",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
-            "name": "Segment",
-            "type_name": "NeuronSegmentMedullaSegmentType",
+            "name": "Neuron",
             "labels": [
                 "Neuron",
                 "Segment",
@@ -184,69 +181,68 @@
             "properties": [
                 {
                     "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "bodyId",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "pre",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "post",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "status",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "statusLabel",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "cropped",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "instance",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "size",
-                    "type": "Long",
-                    "mandatory": true
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "SynapseSet",
-            "type_name": "SynapseSetType",
             "labels": [
                 "SynapseSet",
                 "medulla7column_SynapseSet"
@@ -255,7 +251,6 @@
         },
         {
             "name": "Synapse",
-            "type_name": "SynapseType",
             "labels": [
                 "Synapse",
                 "medulla7column_Synapse"
@@ -263,28 +258,28 @@
             "properties": [
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "confidence",
-                    "type": "Double",
-                    "mandatory": true
+                    "type": "DOUBLE",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "location",
-                    "type": "Point",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "distal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "proximal",
-                    "type": "Boolean",
-                    "mandatory": false
+                    "type": "BOOLEAN",
+                    "constraint": "OPTIONAL"
                 }
             ]
         }
@@ -292,65 +287,395 @@
     "edge_types": [
         {
             "name": "CONNECTS_TO",
+            "source_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "roiInfo",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "weight",
-                    "type": "Long",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "weightHP",
-                    "type": "Long",
-                    "mandatory": false
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
                 }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
             ],
-            "topology": [
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
                 {
-                    "allowed_sources": [
-                        "Neuron",
-                        "SynapseSet"
-                    ],
-                    "allowed_targets": [
-                        "Neuron",
-                        "SynapseSet"
-                    ]
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "OPTIONAL"
                 }
             ]
         },
         {
             "name": "CONTAINS",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Neuron",
-                        "SynapseSet"
-                    ],
-                    "allowed_targets": [
-                        "Synapse",
-                        "SynapseSet"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "target_labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "source_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "CONTAINS",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "SynapseSet",
+                "medulla7column_SynapseSet"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "SYNAPSES_TO",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Synapse"
-                    ],
-                    "allowed_targets": [
-                        "Synapse"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "target_labels": [
+                "Synapse",
+                "medulla7column_Synapse"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         }
     ]
 }

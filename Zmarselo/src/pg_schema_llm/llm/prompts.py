@@ -2,18 +2,36 @@ def build_inference_prompt(profile_text):
     return f"""
     You are a Senior Property Graph Schema Architect.  You will receive the
     results of an EXHAUSTIVE pattern mining pass over a Neo4j property graph.
-    Your mission is to infer a high-fidelity PG-Schema that mirrors the EXACT
-    physical structure of the data.
+    Every node and edge has been parsed; property data types come from a
+    full scan of every value, not a sample.
+
+    Your mission is to organize the mined patterns into a clean PG-Schema.
+    The data is the source of truth — you are NOT cleaning it up, fixing it,
+    or compensating for sampling error.  None of those exist here.
+
+    DATA PROFILE FORMAT
+    -------------------
+    The profile uses a compact line-based format with a legend at the top.
+    Each line begins with a one- or two-character marker:
+
+      N:    a node type, followed by its label set in {{}} braces
+      E:    a canonical edge type — labels(src)-[:REL]->labels(tgt) with
+            a "card=..." cardinality string
+      E*:   a derived subset edge (no cardinality)
+      K:    one distinct (L, K) pattern of the preceding N or E entry —
+            shows the property-key set in {{}} braces
+      P:    the property list of the preceding N or E, comma-separated
+            as "name:DATA_TYPE/M" (MANDATORY) or "name:DATA_TYPE/O" (OPTIONAL)
+
+    Lines starting with "##" are section headers and "#" are comments —
+    ignore them when constructing the schema, but treat all N/E/E*/K/P
+    lines as authoritative.
 
     DATA PROFILE:
     {profile_text}
 
-    TARGET:
-    The user needs a schema that preserves 100% of the node and edge properties
-    found in the data.  Do NOT simplify, "clean up", or "collapse" the structure.
-
     ============================================================
-    THEORETICAL FRAMEWORK 
+    THEORETICAL FRAMEWORK  (PG-Schema / PG-HIVE, EDBT 2026)
     ============================================================
 
       Node Pattern  TNp = (L, K)
@@ -21,90 +39,80 @@ def build_inference_prompt(profile_text):
         K ⊆ Keys   — the set of property keys present on the node.
 
       Edge Pattern  TEp = (L, K, R)
-        L ⊆ Labels — the edge label set (singleton in Neo4j).
+        L ⊆ Labels — the edge label set (always non-empty in Neo4j).
         K ⊆ Keys   — the edge property-key set.
         R = (Ls, Lt) — source and target node label sets.
 
-      Two patterns are DISTINCT when their label set, property-key set,
-      or (for edges) endpoints differ.  Multiple patterns may belong to the
+      Two patterns are DISTINCT when their label set, property-key set, or
+      (for edges) endpoints differ.  Multiple patterns may belong to the
       same *type* when they share labels but differ in property-key sets.
 
       Node Type  Vs = (labels, properties)
-        Each property: name, data_type, mandatory ∈ {{true, false}}.
-        mandatory=true means fill_ratio = 1.0 (appears in every instance of the type).
+        Each property: name, data_type, constraint ∈ {{MANDATORY, OPTIONAL}}.
+        MANDATORY = fill_ratio = 1.0 (appears in every instance of the type).
 
       Edge Type  Es = (labels, properties, endpoints, cardinality)
-        endpoints = (source_node_type, target_node_type).
-        cardinality ∈ {{1:1, 1:N, N:1, M:N}}  — derived from max in/out-degree.
+        endpoints   = (source_node_labels, target_node_labels).
+        cardinality = "{{src_min..src_max}} : {{tgt_min..tgt_max}}",
+                      with each side ∈ {{0..1, 0..N, 1..1, 1..N}}.
 
     ============================================================
-    CRITICAL HEURISTICS  (apply strictly in this order)
+    HARD RULES  (NON-NEGOTIABLE)
     ============================================================
 
-    1. **NO "SMART" MERGING  (Distinctness Rule) — PRIORITY #1:**
-       - **Constraint:** If the Data Profile lists distinct node types (distinct label sets),
-         you **MUST** output them as separate Node Types in your JSON.
-       - **Reasoning:** Even if they share properties, they represent different entities.
-       - **Strict Instruction:** Do NOT merge nodes just because they look similar. Keep them separate.
+    R1. **PRESERVE MINED LABELS — DO NOT RENAME, DO NOT INVENT.**
+       - Every label that appears in the profile MUST appear verbatim in the
+         output (same casing, same spelling).
+       - You may NOT change capitalization, abbreviate, expand, translate,
+         or otherwise transform any label.
+       - You may NOT introduce new labels for nodes that already have labels.
+       - The "labels" array of every node type is COPIED from the profile.
+       - The "name" field of every edge_type is COPIED from the profile's
+         relationship type, verbatim.
 
-    2. **MULTI-LABEL AWARENESS:**
-       - A node type is defined by its FULL label set.  {{Person}} and
-         {{Person, Actor}} are two different types.
-       - Preserve every label set exactly as mined.
-       - An empty label set {{}} becomes an ABSTRACT type — suggest a descriptive name.
-       - Label names can be empty, one or many.  Preserve them all.
+    R2. **NAMING RULE.**
+       - For node types WITH labels:
+           "name" MUST be exactly one of the labels in the type's label set.
+           Choose whichever single label is the most semantically meaningful
+           identifier for the type.  Do NOT concatenate labels.  Do NOT
+           invent a new name.  Do NOT modify a label to make a name.
+       - For node types with EMPTY label set (labels = []):
+           ONLY THEN may you invent a descriptive PascalCase name based on
+           the type's properties.
 
-    3. **PATTERN PRESERVATION:**
-       - Report the number of distinct patterns per type.
-       - If a type has multiple patterns (e.g., some instances have property "bday" and
-         others don't), every property that appears in ANY pattern must appear in the
-         type's property list — marked MANDATORY or OPTIONAL per the mined fill_ratio.
+    R3. **EDGES ARE NEVER UNLABELED.**
+       - Every edge in the profile has a relationship type.  Use it verbatim.
+       - You may NOT invent edge names, abbreviate them, derive them from
+         endpoint types, or merge two distinct relationship types.
 
-    4. **NOISE FILTER  (The "Fake Node" Check):**
-       - **Goal:** Identify properties that masquerade as nodes (e.g., Tags, Categories, Labels).
-       - **Detection Logic:** A node is a "Fake Node" if it meets BOTH criteria:
-         * **Criteria A:** Low Information Density (≤ 1 non-ID property).
-         * **Criteria B:** Passive Role (0 outgoing edges to other entity types — pure leaf/sink).
-       - **Action:** If detected, DELETE the Node Type and add its name as a property to the Source Node.
-       - **EXCEPTION:** If the node has *outgoing edges* to other entities, it is a structural bridge. KEEP IT.
+    R4. **PRESERVE SOURCE / TARGET LABEL SETS.**
+       - Every edge_type in your output MUST include "source_labels" and
+         "target_labels" arrays — copied verbatim from the profile.
+       - If the profile lists multiple endpoint combinations for the same
+         relationship type (canonical and subset permutations), output a
+         SEPARATE edge_type entry for each combination.
+       - Mark subset permutations with "is_canonical": false.
 
-    5. **PROPERTY FORMATTING (Strict JSON Structure):**
-       - **Constraint:** The 'name' field in your JSON must contain **ONLY the property name**.
-       - **Forbidden:** Do NOT include the type in the name (e.g., "id:long" is WRONG).
-       - **Correct:** "name": "id", "type": "INTEGER".
-       - **Forbidden:** Do NOT output internal Neo4j keys like ":START_ID" or ":END_ID".
-       - Respect the mined data type (STRING, INTEGER, DOUBLE, BOOLEAN, DATE, LIST).
-       - Use `mandatory: true|false`:
-         * `mandatory: true` when mined constraint is MANDATORY
-         * `mandatory: false` when mined constraint is OPTIONAL
+    R5. **NO PATTERN COLLAPSING, NO PROPERTY FILTERING.**
+       - If a node/edge type has multiple distinct (L, K) patterns, the
+         union of their property keys appears in the type's property list.
+       - Each property's "constraint" is MANDATORY only when fill_ratio = 1.0
+         in the profile, OPTIONAL otherwise.
+       - Do NOT remove properties for being uncommon, technical-looking, or
+         stylistically odd.  The data is exhaustive — every property is real.
 
-    6. **EDGE NAMING METHODOLOGY (SEMANTIC DERIVATION):**
-       - **Constraint:** Do not use a pre-set list of verbs. Deriving the name must follow this 3-step logic:
+    R6. **PROPERTY FORMATTING.**
+       - "name" contains only the property name, copied verbatim from the
+         profile.  Do NOT include the type in the name.
+       - Do NOT emit Neo4j import keys (":START_ID", ":END_ID", ":TYPE",
+         ":LABEL").  If the profile contains them, drop them.
+       - "type" copies the data_type from the profile (STRING / INTEGER /
+         DOUBLE / BOOLEAN / DATE / LIST).
+       - "constraint" copies MANDATORY / OPTIONAL from the profile.
 
-       * **STEP 1: ANALYZE SIGNAL:** Look at the edge properties and the Source/Target types.
-           * *Signal A:* Properties imply measurement (weight, distance, score).
-           * *Signal B:* Properties imply sequence or action (time, duration, flow).
-           * *Signal C:* Relationship implies ownership or composition (part-of, member-of).
-
-       * **STEP 2: DETERMINE CATEGORY:**
-           * If *Signal A* (Measurement) → Category = **TOPOLOGICAL**. Use linkage verbs (LINKS, CONNECTS).
-           * If *Signal B* (Action) → Category = **FUNCTIONAL**. Use active verbs (PROCESSES, TRIGGERS).
-           * If *Signal C* (Ownership) → Category = **STRUCTURAL**. Use hierarchy verbs (CONTAINS, INCLUDES).
-
-       * **STEP 3: GRAMMAR FILTER (REDUNDANCY REMOVAL):**
-           * **Rule:** The Edge Name MUST NOT repeat the Target Node's name.
-           * *Bad:* `Parent` → `HAS_PARENT_GROUP` → `Group` (Redundant).
-           * *Good:* `Parent` → `INCLUDES` → `Group`.
-           * *Bad:* `System` → `LINKS_TO_SYSTEM` → `System` (Redundant).
-           * *Good:* `System` → `CONNECTS` → `System` (if topological) or `INTERACTS` → `System` (if functional).
-
-    7. **CARDINALITY:**
-       - Preserve the mined cardinality for every edge type.  It is derived
-         from observed max in/out-degree:
-           (max_out = 1, max_in = 1) → 1:1
-           (max_out > 1, max_in = 1) → N:1
-           (max_out = 1, max_in > 1) → 1:N
-           (max_out > 1, max_in > 1) → M:N
+    R7. **CARDINALITY IS COPIED, NOT INFERRED.**
+       - Copy each canonical edge's cardinality string verbatim from the
+         profile.  Subset (is_canonical=false) edges have cardinality=null.
 
     ============================================================
     OUTPUT JSON FORMAT
@@ -113,25 +121,25 @@ def build_inference_prompt(profile_text):
     {{
       "node_types": [
         {{
-          "name": "NodeLabel",
-          "labels": ["Label1", "Label2"], 
+          "name": "<one of the labels>",
+          "labels": ["<label_1>", "<label_2>", "..."],
           "properties": [
-            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "mandatory": true|false}}
+            {{"name": "<property_name>", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "constraint": "MANDATORY|OPTIONAL"}}
           ]
         }}
       ],
       "edge_types": [
         {{
-          "name": "RELATIONSHIP_TYPE",
-          "labels": ["Label1", "Label2"], 
-          "start_node": "SourceNodeName",
-          "end_node": "TargetNodeName",
-          "cardinality": "1:1|1:N|N:1|M:N",
+          "name": "<relationship_type_verbatim>",
+          "source_labels": ["<src_label_1>", "..."],
+          "target_labels": ["<tgt_label_1>", "..."],
+          "is_canonical": true,
+          "cardinality": "<min..max : min..max>",
           "properties": [
-            {{"name": "propertyName", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "mandatory": true|false}}
+            {{"name": "<property_name>", "type": "STRING|INTEGER|DOUBLE|BOOLEAN|DATE|LIST", "constraint": "MANDATORY|OPTIONAL"}}
           ]
         }}
       ],
-      "notes": "Any observations about semantic overlap, unlabeled types, or anomalies."
+      "notes": "Free-form observations, e.g. about unlabeled types."
     }}
     """

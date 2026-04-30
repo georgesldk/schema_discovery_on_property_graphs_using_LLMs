@@ -1,598 +1,343 @@
+"""
+Extract ground-truth schema from .pgs (PG-Schema) files.
+
+Outputs the same format used by mine_patterns() and expected by
+compare.py, so GT and inferred schemas are directly comparable.
+
+Supported .pgs dialect
+----------------------
+    CREATE NODE TYPE
+    ( TypeName : Label1 & Label2 {
+        prop1 Long,
+        OPTIONAL prop2 String
+    } );
+
+    CREATE EDGE TYPE
+    ( : SrcLabel1 | : SrcLabel2 )-[:REL_TYPE {
+        prop1 String
+    }]->( : TgtLabel );
+
+    CREATE GRAPH TYPE Name LOOSE { ... };
+
+Output format
+-------------
+    {
+      "node_types": [
+        {
+          "name": "Label1",
+          "labels": ["Label1", "Label2"],
+          "properties": [
+            {"name": "prop1", "type": "INTEGER", "constraint": "MANDATORY"}
+          ]
+        }
+      ],
+      "edge_types": [
+        {
+          "name": "REL_TYPE",
+          "source_labels": ["SrcLabel1"],
+          "target_labels": ["TgtLabel"],
+          "is_canonical": true,
+          "cardinality": null,
+          "properties": [...]
+        }
+      ]
+    }
+"""
+from __future__ import annotations
+
+import glob
 import json
 import os
-import glob
 import re
-import csv
-
-# ==========================================
-# 0. HELPER: LOAD VALIDATION LISTS
-# ==========================================
-
-def parse_edge_names(definition, valid_edge_labels=None):
-    """
-    Parse one or more edge type names from a PG-Schema edge definition.
-
-    This function extracts relationship type identifiers from the edge
-    type segment inside a PG-Schema pattern, supporting common syntactic
-    variants (e.g., ':TYPE', 'r:TYPE', backticks, and alternatives joined
-    with '|'). Optionally filters results against a validation set.
-
-    Args:
-        definition (str): Raw edge type definition extracted from a PGS pattern.
-        valid_edge_labels (Optional[Set[str]]): Optional allowed label set used
-            to filter extracted names when an intersection exists.
-
-    Returns:
-        List[str]: Extracted edge type names.
-    """
-
-    if not definition:
-        return []
-
-    # remove surrounding whitespace
-    s = definition.strip()
-
-    # take only the "type segment" before any whitespace (properties already stripped earlier)
-    first = s.split()[0] if s.split() else s
-
-    # split alternatives by |
-    alts = [a.strip() for a in first.split('|') if a.strip()]
-
-    names = []
-    for a in alts:
-        # drop backticks
-        a = a.replace('`', '').strip()
-
-        # if we have var:type or :type, take the last segment after ':'
-        if ':' in a:
-            a = a.split(':')[-1].strip()
-
-        # final cleanup: keep only reasonable identifier chars
-        a = re.sub(r'[^A-Za-z0-9_]', '', a).strip()
-
-        if a:
-            names.append(a)
-
-    # optional validation filter
-    if valid_edge_labels:
-        inter = [n for n in names if n in valid_edge_labels]
-        if inter:
-            return inter
-
-    return names
+from typing import Dict, List, Optional, Set, Tuple
 
 
-def load_validation_lists(input_dir):
-    """
-    Load dataset-provided validation lists for node and edge labels.
+# ============================================================
+# Type mapping  (PGS types → generic types used by compare.py)
+# ============================================================
 
-    This function reads optional CSV files (e.g., node_labels.csv and
-    edge_labels.csv) from a dataset folder and returns sets of known
-    labels used as a safety filter during ground-truth extraction.
-
-    Args:
-        input_dir (str): Path to the dataset directory.
-
-    Returns:
-        dict: Dictionary containing optional validation sets for:
-            - "node_labels": Optional set of valid node labels
-            - "edge_labels": Optional set of valid edge labels
-    """
-    valid_data = {
-        "node_labels": None,
-        "edge_labels": None,
-    }
-
-    node_path = os.path.join(input_dir, "node_labels.csv")
-    if os.path.exists(node_path):
-        try:
-            with open(node_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                valid_set = set()
-                for row in reader:
-                    val = row.get('label') or row.get('property') or list(row.values())[0]
-                    if val:
-                        valid_set.add(val.strip())
-                valid_data["node_labels"] = valid_set
-        except Exception as e:
-            print(f"[WARN] Failed to load node_labels.csv: {e}")
-
-    edge_path = os.path.join(input_dir, "edge_labels.csv")
-    if os.path.exists(edge_path):
-        try:
-            with open(edge_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                valid_set = set()
-                for row in reader:
-                    val = row.get('label') or row.get('relType') or row.get('type') or list(row.values())[0]
-                    if val:
-                        valid_set.add(val.strip())
-                valid_data["edge_labels"] = valid_set
-        except Exception as e:
-            print(f"[WARN] Failed to load edge_labels.csv: {e}")
-
-    return valid_data
+_TYPE_MAP = {
+    "long":        "INTEGER",
+    "int":         "INTEGER",
+    "integer":     "INTEGER",
+    "double":      "DOUBLE",
+    "float":       "DOUBLE",
+    "string":      "STRING",
+    "boolean":     "BOOLEAN",
+    "bool":        "BOOLEAN",
+    "date":        "DATE",
+    "datetime":    "DATE",
+    "point":       "STRING",       # spatial → STRING
+    "stringarray": "LIST",
+    "array":       "LIST",
+}
 
 
-# ==========================================
-# 1. CLEANING & STANDARDIZATION
-# ==========================================
+def _map_type(raw: str) -> str:
+    """Map a PGS property type to a generic schema type."""
+    return _TYPE_MAP.get(raw.lower().strip(), "STRING")
 
-def clean_comments(content):
-    """
-    Remove comment syntax from PG-Schema text.
 
-    This function strips single-line and block comments to simplify
-    parsing of PG-Schema definitions.
+# ============================================================
+# Comment stripping
+# ============================================================
 
-    Args:
-        content (str): Raw PG-Schema file content.
-
-    Returns:
-        str: Comment-free content.
-    """
-
-    content = re.sub(r'--.*?$', '', content, flags=re.MULTILINE)
-    content = re.sub(r'//.*?$', '', content, flags=re.MULTILINE)
-    content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+def _strip_comments(content: str) -> str:
+    content = re.sub(r"--.*?$",       "", content, flags=re.MULTILINE)
+    content = re.sub(r"//.*?$",       "", content, flags=re.MULTILINE)
+    content = re.sub(r"/\*.*?\*/",    "", content, flags=re.DOTALL)
     return content
 
-def standardize_type(ptype):
+
+# ============================================================
+# Property block parsing
+# ============================================================
+
+def _parse_props(block: str) -> List[dict]:
     """
-    Map a raw property type string to a canonical schema type.
+    Parse a brace-delimited property block.
 
-    This function normalizes type tokens found in PG-Schema property
-    blocks into a small set of canonical types used by the project.
-
-    Args:
-        ptype (str): Raw property type string.
-
-    Returns:
-        str: Canonical type name (e.g., String, Long, Double, Boolean).
+    Handles lines like:
+        prop1 Long,
+        OPTIONAL prop2 String
     """
+    props: List[dict] = []
+    if not block or not block.strip():
+        return props
 
-    ptype = ptype.lower().strip().strip(',')
-    if "point" in ptype: return "Point"
-    if "int" in ptype or "long" in ptype: return "Long"
-    if "float" in ptype or "double" in ptype: return "Double"
-    if "bool" in ptype: return "Boolean"
-    if "array" in ptype: return "StringArray" if "string" in ptype else "Array"
-    return "String"
+    for line in block.split("\n"):
+        line = line.strip().rstrip(",")
+        if not line:
+            continue
 
-def parse_props_block(prop_str):
-    """
-    Parse a PG-Schema property block into structured property definitions.
+        is_optional = "OPTIONAL" in line.upper()
+        line = re.sub(r"\bOPTIONAL\b", "", line, flags=re.IGNORECASE).strip()
 
-    This function converts a property declaration block into a list of
-    {name, type, mandatory} entries. OPTIONAL properties are detected
-    and marked as non-mandatory.
-
-    Args:
-        prop_str (str): Raw property block string extracted from braces.
-
-    Returns:
-        List[dict]: List of parsed property descriptors.
-    """
-
-    props = []
-    if not prop_str or not prop_str.strip(): return props
-    
-    for line in prop_str.split('\n'):
-        line = line.strip().rstrip(',')
-        if not line: continue
-        
-        is_optional = 'OPTIONAL' in line.upper()
-        line = re.sub(r'\bOPTIONAL\b', '', line, flags=re.IGNORECASE).strip()
-        
         parts = line.split()
         if len(parts) >= 2:
+            pname = parts[0]
             ptype = parts[-1]
-            name = ' '.join(parts[:-1])
-            if name:
-                props.append({
-                    "name": name,
-                    "type": standardize_type(ptype),
-                    "mandatory": not is_optional
-                })
+            props.append({
+                "name": pname,
+                "type": _map_type(ptype),
+                "constraint": "OPTIONAL" if is_optional else "MANDATORY",
+            })
     return props
 
-# ==========================================
-# 2. INTELLIGENT NAMING (ROBUST HEURISTIC)
-# ==========================================
 
-def derive_node_name(type_name, labels, valid_labels=None):
+# ============================================================
+# Node type parsing
+# ============================================================
+
+def _parse_node_stmt(stmt: str) -> Optional[dict]:
     """
-    Derive a canonical node type name from PG-Schema type/label metadata.
+    Parse a CREATE NODE TYPE statement.
 
-    This function selects a stable node name using dataset-agnostic
-    heuristics over available labels. When a validation set is provided,
-    candidates may be restricted only if a safe intersection exists.
-
-    Args:
-        type_name (str): Node type identifier from the PG-Schema definition.
-        labels (List[str]): Candidate labels associated with the node type.
-        valid_labels (Optional[Set[str]]): Optional allowed label set used
-            as a safety filter when an intersection exists.
-
-    Returns:
-        str: Derived canonical node name used in the extracted schema.
+    Returns a node-type dict or None on parse failure.
     """
-
-    # 1. Validation Filter (Safety Net)
-    # Only restrict candidates if we find a valid intersection.
-    # This prevents breaking if the user uploads LDBC labels for MB6.
-    candidates = labels
-    if valid_labels:
-        intersection = [l for l in labels if l in valid_labels]
-        if intersection:
-            candidates = intersection
-
-    tn = type_name.lower()
-    
-    # 2. Separation: Clean (Alphanumeric) vs Dirty (Underscores)
-    clean = [l for l in candidates if l.isalnum()]
-    dirty = [l for l in candidates if not l.isalnum()]
-    
-    # 3. Sort by Length Descending (Catch 'SynapseSet' before 'Synapse')
-    clean.sort(key=len, reverse=True)
-    dirty.sort(key=len, reverse=True)
-    
-    def check_strategies(lbl_list):
-        # Pass 1: Middle Token (_{label}_)
-        # Strongest signal: Matches 'Neuron' in '..._Neuron_...'
-        for l in lbl_list:
-            if f"_{l.lower()}_" in tn:
-                return l
-        
-        # Pass 2: Boundary Token (_{label} or {label}_)
-        # Matches 'Segment' in '..._Segment'
-        for l in lbl_list:
-            if tn.startswith(f"{l.lower()}_") or tn.endswith(f"_{l.lower()}"):
-                return l
-        
-        # Pass 3: Suffix Match (Standard)
-        # Matches 'Comment' in 'CommentType'
-        for l in lbl_list:
-             if tn.endswith(l.lower()) or tn.endswith(f"{l.lower()}type"):
-                 return l
+    start = stmt.find("(")
+    end = stmt.rfind(")")
+    if start < 0 or end < 0:
         return None
 
-    # Priority 1: Check Clean Labels
-    res = check_strategies(clean)
-    if res: return res
-    
-    # Priority 2: Check Dirty Labels
-    res = check_strategies(dirty)
-    if res: return res
-    
-    # Fallback
-    return candidates[0] if candidates else type_name
+    body = stmt[start + 1 : end].strip()
 
-# ==========================================
-# 3. ROBUST PARSING LOGIC
-# ==========================================
+    # separate property block (in braces) from definition
+    prop_str = ""
+    p_start = body.find("{")
+    p_end = body.rfind("}")
+    if p_start >= 0 and p_end >= 0:
+        prop_str = body[p_start + 1 : p_end]
+        def_str = body[:p_start].strip()
+    else:
+        def_str = body.strip()
 
-def parse_pgs_file(file_path, valid_node_labels=None, valid_edge_labels=None):
+    # def_str is like "TypeName : Label1 & Label2"
+    if ":" not in def_str:
+        return None
+
+    type_name, label_part = def_str.split(":", 1)
+    type_name = type_name.strip()
+    label_part = label_part.strip().replace("(", "").replace(")", "")
+
+    labels = sorted(l.strip() for l in label_part.split("&") if l.strip())
+    if not labels:
+        return None
+
+    # name = the label itself for single-label types;
+    # for multi-label, pick the shortest / most general label
+    name = min(labels, key=len)
+
+    properties = _parse_props(prop_str)
+
+    return {
+        "name": name,
+        "labels": labels,
+        "properties": properties,
+    }
+
+
+# ============================================================
+# Edge type parsing
+# ============================================================
+
+def _parse_label_alternatives(block: str) -> List[List[str]]:
     """
-    Parse a .pgs file into node types, edge definitions, and label mappings.
+    Parse a source or target block that may contain '|' alternatives.
 
-    This function reads a PG-Schema (.pgs) file, removes comments, and
-    extracts node type declarations and edge type declarations. Edges
-    support multiple alternative relationship names (e.g., A|B), producing
-    one edge definition per name. A node-label map is produced for later
-    topology resolution.
+    Each alternative may itself have '&' conjunctions.
 
-    Args:
-        file_path (str): Path to the .pgs file.
-        valid_node_labels (Optional[Set[str]]): Optional allowed node labels.
-        valid_edge_labels (Optional[Set[str]]): Optional allowed edge labels.
-
-    Returns:
-        Tuple[List[dict], List[dict], dict]:
-            - List of extracted node type objects
-            - List of raw edge definition objects
-            - Mapping from canonical node name to its label set
+    Example:
+        ": Object | : Vehicle"      →  [["Object"], ["Vehicle"]]
+        ": Person & Actor"           →  [["Actor", "Person"]]
     """
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    content = clean_comments(content)
-    
-    node_types = []
-    node_label_map = {} 
-    edge_definitions = [] 
-
-    statements = content.split(';')
-
-    for stmt in statements:
-        stmt = stmt.strip()
-        if not stmt: continue
-
-        # --- NODE PARSING ---
-        if "CREATE NODE TYPE" in stmt.upper():
-            start = stmt.find('(')
-            end = stmt.rfind(')')
-            if start == -1 or end == -1: continue
-            
-            body = stmt[start+1 : end].strip()
-            
-            prop_str = ""
-            p_start = body.find('{')
-            p_end = body.rfind('}')
-            if p_start != -1 and p_end != -1:
-                prop_str = body[p_start+1 : p_end]
-                def_str = body[:p_start].strip()
-            else:
-                def_str = body.strip()
-
-            if ':' in def_str:
-                parts = def_str.split(':', 1)
-                type_name = parts[0].strip()
-                label_part = parts[1].strip()
-                
-                label_part = label_part.replace('(', '').replace(')', '')
-                labels = [l.strip() for l in label_part.split('&') if l.strip()]
-                
-                clean_name = derive_node_name(type_name, labels, valid_node_labels)
-
-                node_types.append({
-                    "name": clean_name,
-                    "type_name": type_name,
-                    "labels": sorted(labels),
-                    "properties": parse_props_block(prop_str)
-                })
-                
-                node_label_map[clean_name] = set(labels)
-
-        # --- EDGE PARSING ---
-        elif "CREATE EDGE TYPE" in stmt.upper():
-            try:
-                arrow_match = re.search(r'-\s*\[(.*?)\]\s*->', stmt, re.DOTALL)
-                if not arrow_match:
-                    continue
-
-                definition = arrow_match.group(1).strip()
-
-                e_props = []
-                if '{' in definition:
-                    p_start = definition.find('{')
-                    p_end = definition.rfind('}')
-                    e_props = parse_props_block(definition[p_start+1 : p_end])
-                    definition = definition[:p_start].strip()
-
-                # NEW: extract one or more names robustly
-                e_names = parse_edge_names(definition, valid_edge_labels=valid_edge_labels)
-
-                if not e_names:
-                    e_names = ["UNKNOWN"]
-
-                arrow_start = arrow_match.start()
-                arrow_end = arrow_match.end()
-
-                src_block = stmt[:arrow_start].split('(', 1)[1].strip()
-                tgt_block = stmt[arrow_end:].strip()
-                if tgt_block.endswith(')'):
-                    tgt_block = tgt_block[:-1]
-                if tgt_block.startswith('('):
-                    tgt_block = tgt_block[1:]
-
-                # IMPORTANT: create one edge definition per name (handles KNOWS|LIKES)
-                for e_name in e_names:
-                    edge_definitions.append({
-                        "name": e_name,
-                        "properties": e_props,
-                        "raw_source": src_block,
-                        "raw_target": tgt_block
-                    })
-            except:
-                continue
+    alternatives: List[List[str]] = []
+    for alt in block.split("|"):
+        alt = alt.strip().replace("(", "").replace(")", "")
+        # strip leading ':'
+        alt = re.sub(r"^\s*:\s*", "", alt)
+        labels = sorted(l.strip() for l in alt.split("&") if l.strip())
+        if labels:
+            alternatives.append(labels)
+    return alternatives
 
 
-    return node_types, edge_definitions, node_label_map
-
-# ==========================================
-# 4. TOPOLOGY RESOLUTION
-# ==========================================
-
-def resolve_node_type(label_expression, node_label_map):
+def _parse_edge_stmt(stmt: str) -> List[dict]:
     """
-    Resolve a label expression to a canonical node type name.
+    Parse a CREATE EDGE TYPE statement.
 
-    This function maps a label expression (possibly containing multiple
-    required labels joined with '&') to the best matching node type
-    whose label set satisfies the required labels. Preference is given
-    to the most specific match (largest overlap).
-
-    Args:
-        label_expression (str): Label constraint expression from PG-Schema.
-        node_label_map (dict): Mapping from node name to label set.
-
-    Returns:
-        Optional[str]: Resolved node type name, or None if unresolved.
+    Returns a list of edge-type dicts (one per source×target combination
+    when '|' alternatives appear on either side).
     """
-    clean_expr = label_expression.replace('(', '').replace(')', '')
-    if ':' in clean_expr: clean_expr = clean_expr.split(':', 1)[1]
-    
-    required_labels = set([l.strip() for l in clean_expr.split('&') if l.strip()])
-    
-    best_match = None
-    best_overlap = 0
+    # find the arrow pattern:  -[...]->
+    arrow = re.search(r"-\s*\[(.*?)\]\s*->", stmt, re.DOTALL)
+    if not arrow:
+        return []
 
-    for node_name, node_labels in node_label_map.items():
-        if required_labels.issubset(node_labels):
-            if len(required_labels) > best_overlap:
-                best_match = node_name
-                best_overlap = len(required_labels)
-    
-    return best_match
+    definition = arrow.group(1).strip()
 
-def build_edge_map(edge_definitions, node_label_map):
-    """
-    Construct edge type objects with resolved topology constraints.
+    # extract edge properties if present inside the bracket
+    edge_props: List[dict] = []
+    if "{" in definition:
+        p_start = definition.find("{")
+        p_end = definition.rfind("}")
+        if p_end > p_start:
+            edge_props = _parse_props(definition[p_start + 1 : p_end])
+        definition = definition[:p_start].strip()
 
-    This function aggregates raw edge definitions by edge name, resolves
-    source/target label expressions into canonical node type names, and
-    builds a normalized topology representation using allowed sources and
-    allowed targets.
+    # edge name: strip optional variable and leading ':'
+    edge_name = definition.strip()
+    if ":" in edge_name:
+        edge_name = edge_name.split(":")[-1].strip()
+    edge_name = re.sub(r"[^A-Za-z0-9_]", "", edge_name).strip()
+    if not edge_name:
+        return []
 
-    Args:
-        edge_definitions (List[dict]): Raw edge definitions extracted from the .pgs.
-        node_label_map (dict): Mapping from node name to label set.
+    # source block: everything before the arrow, inside the first ( )
+    src_block = stmt[: arrow.start()]
+    # find the outermost parenthesised section
+    src_p = src_block.find("(")
+    if src_p >= 0:
+        src_block = src_block[src_p + 1 :]
+    src_block = src_block.rstrip(")").strip()
 
-    Returns:
-        List[dict]: Normalized edge type objects including topology constraints.
-    """
-    edge_map = {}
+    # target block: everything after the arrow
+    tgt_block = stmt[arrow.end() :].strip().rstrip(";").strip()
+    if tgt_block.startswith("("):
+        tgt_block = tgt_block[1:]
+    tgt_block = tgt_block.rstrip(")").strip()
 
-    for e_def in edge_definitions:
-        name = e_def["name"]
-        if name not in edge_map:
-            edge_map[name] = {
-                "name": name,
-                "properties": e_def["properties"],
-                "topology": []
-            }
+    src_alternatives = _parse_label_alternatives(src_block)
+    tgt_alternatives = _parse_label_alternatives(tgt_block)
 
-        sources = set()
-        for opt in e_def["raw_source"].split('|'):
-            resolved = resolve_node_type(opt, node_label_map)
-            if resolved: sources.add(resolved)
-        
-        targets = set()
-        for opt in e_def["raw_target"].split('|'):
-            resolved = resolve_node_type(opt, node_label_map)
-            if resolved: targets.add(resolved)
-            
-        if sources and targets:
-            edge_map[name]["topology"].append({
-                "allowed_sources": sorted(list(sources)),
-                "allowed_targets": sorted(list(targets))
+    # produce one edge entry per source × target combination
+    edges: List[dict] = []
+    for src_labels in src_alternatives:
+        for tgt_labels in tgt_alternatives:
+            edges.append({
+                "name": edge_name,
+                "source_labels": src_labels,
+                "target_labels": tgt_labels,
+                "is_canonical": True,
+                "cardinality": None,     # .pgs doesn't declare cardinality
+                "properties": edge_props,
             })
 
-    for e_name, e_data in edge_map.items():
-        all_s = set()
-        all_t = set()
-        for topo in e_data["topology"]:
-            all_s.update(topo["allowed_sources"])
-            all_t.update(topo["allowed_targets"])
-        
-        e_data["topology"] = [{
-            "allowed_sources": sorted(list(all_s)),
-            "allowed_targets": sorted(list(all_t))
-        }]
-        
-    return list(edge_map.values())
+    return edges
 
-def add_topology_from_csv(csv_path, edge_types):
+
+# ============================================================
+# Main extraction
+# ============================================================
+
+def extract_ground_truth(input_dir: str) -> dict:
     """
-    Augment edge topology constraints using a dataset-provided CSV file.
-
-    This function optionally enriches or fills missing topology information
-    for edge types using an edge_types-style CSV file containing allowed
-    sources and allowed targets. Existing non-empty topology constraints
-    are preserved.
+    Extract a ground-truth schema from a .pgs file in the given directory.
 
     Args:
-        csv_path (str): Path to the topology CSV file.
-        edge_types (List[dict]): Extracted edge types to be updated.
+        input_dir (str): Dataset directory containing a .pgs file.
 
     Returns:
-        None
-    """
-    if not os.path.exists(csv_path): return
-
-    edge_map = {e["name"]: e for e in edge_types}
-
-    with open(csv_path, 'r', encoding='utf-8-sig') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rel_type = row.get('relType', '').strip()
-            if rel_type not in edge_map: continue
-            
-            if edge_map[rel_type]["topology"] and edge_map[rel_type]["topology"][0]["allowed_sources"]: continue
-
-            sources = re.findall(r'([^,\[\]]+)', row.get('sources', ''))
-            targets = re.findall(r'([^,\[\]]+)', row.get('targets', ''))
-
-            if sources and targets:
-                edge_map[rel_type]["topology"] = [{
-                    "allowed_sources": [s.strip() for s in sources],
-                    "allowed_targets": [t.strip() for t in targets]
-                }]
-
-# ==========================================
-# 5. MAIN EXECUTION
-# ==========================================
-
-def extract_ground_truth(input_dir):
-    """
-    Extract a normalized ground-truth schema from a dataset directory.
-
-    This function locates the dataset .pgs schema file, optionally loads
-    validation lists, parses node and edge definitions, resolves edge
-    topology constraints, and returns a normalized schema dictionary.
-
-    Args:
-        input_dir (str): Path to the dataset directory containing .pgs and
-            optional validation/topology CSV files.
-
-    Returns:
-        dict: Extracted ground-truth schema in normalized JSON format.
+        dict: Schema in the format expected by compare.py.
 
     Raises:
-        FileNotFoundError: If no .pgs file exists in the input directory.
+        FileNotFoundError: If no .pgs file is found.
     """
     pgs_files = glob.glob(os.path.join(input_dir, "*.pgs"))
-    csv_topology = glob.glob(os.path.join(input_dir, "*edge_types.csv"))
-
     if not pgs_files:
         raise FileNotFoundError(f"No .pgs file found in {input_dir}")
 
-    # Load validation lists (node_labels.csv + edge_labels.csv)
-    valid_data = load_validation_lists(input_dir)
-    valid_node_labels = valid_data.get("node_labels")
-    valid_edge_labels = valid_data.get("edge_labels")
+    with open(pgs_files[0], "r", encoding="utf-8") as f:
+        content = f.read()
 
-    # IMPORTANT: parse_pgs_file must accept valid_edge_labels too
-    node_types, edge_defs, node_label_map = parse_pgs_file(
-        pgs_files[0],
-        valid_node_labels=valid_node_labels,
-        valid_edge_labels=valid_edge_labels
-    )
+    content = _strip_comments(content)
 
-    edge_types = build_edge_map(edge_defs, node_label_map)
+    node_types: List[dict] = []
+    edge_types: List[dict] = []
 
-    if csv_topology:
-        add_topology_from_csv(csv_topology[0], edge_types)
+    # split on semicolons
+    for stmt in content.split(";"):
+        stmt = stmt.strip()
+        if not stmt:
+            continue
+
+        upper = stmt.upper()
+
+        if "CREATE NODE TYPE" in upper:
+            nt = _parse_node_stmt(stmt)
+            if nt:
+                node_types.append(nt)
+
+        elif "CREATE EDGE TYPE" in upper:
+            edges = _parse_edge_stmt(stmt)
+            edge_types.extend(edges)
+
+        # CREATE GRAPH TYPE is ignored — purely declarative
 
     return {
         "dataset_name": os.path.basename(os.path.normpath(input_dir)),
         "node_types": node_types,
-        "edge_types": edge_types
+        "edge_types": edge_types,
     }
 
 
-def run_extract_gt(input_dir, output_file):
+def run_extract_gt(input_dir: str, output_file: str) -> str:
     """
-    Extract ground truth schema and write it to disk as JSON.
-
-    This function runs ground-truth extraction for a dataset directory,
-    ensures the output directory exists, and writes the normalized schema
-    to the specified JSON file.
+    Extract ground truth and write to a JSON file.
 
     Args:
-        input_dir (str): Path to the dataset directory.
-        output_file (str): Path to the output JSON file.
+        input_dir (str): Dataset directory.
+        output_file (str): Output JSON path.
 
     Returns:
-        str: Path to the written output file.
+        str: Path to the written file.
     """
     schema = extract_ground_truth(input_dir)
+
     parent_dir = os.path.dirname(output_file)
     if parent_dir:
         os.makedirs(parent_dir, exist_ok=True)
-        
+
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(schema, f, indent=4)
 

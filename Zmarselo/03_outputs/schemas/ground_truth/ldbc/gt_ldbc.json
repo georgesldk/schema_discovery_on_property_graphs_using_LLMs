@@ -3,268 +3,260 @@
     "node_types": [
         {
             "name": "Comment",
-            "type_name": "CommentType",
             "labels": [
                 "Comment"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "content",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "length",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Forum",
-            "type_name": "ForumType",
             "labels": [
                 "Forum"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "title",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Organisation",
-            "type_name": "OrganisationType",
             "labels": [
                 "Organisation"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Person",
-            "type_name": "PersonType",
             "labels": [
                 "Person"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "firstName",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "lastName",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "gender",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "birthday",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Place",
-            "type_name": "PlaceType",
             "labels": [
                 "Place"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "type",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "Post",
-            "type_name": "PostType",
             "labels": [
                 "Post"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "locationIP",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "browserUsed",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "content",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "length",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "language",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 },
                 {
                     "name": "imageFile",
-                    "type": "String",
-                    "mandatory": false
+                    "type": "STRING",
+                    "constraint": "OPTIONAL"
                 }
             ]
         },
         {
             "name": "Tag",
-            "type_name": "TagType",
             "labels": [
                 "Tag"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "TagClass",
-            "type_name": "TagClassType",
             "labels": [
                 "TagClass"
             ],
             "properties": [
                 {
                     "name": "id",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "name",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 },
                 {
                     "name": "url",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         }
@@ -272,247 +264,289 @@
     "edge_types": [
         {
             "name": "CONTAINER_OF",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Forum"
-                    ],
-                    "allowed_targets": [
-                        "Post"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "HAS_CREATOR",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Comment",
-                        "Post"
-                    ],
-                    "allowed_targets": [
-                        "Person"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "HAS_CREATOR",
+            "source_labels": [
+                "Comment"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "HAS_INTEREST",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Person"
-                    ],
-                    "allowed_targets": [
-                        "Tag"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "HAS_MEMBER",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "joinDate",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Forum"
-                    ],
-                    "allowed_targets": [
-                        "Person"
-                    ]
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "HAS_MODERATOR",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Forum"
-                    ],
-                    "allowed_targets": [
-                        "Person"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "HAS_TAG",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Forum",
-                        "Post"
-                    ],
-                    "allowed_targets": [
-                        "Tag"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "HAS_TAG",
+            "source_labels": [
+                "Forum"
+            ],
+            "target_labels": [
+                "Tag"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "HAS_TYPE",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Tag"
-                    ],
-                    "allowed_targets": [
-                        "TagClass"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Tag"
+            ],
+            "target_labels": [
+                "TagClass"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "IS_LOCATED_IN",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Organisation",
-                        "Person",
-                        "Post"
-                    ],
-                    "allowed_targets": [
-                        "Place"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Organisation"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "source_labels": [
+                "Post"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "IS_LOCATED_IN",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "IS_PART_OF",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Place"
-                    ],
-                    "allowed_targets": [
-                        "Place"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Place"
+            ],
+            "target_labels": [
+                "Place"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "IS_SUBCLASS_OF",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "TagClass"
-                    ],
-                    "allowed_targets": [
-                        "TagClass"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "TagClass"
+            ],
+            "target_labels": [
+                "TagClass"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "KNOWS",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Person"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Person"
-                    ],
-                    "allowed_targets": [
-                        "Person"
-                    ]
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "LIKES",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Comment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "creationDate",
-                    "type": "String",
-                    "mandatory": true
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
+            ]
+        },
+        {
+            "name": "LIKES",
+            "source_labels": [
+                "Person"
             ],
-            "topology": [
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": [
                 {
-                    "allowed_sources": [
-                        "Person"
-                    ],
-                    "allowed_targets": [
-                        "Comment",
-                        "Post"
-                    ]
+                    "name": "creationDate",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "REPLY_OF",
-            "properties": [],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Comment"
-                    ],
-                    "allowed_targets": [
-                        "Comment",
-                        "Post"
-                    ]
-                }
-            ]
+            "source_labels": [
+                "Comment"
+            ],
+            "target_labels": [
+                "Post"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
+        },
+        {
+            "name": "REPLY_OF",
+            "source_labels": [
+                "Comment"
+            ],
+            "target_labels": [
+                "Comment"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
+            "properties": []
         },
         {
             "name": "STUDIES_AT",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Organisation"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "classYear",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Person"
-                    ],
-                    "allowed_targets": [
-                        "Organisation"
-                    ]
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         },
         {
             "name": "WORKS_AT",
+            "source_labels": [
+                "Person"
+            ],
+            "target_labels": [
+                "Organisation"
+            ],
+            "is_canonical": true,
+            "cardinality": null,
             "properties": [
                 {
                     "name": "workFrom",
-                    "type": "String",
-                    "mandatory": true
-                }
-            ],
-            "topology": [
-                {
-                    "allowed_sources": [
-                        "Person"
-                    ],
-                    "allowed_targets": [
-                        "Organisation"
-                    ]
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
                 }
             ]
         }

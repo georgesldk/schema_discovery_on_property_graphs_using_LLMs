@@ -1,509 +1,683 @@
+"""
+Schema comparison aligned with PG-HIVE (EDBT 2026) evaluation.
+
+Supports both:
+  * the new mined-pattern format produced by mine_patterns() and the LLM,
+  * the legacy ground-truth format that uses
+       - "type"        instead of "data_type"
+       - "mandatory"   instead of "constraint"
+       - "topology": [{"allowed_sources": [...], "allowed_targets": [...]}]
+         instead of per-edge "source_labels"/"target_labels"
+       - Neo4j Java types ("Long", "Double", "String", "Point", "StringArray")
+         instead of generic ones (INTEGER / DOUBLE / STRING / LIST).
+
+Metrics
+-------
+Node level:
+  - Node Type   P / R / F1   — exact label-set match.
+  - Node Pattern P / R / F1  — (L, K) match per Def. 3.5.
+  - Node Property Constraint Accuracy  (MANDATORY / OPTIONAL).
+  - Node Property Data-Type Accuracy.
+
+Edge level:
+  - Edge Type   P / R / F1   — (rel, src_labels, tgt_labels) match.
+  - Edge Pattern P / R / F1  — (rel, src_labels, tgt_labels, K) per Def. 3.6.
+  - Edge Property Constraint Accuracy.
+  - Edge Property Data-Type Accuracy.
+  - Cardinality Accuracy.
+
+Macro F1 = mean of the four pattern-level F1s.
+"""
 from __future__ import annotations
 
 import json
 import os
 import re
-from dataclasses import dataclass
-from collections import Counter
-from difflib import SequenceMatcher
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from dataclasses import dataclass, field
+from itertools import product
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple
 
 
 # ============================================================
-# Config
+# Type aliases
 # ============================================================
 
-RESERVED_PROP_PREFIXES = (":",) # any property starting with : is treated technical/import metadata.
-RESERVED_PROP_NAMES = {"id", "label", "labels", "type"}
-DEFAULT_SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2" # embedding model used for semantic edge matching. 
-
-
-# ============================================================
-# Helpers
-# ============================================================
-
-# Load JSON with UTF-8-SIG encoding to handle potential BOM issues, and provide clear error messages if loading fails.
-def load_json(path: str) -> dict: 
-    try:
-        with open(path, "r", encoding="utf-8-sig") as f:
-            return json.load(f)
-    except Exception as e:
-        raise RuntimeError(f"Error loading {path}: {e}") from e
-
-# normalize the property names before comparison (e.g. "Name", " name ", "`name`" should all be treated as the same property "name")
-def normalize_prop_name(name: str) -> str:
-    if not name: return ""
-    return name.strip().lower().replace("`", "")
-
-# decides whether a property should beignored during evaluation  (like id label etc)
-def is_reserved_prop(name: str) -> bool:
-    if not name: return True
-    raw = name.strip()
-    if raw.startswith(RESERVED_PROP_PREFIXES): return True
-    n = normalize_prop_name(raw)
-    if n in RESERVED_PROP_NAMES: return True
-    if re.match(r"^id\s*\(.*\)$", n) or re.match(r"^label\s*\(.*\)$", n): return True
-    return False
-
-# normalize datatype names before comparing gt vs inferred. 
-def norm_data_type(t: str) -> str:
-    if not t: return "STRING"
-    t = t.upper()
-    if t in ("LONG", "INT", "INTEGER"): return "INTEGER"
-    if t in ("DOUBLE", "FLOAT", "NUMBER"): return "DOUBLE"
-    if t in ("BOOLEAN", "BOOL"): return "BOOLEAN"
-    if "DATE" in t or "TIME" in t: return "DATE"
-    if "ARRAY" in t or "LIST" in t: return "LIST"
-    if t == "POINT": return "POINT"
-    return "STRING"
-
-# precision = matches / pred_total
-# recall = matches / gt_total
-# F1 = 2 * (precision * recall) / (precision + recall)
-# PG-hive's evaluation, uses comparing discovered schema elements against expected ones. 
-def calculate_f1(matches: int, pred_total: int, gt_total: int) -> Tuple[float, float, float]:
-    precision = (matches / pred_total) if pred_total > 0 else 0.0 
-    recall = (matches / gt_total) if gt_total > 0 else 0.0
-    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-    return precision, recall, f1
-
-# CO-OCCURENCE
-def build_gt_edge_cooccurrence(gt_edges: List[dict]) -> Counter:
-    """
-    Build edge-label co-occurrence counts from GT topology definitions.
-
-    Key shape:
-      (edge_name, source_node_name, target_node_name)
-    """
-    co = Counter()
-    for e in gt_edges:
-        ename = e.get("name") or e.get("type") or ""
-        for topo in e.get("topology", []) or []:
-            for s in topo.get("allowed_sources", []) or []:
-                for t in topo.get("allowed_targets", []) or []:
-                    co[(ename, s, t)] += 1
-    return co
-
-
-def build_inf_edge_cooccurrence(inf_edges: List[dict], node_map_inf_to_gt: Dict[str, str], edge_label_map: Dict[str, str]) -> Counter:
-    """
-    Build inferred edge-label co-occurrence counts mapped into GT node/edge space.
-
-    Key shape:
-      (mapped_edge_name, mapped_source_node_name, mapped_target_node_name)
-    """
-    co = Counter()
-    for e in inf_edges:
-        inf_ename = e.get("name") or ""
-        mapped_ename = edge_label_map.get(inf_ename, inf_ename)
-
-        s_inf = e.get("start_node") or e.get("source")
-        t_inf = e.get("end_node") or e.get("target")
-        s_gt = node_map_inf_to_gt.get(s_inf)
-        t_gt = node_map_inf_to_gt.get(t_inf)
-        if not s_gt or not t_gt:
-            continue
-        co[(mapped_ename, s_gt, t_gt)] += 1
-    return co
-
-
-def _infer_mandatory_bool(prop: dict) -> bool:
-    """
-    Read mandatory/optional from the required schema format.
-
-    Required:
-      - mandatory: true|false
-    """
-    return bool(prop.get("mandatory", False))
-
-
-def _mandatory_label(prop: dict) -> str:
-    return "MANDATORY" if _infer_mandatory_bool(prop) else "OPTIONAL"
-
-# normalize labels/edge names for string comparison
-def _norm_label(s: str) -> str:
-    if not s: return ""
-    s = s.strip().lower().replace("_", " ").replace("-", " ").replace(".", " ")
-    return re.sub(r"\s+", " ", s)
-
-# similarity of strings (like WORKS_AT, 'works at')
-def similar_string(a: str, b: str) -> float:
-    if not a or not b: return 0.0
-    return SequenceMatcher(None, _norm_label(a), _norm_label(b)).ratio()
+LabelKey = FrozenSet[str]
+PropKey = FrozenSet[str]
+NodePatternKey = Tuple[LabelKey, PropKey]
+EdgeTypeKey = Tuple[str, LabelKey, LabelKey]
+EdgePatternKey = Tuple[str, LabelKey, LabelKey, PropKey]
 
 
 # ============================================================
-# Semantic Edge Matcher
+# Property type normalisation  (Java → generic)
 # ============================================================
 
-# This class is used when simple string similarity is not enough.
-#  Example:
-# GT edge: WORKS_AT
-# Inferred edge: EMPLOYED_BY
-# String similarity may be low, but semantically they are related.
-class SemanticEdgeMatcher:
-    
-    
-    def __init__(self, model_name: str = DEFAULT_SEMANTIC_MODEL_NAME):
-        self.model_name = model_name
-        self._model = None
-        self._util = None
-        self._cache: Dict[str, Any] = {}
+_TYPE_ALIASES = {
+    "LONG":        "INTEGER",
+    "INT":         "INTEGER",
+    "INTEGER":     "INTEGER",
+    "DOUBLE":      "DOUBLE",
+    "FLOAT":       "DOUBLE",
+    "STRING":      "STRING",
+    "BOOLEAN":     "BOOLEAN",
+    "BOOL":        "BOOLEAN",
+    "DATE":        "DATE",
+    "DATETIME":    "DATE",
+    "POINT":       "STRING",      # spatial → STRING for cross-format matching
+    "STRINGARRAY": "LIST",
+    "LIST":        "LIST",
+    "ARRAY":       "LIST",
+}
 
-    def _load(self):
-        if self._model is None:
-            os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-            from sentence_transformers import SentenceTransformer, util # type: ignore
-            self._util = util
-            self._model = SentenceTransformer(self.model_name) # all-MiniLM-L6-v2
 
-    @staticmethod
-    def _clean(label: str) -> str: # prepare for semantic comparison
-        return (label or "").replace("_", " ").replace(".", " ").lower().strip()
-
-    # cache to avoid recompuitng embeddings for the same label 
-    def _embed(self, text: str):
-        if text not in self._cache:
-            self._cache[text] = self._model.encode(text, convert_to_tensor=True)
-        return self._cache[text]
-
-    # Finds the best semantic match for one GT edge name among inferred edge candidates.
-    def find_match(self, target: str, candidates: Sequence[str], threshold: float = 0.75, margin: float = 0.05) -> Optional[str]:
-        if not candidates: return None
-        self._load()
-        import torch # type: ignore
-
-        target_clean = self._clean(target)
-        cand_clean = [self._clean(c) for c in candidates]
-
-        target_emb = self._embed(target_clean)
-        cand_embs = torch.stack([self._embed(c) for c in cand_clean], dim=0)
-
-        scores = self._util.cos_sim(target_emb, cand_embs)[0] # cosine similarity scores between target and candidates
-        best_idx = int(scores.argmax())
-        best_score = float(scores[best_idx])
-        best_match = candidates[best_idx]
-
-        topk = scores.topk(k=min(2, scores.numel())).values
-        second = float(topk[1]) if topk.numel() > 1 else -1.0
-
-        if best_score >= threshold and (best_score - second) >= margin:
-            return best_match
+def _norm_type(t: Optional[str]) -> Optional[str]:
+    if not t:
         return None
+    t2 = str(t).strip().upper()
+    return _TYPE_ALIASES.get(t2, t2)
 
 
 # ============================================================
-# Config & Data Classes
+# Property descriptor extraction (legacy + new)
+# ============================================================
+
+def _lk(labels) -> LabelKey:
+    return frozenset(str(l) for l in (labels or []))
+
+
+def _pk(props) -> PropKey:
+    if isinstance(props, dict):
+        return frozenset(k for k in props if k)
+    return frozenset(
+        p["name"] for p in (props or [])
+        if isinstance(p, dict) and p.get("name")
+    )
+
+
+def _prop_info(props, key: str) -> dict:
+    """
+    Return a normalised property descriptor for *key*.
+
+    Output keys: data_type (UPPER, generic), constraint (MANDATORY/OPTIONAL).
+    Handles both list-of-dicts and dict-of-dicts, both legacy and new fields.
+    """
+    if isinstance(props, dict):
+        info = props.get(key, {}) or {}
+        if not isinstance(info, dict):
+            return {}
+        out = dict(info)
+    else:
+        out = {}
+        for p in (props or []):
+            if isinstance(p, dict) and p.get("name") == key:
+                out = dict(p)
+                break
+        if not out:
+            return {}
+
+    # constraint
+    c = out.get("constraint")
+    if c:
+        out["constraint"] = c.upper()
+    elif "mandatory" in out:
+        out["constraint"] = "MANDATORY" if out["mandatory"] else "OPTIONAL"
+
+    # data type
+    raw_t = out.get("data_type") or out.get("type")
+    nt = _norm_type(raw_t)
+    if nt:
+        out["data_type"] = nt
+
+    return out
+
+
+# ============================================================
+# Cardinality normalisation
+# ============================================================
+
+_CARD_NEW = re.compile(
+    r"\s*([01])\.\.([1N])\s*:\s*([01])\.\.([1N])\s*"
+)
+
+
+def _normalize_cardinality(s: Optional[str]) -> Optional[str]:
+    """Return canonical "X..Y:A..B" or None."""
+    if not s:
+        return None
+    s2 = s.strip()
+    m = _CARD_NEW.fullmatch(s2)
+    if m:
+        return f"{m.group(1)}..{m.group(2)}:{m.group(3)}..{m.group(4)}"
+    m = re.fullmatch(r"\s*([1MN])\s*:\s*([1MN])\s*", s2, re.IGNORECASE)
+    if m:
+        side = lambda c: "1..1" if c == "1" else "1..N"
+        return f"{side(m.group(1).upper())}:{side(m.group(2).upper())}"
+    return None
+
+
+# ============================================================
+# Schema normalisation
+# ============================================================
+
+@dataclass
+class NormNodeType:
+    label_key: LabelKey
+    prop_key: PropKey
+    props_raw: object
+    patterns: List[PropKey] = field(default_factory=list)
+
+
+@dataclass
+class NormEdgeType:
+    edge_key: EdgeTypeKey
+    prop_key: PropKey
+    props_raw: object
+    cardinality: Optional[str]
+    is_canonical: bool = True
+    patterns: List[PropKey] = field(default_factory=list)
+
+
+def _node_label_key_for_name(
+    name: str,
+    node_map: Dict[LabelKey, NormNodeType],
+) -> LabelKey:
+    """
+    Resolve a node-type *name* (e.g. "Neuron") to its label key.
+
+    The legacy GT topology refers to nodes by their declared "name", which
+    is one of the labels.  We find the label-key whose label set contains
+    this name.
+    """
+    for lk in node_map:
+        if name in lk:
+            return lk
+    return frozenset([name]) if name else frozenset()
+
+
+def _normalise_schema(schema: dict) -> Tuple[
+    Dict[LabelKey, NormNodeType],
+    Dict[EdgeTypeKey, NormEdgeType],
+]:
+    node_map: Dict[LabelKey, NormNodeType] = {}
+    edge_map: Dict[EdgeTypeKey, NormEdgeType] = {}
+
+    # ---- nodes ----
+    for nt in schema.get("node_types", []):
+        labels = nt.get("labels") or ([nt["name"]] if nt.get("name") else [])
+        lk = _lk(labels)
+        props_raw = nt.get("properties", {})
+        pk = _pk(props_raw)
+
+        sub_patterns: List[PropKey] = []
+        for pat in nt.get("patterns", []):
+            if isinstance(pat, dict):
+                sub_patterns.append(frozenset(pat.get("property_keys", [])))
+        if not sub_patterns:
+            sub_patterns = [pk]
+
+        node_map[lk] = NormNodeType(
+            label_key=lk, prop_key=pk,
+            props_raw=props_raw, patterns=sub_patterns,
+        )
+
+    # ---- edges ----
+    # NEW format: edge_types is a list of {name, source_labels, target_labels, ...}
+    # LEGACY format: edge_types is a list of
+    #   {name, properties, topology:[{allowed_sources, allowed_targets}]}
+    for et in schema.get("edge_types", []):
+        rel = et.get("name") or (et.get("labels") or [""])[0]
+        if not rel:
+            continue                          # never accept unlabeled edges
+
+        props_raw = et.get("properties", {})
+        pk = _pk(props_raw)
+
+        sub_patterns: List[PropKey] = []
+        for pat in et.get("patterns", []):
+            if isinstance(pat, dict):
+                sub_patterns.append(frozenset(pat.get("property_keys", [])))
+        if not sub_patterns:
+            sub_patterns = [pk]
+
+        cardinality = _normalize_cardinality(et.get("cardinality"))
+        is_canonical = bool(et.get("is_canonical", True))
+
+        # ---- legacy topology block: expand cross-product into edge entries
+        topology = et.get("topology")
+        if topology:
+            for topo in topology:
+                src_names = topo.get("allowed_sources", []) or []
+                tgt_names = topo.get("allowed_targets", []) or []
+                for s_name, t_name in product(src_names, tgt_names):
+                    src_lk = _node_label_key_for_name(s_name, node_map)
+                    tgt_lk = _node_label_key_for_name(t_name, node_map)
+                    ek: EdgeTypeKey = (rel, src_lk, tgt_lk)
+                    edge_map[ek] = NormEdgeType(
+                        edge_key=ek,
+                        prop_key=pk,
+                        props_raw=props_raw,
+                        cardinality=cardinality,
+                        is_canonical=is_canonical,
+                        patterns=sub_patterns,
+                    )
+            continue
+
+        # ---- new format
+        if et.get("source_labels") is not None or et.get("target_labels") is not None:
+            src_lk = _lk(et.get("source_labels", []))
+            tgt_lk = _lk(et.get("target_labels", []))
+        else:
+            # fallback: legacy start_node/end_node strings
+            src_name = et.get("source") or et.get("start_node") or ""
+            tgt_name = et.get("target") or et.get("end_node") or ""
+            src_lk = _node_label_key_for_name(src_name, node_map)
+            tgt_lk = _node_label_key_for_name(tgt_name, node_map)
+
+        ek = (rel, src_lk, tgt_lk)
+        edge_map[ek] = NormEdgeType(
+            edge_key=ek,
+            prop_key=pk,
+            props_raw=props_raw,
+            cardinality=cardinality,
+            is_canonical=is_canonical,
+            patterns=sub_patterns,
+        )
+
+    return node_map, edge_map
+
+
+# ============================================================
+# Pattern-set helpers
+# ============================================================
+
+def _node_pattern_keys(m: Dict[LabelKey, NormNodeType]) -> Set[NodePatternKey]:
+    out: Set[NodePatternKey] = set()
+    for lk, nt in m.items():
+        for pk in nt.patterns:
+            out.add((lk, pk))
+    return out
+
+
+def _edge_pattern_keys(m: Dict[EdgeTypeKey, NormEdgeType]) -> Set[EdgePatternKey]:
+    out: Set[EdgePatternKey] = set()
+    for (rel, src, tgt), et in m.items():
+        for pk in et.patterns:
+            out.add((rel, src, tgt, pk))
+    return out
+
+
+def _prf(tp: int, n_pred: int, n_gt: int) -> Tuple[float, float, float]:
+    p = tp / n_pred if n_pred else 0.0
+    r = tp / n_gt if n_gt else 0.0
+    f = 2 * p * r / (p + r) if (p + r) else 0.0
+    return p, r, f
+
+
+# ============================================================
+# Configuration / Result
 # ============================================================
 
 @dataclass
 class CompareConfig:
     verbose: bool = True
-    node_jaccard_threshold: float = 0.50 # Minimum Jaccard similarity of node labels to consider a match
-    edge_string_threshold: float = 0.78 # Minimum edge similarity needed to map edge labels
-    use_semantic_edge_match: bool = True 
-    semantic_threshold: float = 0.75 # Minimum cosine similarity for semantic edge matching
-    semantic_margin: float = 0.05 # Minimum margin between best and second-best match for semantic edge matching
+    list_limit: int = 20
+    canonical_only: bool = True
+
+
+@dataclass
+class CompareResult:
+    node_type_precision: float
+    node_type_recall: float
+    node_type_f1: float
+    node_pattern_precision: float
+    node_pattern_recall: float
+    node_pattern_f1: float
+    node_constraint_accuracy: float
+    node_data_type_accuracy: float
+
+    edge_type_precision: float
+    edge_type_recall: float
+    edge_type_f1: float
+    edge_pattern_precision: float
+    edge_pattern_recall: float
+    edge_pattern_f1: float
+    edge_constraint_accuracy: float
+    edge_data_type_accuracy: float
+    cardinality_accuracy: float
+
+    macro_f1: float
 
 
 # ============================================================
-# Core logic
+# Print helpers
 # ============================================================
 
-# GT schema
-# vs
-# inferred schema
-def run_compare(gt_file: str, inferred_file: str, config: Optional[CompareConfig] = None) -> Optional[dict]:
+def _h1(p, t):
+    p("\n" + "=" * 68); p(f"  {t}"); p("=" * 68)
+
+
+def _h2(p, t):
+    p("\n" + "-" * 68); p(f"  {t}"); p("-" * 68)
+
+
+def _kv(p, k, v):
+    p(f"  {k:<42s} {v}")
+
+
+def _block(p, title, rows: List[str], limit: int):
+    p(f"\n  [{title}]")
+    if not rows:
+        p("    (none)")
+        return
+    for r in rows[:limit]:
+        p(f"    • {r}")
+    if len(rows) > limit:
+        p(f"    … +{len(rows) - limit} more")
+
+
+def _pct(f: float) -> str:
+    return f"{f * 100:.2f}%"
+
+
+def _fmt_lk(lk: LabelKey) -> str:
+    return "{" + ", ".join(sorted(lk)) + "}" if lk else "{}"
+
+
+def _fmt_npk(npk: NodePatternKey) -> str:
+    lk, pk = npk
+    return f"{_fmt_lk(lk)}  K={{{', '.join(sorted(pk))}}}"
+
+
+def _fmt_ek(ek: EdgeTypeKey) -> str:
+    rel, src, tgt = ek
+    return f"({_fmt_lk(src)})-[:{rel}]->({_fmt_lk(tgt)})"
+
+
+def _fmt_epk(epk: EdgePatternKey) -> str:
+    rel, src, tgt, pk = epk
+    return (
+        f"({_fmt_lk(src)})-[:{rel}]->({_fmt_lk(tgt)})"
+        f"  K={{{', '.join(sorted(pk))}}}"
+    )
+
+
+# ============================================================
+# Main comparison
+# ============================================================
+
+def run_compare(
+    gt_file: str,
+    inferred_file: str,
+    config: Optional[CompareConfig] = None,
+) -> Optional[CompareResult]:
+    """
+    Compare an inferred schema against a ground-truth schema at the
+    pattern level per PG-HIVE Definitions 3.5 and 3.6.
+
+    Both legacy GT format (topology blocks, "Long"/"Double" types,
+    "mandatory" booleans) and new mined-pattern format are supported.
+    """
     cfg = config or CompareConfig()
-    
-    if not cfg.verbose:
-        p = lambda *a, **k: None
-    else:
-        p = print
+    p = print if cfg.verbose else (lambda *a, **k: None)
 
-    if not os.path.exists(gt_file) or not os.path.exists(inferred_file):
-        p("Error: Missing input files.")
-        return None
+    _h1(p, "PG-HIVE PATTERN-LEVEL SCHEMA COMPARISON")
 
-    gt = load_json(gt_file)
-    inf = load_json(inferred_file)
+    for path in (gt_file, inferred_file):
+        if not os.path.exists(path):
+            p(f"  [ERROR] File not found: {path}")
+            return None
 
-    p(f"\n========================================================")
-    p(f"                 DEEP SCHEMA EVALUATION                 ")
-    p(f"========================================================")
-    p(f" GT:  {os.path.basename(gt_file)}")
-    p(f" INF: {os.path.basename(inferred_file)}\n")
+    with open(gt_file, encoding="utf-8-sig") as f:
+        gt_raw = json.load(f)
+    with open(inferred_file, encoding="utf-8-sig") as f:
+        inf_raw = json.load(f)
 
-    # ---- 1. NODE MATCHING ----
-    gt_nodes = {n.get("name") or (n.get("labels") or [""])[0]: n for n in gt.get("node_types", [])}
-    inf_nodes = {n.get("name") or (n.get("labels") or [""])[0]: n for n in inf.get("node_types", [])}
+    if "node_types" not in gt_raw and "_mined_patterns" in gt_raw:
+        gt_raw = gt_raw["_mined_patterns"]
 
-    node_map_inf_to_gt = {}
-    matched_gt_nodes = set()
+    _kv(p, "Ground truth:", os.path.basename(gt_file))
+    _kv(p, "Inferred:",      os.path.basename(inferred_file))
 
-    for inf_name, inf_n in inf_nodes.items():
-        inf_labels = set(inf_n.get("labels", []))
-        best_gt = None
-        best_score = 0.0
+    gt_nodes,  gt_edges  = _normalise_schema(gt_raw)
+    inf_nodes, inf_edges = _normalise_schema(inf_raw)
 
-        for gt_name, gt_n in gt_nodes.items():
-            if gt_name in matched_gt_nodes: continue
-            gt_labels = set(gt_n.get("labels", []))
-            score = len(inf_labels & gt_labels) / len(inf_labels | gt_labels) if (inf_labels or gt_labels) else 1.0
-            
-            if score > best_score:
-                best_score = score
-                best_gt = gt_name
-        
-        if best_score >= cfg.node_jaccard_threshold and best_gt:
-            node_map_inf_to_gt[inf_name] = best_gt
-            matched_gt_nodes.add(best_gt)
+    if cfg.canonical_only:
+        gt_edges  = {k: v for k, v in gt_edges.items()  if v.is_canonical}
+        inf_edges = {k: v for k, v in inf_edges.items() if v.is_canonical}
+        _kv(p, "Mode:", "canonical edges only")
 
-    n_prec, n_rec, n_f1 = calculate_f1(len(node_map_inf_to_gt), len(inf_nodes), len(gt_nodes))
+    # ====================================================
+    # 1. NODE TYPES
+    # ====================================================
+    _h2(p, "1.  NODE TYPES  (label-set exact match)")
+    gt_node_lks  = set(gt_nodes)
+    inf_node_lks = set(inf_nodes)
+    matched_nodes = gt_node_lks & inf_node_lks
+    only_gt  = gt_node_lks  - inf_node_lks
+    only_inf = inf_node_lks - gt_node_lks
 
-    p(f"--- 1. EXHAUSTIVE NODE & LABEL LIST ---")
-    p("  GROUND TRUTH NODES (Expected):")
-    for gt_name in sorted(gt_nodes.keys()):
-        if gt_name in matched_gt_nodes:
-            inf_mapped = [k for k, v in node_map_inf_to_gt.items() if v == gt_name][0]
-            p(f"    [✓] Node: {gt_name} (Found as '{inf_mapped}')")
-            
-            # --- LABEL COMPARISON FOR MATCHED NODES ---
-            gt_labels = set(gt_nodes[gt_name].get("labels", []))
-            inf_labels = set(inf_nodes[inf_mapped].get("labels", []))
-            
-            if gt_labels or inf_labels:
-                p(f"        Labels:")
-                for l in sorted(gt_labels & inf_labels):
-                    p(f"          [✓] {l}")
-                for l in sorted(gt_labels - inf_labels):
-                    p(f"          [X] {l} (MISSING IN INF)")
-                for l in sorted(inf_labels - gt_labels):
-                    p(f"          [+] {l} (EXTRA IN INF)")
-        else:
-            p(f"    [X] Node: {gt_name} (MISSING)")
-            gt_labels = set(gt_nodes[gt_name].get("labels", []))
-            if gt_labels:
-                p(f"        Expected Labels: {', '.join(sorted(gt_labels))}")
+    nt_p, nt_r, nt_f1 = _prf(len(matched_nodes), len(inf_node_lks), len(gt_node_lks))
 
-    unmatched_inf = [n for n in inf_nodes if n not in node_map_inf_to_gt]
-    if unmatched_inf:
-        p("\n  EXTRA / HALLUCINATED NODES:")
-        for inf_name in sorted(unmatched_inf):
-            p(f"    [+] Node: {inf_name}")
-            inf_labels = set(inf_nodes[inf_name].get("labels", []))
-            if inf_labels:
-                p(f"        Labels Found: {', '.join(sorted(inf_labels))}")
+    _kv(p, "GT node types:",       len(gt_node_lks))
+    _kv(p, "Inferred node types:", len(inf_node_lks))
+    _kv(p, "Matched:",             len(matched_nodes))
+    _kv(p, "Precision:", _pct(nt_p))
+    _kv(p, "Recall:",    _pct(nt_r))
+    _kv(p, "F1:",        _pct(nt_f1))
 
+    _block(p, "MATCHED",     [_fmt_lk(lk) for lk in sorted(matched_nodes)], cfg.list_limit)
+    _block(p, "ONLY IN GT",  [_fmt_lk(lk) for lk in sorted(only_gt)],       cfg.list_limit)
+    _block(p, "ONLY IN INF", [_fmt_lk(lk) for lk in sorted(only_inf)],      cfg.list_limit)
 
-    # ---- 2. EDGE MAPPING & TOPOLOGY ----
-    gt_edges = gt.get("edge_types", [])
-    inf_edges = inf.get("edge_types", [])
+    # ====================================================
+    # 2. NODE PATTERNS
+    # ====================================================
+    _h2(p, "2.  NODE PATTERNS  (L, K) per Def. 3.5")
 
-    gt_combos = set()
-    gt_edge_dict = {}
-    for e in gt_edges:
-        ename = e.get("name") or e.get("type")
-        gt_edge_dict[ename] = e
-        for t in e.get("topology", []):
-            for s in t.get("allowed_sources", []):
-                for tgt in t.get("allowed_targets", []):
-                    gt_combos.add((ename, s, tgt))
+    gt_np  = _node_pattern_keys(gt_nodes)
+    inf_np = _node_pattern_keys(inf_nodes)
 
-    gt_edge_names = list(set(c[0] for c in gt_combos))
-    inf_edge_names = list(set(e.get("name") for e in inf_edges if e.get("name")))
+    def _np_covered(gp: NodePatternKey) -> bool:
+        lk, pk = gp
+        n = inf_nodes.get(lk)
+        return n is not None and pk <= n.prop_key
 
-    edge_label_map = {}
-    for gt_name in gt_edge_names:
-        if gt_name in inf_edge_names:
-            edge_label_map[gt_name] = gt_name 
-            continue
-        best, best_score = None, 0.0
-        for cand in inf_edge_names:
-            score = similar_string(gt_name, cand)
-            if score > best_score:
-                best_score = score
-                best = cand
-        if best and best_score >= cfg.edge_string_threshold:
-            edge_label_map[best] = gt_name
+    def _np_valid(ip: NodePatternKey) -> bool:
+        lk, pk = ip
+        g = gt_nodes.get(lk)
+        return g is not None and pk <= g.prop_key
 
-    if cfg.use_semantic_edge_match:
-        matcher = SemanticEdgeMatcher() 
-        unmapped_gt = [g for g in gt_edge_names if g not in edge_label_map.values()]
-        for gt_name in unmapped_gt:
-            match = matcher.find_match(gt_name, inf_edge_names, threshold=cfg.semantic_threshold, margin=cfg.semantic_margin)
-            if match: edge_label_map[match] = gt_name
+    np_recall_n = sum(1 for g in gt_np  if _np_covered(g))
+    np_prec_n   = sum(1 for i in inf_np if _np_valid(i))
+    np_p, np_r, np_f1 = _prf(np_prec_n, len(inf_np), len(gt_np))
 
-    inf_combos_mapped = set()
-    inf_edges_by_combo = {}
+    _kv(p, "GT node patterns:",       len(gt_np))
+    _kv(p, "Inferred node patterns:", len(inf_np))
+    _kv(p, "GT covered by inferred:", np_recall_n)
+    _kv(p, "Inferred valid in GT:",   np_prec_n)
+    _kv(p, "Precision:", _pct(np_p))
+    _kv(p, "Recall:",    _pct(np_r))
+    _kv(p, "F1:",        _pct(np_f1))
 
-    for e in inf_edges:
-        inf_ename = e.get("name")
-        gt_ename = edge_label_map.get(inf_ename, inf_ename) 
-        s_inf = e.get("source") or e.get("start_node")
-        t_inf = e.get("target") or e.get("end_node")
-        
-        s_gt = node_map_inf_to_gt.get(s_inf)
-        t_gt = node_map_inf_to_gt.get(t_inf)
+    missed = [g for g in gt_np if not _np_covered(g)]
+    _block(p, "MISSED GT NODE PATTERNS", [_fmt_npk(g) for g in sorted(missed)], cfg.list_limit)
 
-        if s_gt and t_gt:
-            combo = (gt_ename, s_gt, t_gt)
-            inf_combos_mapped.add(combo)
-            inf_edges_by_combo[combo] = e
+    # ====================================================
+    # 3. NODE PROPERTY ACCURACY
+    # ====================================================
+    _h2(p, "3.  NODE PROPERTY ACCURACY  (constraint + data_type)")
 
-    valid_edges = inf_combos_mapped & gt_combos
-    invalid_edges = inf_combos_mapped - gt_combos
-    missing_edges = gt_combos - inf_combos_mapped
+    nc_correct = nc_total = 0
+    nd_correct = nd_total = 0
+    rows: List[str] = []
+    for lk in matched_nodes:
+        gt_nt = gt_nodes[lk]; inf_nt = inf_nodes[lk]
+        shared = gt_nt.prop_key & inf_nt.prop_key
+        c_ok = c_tot = d_ok = d_tot = 0
+        for key in shared:
+            gi = _prop_info(gt_nt.props_raw, key)
+            ii = _prop_info(inf_nt.props_raw, key)
+            if gi.get("constraint") and ii.get("constraint"):
+                c_tot += 1
+                if gi["constraint"] == ii["constraint"]:
+                    c_ok += 1
+            if gi.get("data_type") and ii.get("data_type"):
+                d_tot += 1
+                if gi["data_type"] == ii["data_type"]:
+                    d_ok += 1
+        nc_correct += c_ok; nc_total += c_tot
+        nd_correct += d_ok; nd_total += d_tot
+        if c_tot or d_tot:
+            rows.append(f"{_fmt_lk(lk)}  constraint={c_ok}/{c_tot}  type={d_ok}/{d_tot}")
 
-    p(f"\n--- 2. EXHAUSTIVE EDGE TOPOLOGY & LABEL LIST ---")
-    p("  GROUND TRUTH EDGES (Expected Allowed Combos):")
-    for combo in sorted(gt_combos):
-        if combo in valid_edges:
-            p(f"    [✓] Topology: {combo[0]} ({combo[1]} -> {combo[2]})")
-            
-            # --- LABEL COMPARISON FOR MATCHED EDGES ---
-            gt_e_data = gt_edge_dict.get(combo[0], {})
-            inf_e_data = inf_edges_by_combo.get(combo, {})
-            
-            gt_labels = set(gt_e_data.get("labels", [combo[0]]))
-            inf_labels = set(inf_e_data.get("labels", [inf_e_data.get("name")]))
-            
-            if gt_labels != {combo[0]} or inf_labels != {inf_e_data.get("name")}:
-                p(f"        Labels:")
-                for l in sorted(gt_labels & inf_labels):
-                    p(f"          [✓] {l}")
-                for l in sorted(gt_labels - inf_labels):
-                    p(f"          [X] {l} (MISSING IN INF)")
-                for l in sorted(inf_labels - gt_labels):
-                    p(f"          [+] {l} (EXTRA IN INF)")
-                    
-        else:
-            p(f"    [X] Topology: {combo[0]} ({combo[1]} -> {combo[2]}) (MISSING IN INF)")
+    nc_acc = nc_correct / nc_total if nc_total else 0.0
+    nd_acc = nd_correct / nd_total if nd_total else 0.0
+    _kv(p, "Properties (constraint):", f"{nc_correct} / {nc_total}")
+    _kv(p, "Constraint accuracy:",     _pct(nc_acc))
+    _kv(p, "Properties (data_type):",  f"{nd_correct} / {nd_total}")
+    _kv(p, "Data type accuracy:",      _pct(nd_acc))
+    _block(p, "PER NODE TYPE", rows, cfg.list_limit)
 
-    if invalid_edges:
-        p("\n  EXTRA / INVALID INFERRED EDGES:")
-        for c in sorted(invalid_edges):
-            p(f"    [+] Topology: {c[0]} ({c[1]} -> {c[2]})")
+    # ====================================================
+    # 4. EDGE TYPES
+    # ====================================================
+    _h2(p, "4.  EDGE TYPES  (rel + src_labels + tgt_labels)")
+    gt_eks  = set(gt_edges)
+    inf_eks = set(inf_edges)
+    matched_eks = gt_eks & inf_eks
+    only_gt_e   = gt_eks  - inf_eks
+    only_inf_e  = inf_eks - gt_eks
 
-    # ---- 2b. EDGE LABEL CO-OCCURRENCE ----
-    gt_co = build_gt_edge_cooccurrence(gt_edges)
-    inf_co = build_inf_edge_cooccurrence(inf_edges, node_map_inf_to_gt, edge_label_map)
+    et_p, et_r, et_f1 = _prf(len(matched_eks), len(inf_eks), len(gt_eks))
+    _kv(p, "GT edge types:",       len(gt_eks))
+    _kv(p, "Inferred edge types:", len(inf_eks))
+    _kv(p, "Matched:",             len(matched_eks))
+    _kv(p, "Precision:", _pct(et_p))
+    _kv(p, "Recall:",    _pct(et_r))
+    _kv(p, "F1:",        _pct(et_f1))
 
-    p(f"\n--- 2b. EDGE LABEL CO-OCCURRENCE (GT vs INF) ---")
-    if not gt_co and not inf_co:
-        p("  (No edge co-occurrence entries in GT or INF)")
-    else:
-        all_keys = sorted(set(gt_co.keys()) | set(inf_co.keys()))
-        for k in all_keys:
-            gt_n = gt_co.get(k, 0)
-            inf_n = inf_co.get(k, 0)
-            tag = "[✓]" if gt_n == inf_n else "[!]"
-            p(f"  {tag} {k[0]} ({k[1]} -> {k[2]}): GT={gt_n} INF={inf_n}")
+    _block(p, "MATCHED",     [_fmt_ek(ek) for ek in sorted(matched_eks)], cfg.list_limit)
+    _block(p, "ONLY IN GT",  [_fmt_ek(ek) for ek in sorted(only_gt_e)],   cfg.list_limit)
+    _block(p, "ONLY IN INF", [_fmt_ek(ek) for ek in sorted(only_inf_e)],  cfg.list_limit)
 
-    e_prec, e_rec, e_f1 = calculate_f1(len(valid_edges), len(inf_combos_mapped), len(gt_combos))
+    # ====================================================
+    # 5. EDGE PATTERNS
+    # ====================================================
+    _h2(p, "5.  EDGE PATTERNS  (L, K, R) per Def. 3.6")
+    gt_ep  = _edge_pattern_keys(gt_edges)
+    inf_ep = _edge_pattern_keys(inf_edges)
 
-    # ---- 3. PROPERTIES & CONSTRAINTS ----
-    p(f"\n--- 3. EXHAUSTIVE PROPERTY LIST ---")
-    total_prop_matches = 0
-    total_inf_props = 0
-    total_gt_props = 0
-    type_matches = 0
-    constraint_matches = 0
+    def _ep_covered(gp: EdgePatternKey) -> bool:
+        rel, src, tgt, pk = gp
+        e = inf_edges.get((rel, src, tgt))
+        return e is not None and pk <= e.prop_key
 
-    def eval_props(inf_prop_list, gt_prop_list, context_name):
-        nonlocal total_prop_matches, total_inf_props, total_gt_props, type_matches, constraint_matches
-        
-        inf_dict = {normalize_prop_name(p.get("name")): p for p in inf_prop_list if not is_reserved_prop(p.get("name"))}
-        gt_dict = {normalize_prop_name(p.get("name")): p for p in gt_prop_list if not is_reserved_prop(p.get("name"))}
-        
-        total_inf_props += len(inf_dict)
-        total_gt_props += len(gt_dict)
-        
-        p(f"\n  [{context_name}]")
-        if not gt_dict and not inf_dict:
-            p("    (No properties defined in GT or INF)")
-            return
+    def _ep_valid(ip: EdgePatternKey) -> bool:
+        rel, src, tgt, pk = ip
+        g = gt_edges.get((rel, src, tgt))
+        return g is not None and pk <= g.prop_key
 
-        for k, gt_p in gt_dict.items():
-            gt_type = norm_data_type(gt_p.get("type"))
-            gt_mand = gt_p.get("mandatory", False)
-            gt_mand_str = "MANDATORY" if gt_mand else "OPTIONAL"
+    ep_recall_n = sum(1 for g in gt_ep  if _ep_covered(g))
+    ep_prec_n   = sum(1 for i in inf_ep if _ep_valid(i))
+    ep_p, ep_r, ep_f1 = _prf(ep_prec_n, len(inf_ep), len(gt_ep))
 
-            if k in inf_dict:
-                total_prop_matches += 1
-                inf_p = inf_dict[k]
-                
-                inf_type = norm_data_type(inf_p.get("type"))
-                inf_mand = _infer_mandatory_bool(inf_p)
-                inf_mand_str = _mandatory_label(inf_p)
-                
-                type_ok = gt_type == inf_type
-                mand_ok = gt_mand == inf_mand
+    _kv(p, "GT edge patterns:",       len(gt_ep))
+    _kv(p, "Inferred edge patterns:", len(inf_ep))
+    _kv(p, "GT covered by inferred:", ep_recall_n)
+    _kv(p, "Inferred valid in GT:",   ep_prec_n)
+    _kv(p, "Precision:", _pct(ep_p))
+    _kv(p, "Recall:",    _pct(ep_r))
+    _kv(p, "F1:",        _pct(ep_f1))
 
-                if type_ok: type_matches += 1
-                if mand_ok: constraint_matches += 1
-                
-                if type_ok and mand_ok:
-                    p(f"    [✓] {k} ({gt_type}, {gt_mand_str})")
-                else:
-                    errs = []
-                    if not type_ok: errs.append(f"Type: GT=[{gt_type}] INF=[{inf_type}]")
-                    if not mand_ok: errs.append(f"Constraint: GT=[{gt_mand_str}] INF=[{inf_mand_str}]")
-                    p(f"    [!] {k} -> " + " | ".join(errs))
+    missed_ep = [g for g in gt_ep if not _ep_covered(g)]
+    _block(p, "MISSED GT EDGE PATTERNS",
+           [_fmt_epk(g) for g in sorted(missed_ep)], cfg.list_limit)
+
+    # ====================================================
+    # 6. EDGE PROPERTY ACCURACY
+    # ====================================================
+    _h2(p, "6.  EDGE PROPERTY ACCURACY  (constraint + data_type)")
+    ec_correct = ec_total = 0
+    ed_correct = ed_total = 0
+    rows = []
+    for ek in matched_eks:
+        gt_et = gt_edges[ek]; inf_et = inf_edges[ek]
+        shared = gt_et.prop_key & inf_et.prop_key
+        c_ok = c_tot = d_ok = d_tot = 0
+        for key in shared:
+            gi = _prop_info(gt_et.props_raw, key)
+            ii = _prop_info(inf_et.props_raw, key)
+            if gi.get("constraint") and ii.get("constraint"):
+                c_tot += 1
+                if gi["constraint"] == ii["constraint"]:
+                    c_ok += 1
+            if gi.get("data_type") and ii.get("data_type"):
+                d_tot += 1
+                if gi["data_type"] == ii["data_type"]:
+                    d_ok += 1
+        ec_correct += c_ok; ec_total += c_tot
+        ed_correct += d_ok; ed_total += d_tot
+        if c_tot or d_tot:
+            rows.append(f"{_fmt_ek(ek)}  constraint={c_ok}/{c_tot}  type={d_ok}/{d_tot}")
+
+    ec_acc = ec_correct / ec_total if ec_total else 0.0
+    ed_acc = ed_correct / ed_total if ed_total else 0.0
+    _kv(p, "Properties (constraint):", f"{ec_correct} / {ec_total}")
+    _kv(p, "Constraint accuracy:",     _pct(ec_acc))
+    _kv(p, "Properties (data_type):",  f"{ed_correct} / {ed_total}")
+    _kv(p, "Data type accuracy:",      _pct(ed_acc))
+    _block(p, "PER EDGE TYPE", rows, cfg.list_limit)
+
+    # ====================================================
+    # 7. CARDINALITY
+    # ====================================================
+    _h2(p, "7.  CARDINALITY ACCURACY")
+    card_ok = card_tot = 0
+    rows = []
+    for ek in matched_eks:
+        gt_c  = gt_edges[ek].cardinality
+        inf_c = inf_edges[ek].cardinality
+        if gt_c:
+            card_tot += 1
+            if gt_c == inf_c:
+                card_ok += 1
+                rows.append(f"OK  {_fmt_ek(ek)}  {gt_c}")
             else:
-                p(f"    [X] {k} ({gt_type}, {gt_mand_str}) -> MISSING IN INF")
+                rows.append(f"X   {_fmt_ek(ek)}  GT={gt_c}  INF={inf_c}")
+    card_acc = card_ok / card_tot if card_tot else 0.0
+    _kv(p, "Edge types with GT cardinality:", card_tot)
+    _kv(p, "Correct:",                        card_ok)
+    _kv(p, "Cardinality accuracy:",           _pct(card_acc) if card_tot else "N/A")
+    _block(p, "PER EDGE TYPE", rows, cfg.list_limit)
 
-        for k, inf_p in inf_dict.items():
-            if k not in gt_dict:
-                inf_type = norm_data_type(inf_p.get("type"))
-                inf_mand_str = _mandatory_label(inf_p)
-                p(f"    [+] {k} ({inf_type}, {inf_mand_str}) -> EXTRA IN INF (Hallucinated)")
+    # ====================================================
+    # FINAL SCORES
+    # ====================================================
+    _h1(p, "FINAL SCORES  (PG-HIVE pattern-level)")
+    f1s = [nt_f1, np_f1, et_f1, ep_f1]
+    macro = sum(f1s) / len(f1s)
 
-    # Node Props
-    for inf_name, gt_name in node_map_inf_to_gt.items():
-        eval_props(inf_nodes[inf_name].get("properties", []), gt_nodes[gt_name].get("properties", []), f"Node: {gt_name}")
+    _kv(p, "Node Type F1:",          _pct(nt_f1))
+    _kv(p, "Node Pattern F1:",       _pct(np_f1))
+    _kv(p, "Edge Type F1:",          _pct(et_f1))
+    _kv(p, "Edge Pattern F1:",       _pct(ep_f1))
+    _kv(p, "Node Constraint Acc:",   _pct(nc_acc))
+    _kv(p, "Node Data-Type Acc:",    _pct(nd_acc))
+    _kv(p, "Edge Constraint Acc:",   _pct(ec_acc))
+    _kv(p, "Edge Data-Type Acc:",    _pct(ed_acc))
+    _kv(p, "Cardinality Acc:",       _pct(card_acc) if card_tot else "N/A")
+    p("-" * 68)
+    _kv(p, "MACRO F1 (4 pattern-level F1s):", _pct(macro))
+    p("=" * 68)
 
-    # Edge Props
-    for combo in valid_edges:
-        inf_e = inf_edges_by_combo[combo]
-        gt_props = gt_edge_dict[combo[0]].get("properties", [])
-        eval_props(inf_e.get("properties", []), gt_props, f"Edge Topology: {combo[0]} ({combo[1]} -> {combo[2]})")
-
-    p_prec, p_rec, p_f1 = calculate_f1(total_prop_matches, total_inf_props, total_gt_props)
-    type_acc = (type_matches / total_prop_matches) if total_prop_matches else 0.0
-    const_acc = (constraint_matches / total_prop_matches) if total_prop_matches else 0.0
-
-    p(f"\n========================================================")
-    p(f"         EVALUATION METRICS (Same as pg-hive but ask Sophia if they are okay xo)       ")
-    p(f"========================================================")
-    
-    # Paper Section 5: Nodes & Edges (F1*)
-    p(f"1. TYPE DISCOVERY (CLUSTERING QUALITY)")
-    p(f"   Node Types F1*-Score: {n_f1:.2%}  (Precision: {n_prec:.2%} | Recall: {n_rec:.2%})")
-    p(f"   Edge Types F1*-Score: {e_f1:.2%}  (Precision: {e_prec:.2%} | Recall: {e_rec:.2%})")
-    
-    # Paper Section 5: Constraints & Datatypes
-    p(f"\n2. SCHEMA CONSTRAINTS")
-    p(f"   Property Completeness: {p_f1:.2%}  (Found {total_prop_matches} of {total_gt_props} expected)")
-    p(f"   Data Type Accuracy:    {type_acc:.2%}  (Error: {1 - type_acc:.2%})")
-    p(f"   Constraint Accuracy:   {const_acc:.2%}  (Mandatory/Optional)")
-    p(f"========================================================\n")
-
-    return {
-        "nodes": {"precision": n_prec, "recall": n_rec, "f1": n_f1},
-        "edges": {"precision": e_prec, "recall": e_rec, "f1": e_f1},
-        "props": {
-            "precision": p_prec, 
-            "recall": p_rec, 
-            "f1": p_f1, 
-            "type_accuracy": type_acc, 
-            "constraint_accuracy": const_acc
-        }
-    }
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 2:
-        run_compare(sys.argv[1], sys.argv[2])
-    else:
-        print("Usage: python compare.py <gt_json> <inferred_json>")
+    return CompareResult(
+        node_type_precision=nt_p, node_type_recall=nt_r, node_type_f1=nt_f1,
+        node_pattern_precision=np_p, node_pattern_recall=np_r, node_pattern_f1=np_f1,
+        node_constraint_accuracy=nc_acc, node_data_type_accuracy=nd_acc,
+        edge_type_precision=et_p, edge_type_recall=et_r, edge_type_f1=et_f1,
+        edge_pattern_precision=ep_p, edge_pattern_recall=ep_r, edge_pattern_f1=ep_f1,
+        edge_constraint_accuracy=ec_acc, edge_data_type_accuracy=ed_acc,
+        cardinality_accuracy=card_acc,
+        macro_f1=macro,
+    )

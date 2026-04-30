@@ -422,76 +422,126 @@
     "edge_types": [
         {
             "name": "APPEARED_IN",
-            "source": "Character",
-            "target": "Film",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Character"
+            ],
+            "target_labels": [
+                "Film"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 1..N",
             "properties": []
         },
         {
             "name": "APPEARED_IN",
-            "source": "Planet",
-            "target": "Film",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Planet"
+            ],
+            "target_labels": [
+                "Film"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 1..N",
             "properties": []
         },
         {
             "name": "APPEARED_IN",
-            "source": "Species",
-            "target": "Film",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Species"
+            ],
+            "target_labels": [
+                "Film"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 1..N",
             "properties": []
         },
         {
             "name": "APPEARED_IN",
-            "source": "Starship",
-            "target": "Film",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Starship"
+            ],
+            "target_labels": [
+                "Film"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 1..N",
             "properties": []
         },
         {
             "name": "APPEARED_IN",
-            "source": "Vehicle",
-            "target": "Film",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Vehicle"
+            ],
+            "target_labels": [
+                "Film"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..N : 1..N",
             "properties": []
         },
         {
             "name": "HOMEWORLD",
-            "source": "Character",
-            "target": "Planet",
-            "cardinality": "1:N",
+            "source_labels": [
+                "Character"
+            ],
+            "target_labels": [
+                "Planet"
+            ],
+            "is_canonical": true,
+            "cardinality": "1..1 : 0..N",
             "properties": []
         },
         {
             "name": "HOMEWORLD",
-            "source": "Species",
-            "target": "Planet",
-            "cardinality": "1:1",
+            "source_labels": [
+                "Species"
+            ],
+            "target_labels": [
+                "Planet"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 0..1",
             "properties": []
         },
         {
             "name": "OF",
-            "source": "Character",
-            "target": "Species",
-            "cardinality": "1:N",
+            "source_labels": [
+                "Character"
+            ],
+            "target_labels": [
+                "Species"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..1 : 1..N",
             "properties": []
         },
         {
             "name": "PILOT",
-            "source": "Character",
-            "target": "Starship",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Character"
+            ],
+            "target_labels": [
+                "Starship"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": []
         },
         {
             "name": "PILOT",
-            "source": "Character",
-            "target": "Vehicle",
-            "cardinality": "M:N",
+            "source_labels": [
+                "Character"
+            ],
+            "target_labels": [
+                "Vehicle"
+            ],
+            "is_canonical": true,
+            "cardinality": "0..N : 0..N",
             "properties": []
         }
     ],
-    "notes": "The schema reflects the exact physical structure of the provided data profile. All node types are single-label and have only one distinct property pattern with all properties being MANDATORY. No 'fake nodes' were identified based on the specified criteria. Edge names were derived strictly following heuristic 6, utilizing the provided relationship types as they satisfied the grammatical and semantic rules.",
+    "notes": "",
     "_mined_patterns": {
         "node_types": [
             {
@@ -1040,9 +1090,12 @@
                 "target_labels": [
                     "Film"
                 ],
+                "is_canonical": true,
                 "count": 162,
-                "cardinality": "M:N",
+                "cardinality": "1..N : 1..N",
+                "min_out_degree": 1,
                 "max_out_degree": 6,
+                "min_in_degree": 16,
                 "max_in_degree": 40,
                 "patterns": [
                     {
@@ -1062,9 +1115,12 @@
                 "target_labels": [
                     "Film"
                 ],
+                "is_canonical": true,
                 "count": 33,
-                "cardinality": "M:N",
+                "cardinality": "0..N : 1..N",
+                "min_out_degree": 0,
                 "max_out_degree": 5,
+                "min_in_degree": 3,
                 "max_in_degree": 13,
                 "patterns": [
                     {
@@ -1084,9 +1140,12 @@
                 "target_labels": [
                     "Film"
                 ],
+                "is_canonical": true,
                 "count": 73,
-                "cardinality": "M:N",
+                "cardinality": "1..N : 1..N",
+                "min_out_degree": 1,
                 "max_out_degree": 6,
+                "min_in_degree": 5,
                 "max_in_degree": 20,
                 "patterns": [
                     {
@@ -1106,9 +1165,12 @@
                 "target_labels": [
                     "Film"
                 ],
+                "is_canonical": true,
                 "count": 55,
-                "cardinality": "M:N",
+                "cardinality": "1..N : 1..N",
+                "min_out_degree": 1,
                 "max_out_degree": 3,
+                "min_in_degree": 5,
                 "max_in_degree": 12,
                 "patterns": [
                     {
@@ -1128,9 +1190,12 @@
                 "target_labels": [
                     "Film"
                 ],
+                "is_canonical": true,
                 "count": 49,
-                "cardinality": "M:N",
+                "cardinality": "1..N : 1..N",
+                "min_out_degree": 1,
                 "max_out_degree": 3,
+                "min_in_degree": 4,
                 "max_in_degree": 13,
                 "patterns": [
                     {
@@ -1150,9 +1215,12 @@
                 "target_labels": [
                     "Planet"
                 ],
+                "is_canonical": true,
                 "count": 82,
-                "cardinality": "1:N",
+                "cardinality": "1..1 : 0..N",
+                "min_out_degree": 1,
                 "max_out_degree": 1,
+                "min_in_degree": 0,
                 "max_in_degree": 11,
                 "patterns": [
                     {
@@ -1172,9 +1240,12 @@
                 "target_labels": [
                     "Planet"
                 ],
+                "is_canonical": true,
                 "count": 36,
-                "cardinality": "1:1",
+                "cardinality": "0..1 : 0..1",
+                "min_out_degree": 0,
                 "max_out_degree": 1,
+                "min_in_degree": 0,
                 "max_in_degree": 1,
                 "patterns": [
                     {
@@ -1194,9 +1265,12 @@
                 "target_labels": [
                     "Species"
                 ],
+                "is_canonical": true,
                 "count": 78,
-                "cardinality": "1:N",
+                "cardinality": "0..1 : 1..N",
+                "min_out_degree": 0,
                 "max_out_degree": 1,
+                "min_in_degree": 1,
                 "max_in_degree": 32,
                 "patterns": [
                     {
@@ -1216,9 +1290,12 @@
                 "target_labels": [
                     "Starship"
                 ],
+                "is_canonical": true,
                 "count": 30,
-                "cardinality": "M:N",
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
                 "max_out_degree": 5,
+                "min_in_degree": 0,
                 "max_in_degree": 4,
                 "patterns": [
                     {
@@ -1238,9 +1315,12 @@
                 "target_labels": [
                     "Vehicle"
                 ],
+                "is_canonical": true,
                 "count": 13,
-                "cardinality": "M:N",
+                "cardinality": "0..N : 0..N",
+                "min_out_degree": 0,
                 "max_out_degree": 2,
+                "min_in_degree": 0,
                 "max_in_degree": 2,
                 "patterns": [
                     {

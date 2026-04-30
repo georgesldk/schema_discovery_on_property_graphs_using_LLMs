@@ -9,10 +9,10 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 
-# UPDATED: import from new io layout
+# UPDATED: Neo4j-based pattern mining
 from pg_schema_llm.io.neo4j_io import mine_patterns
 
-# prompt lives in pg_schema_llm/llm/prompts.py (unchanged location)
+# prompt lives in pg_schema_llm/llm/prompts.py
 from pg_schema_llm.llm import build_inference_prompt
 
 
@@ -21,8 +21,8 @@ class InferConfig:
     """
     Configuration container for schema inference.
 
-    Neo4j connection parameters fall back to environment variables
-    when left empty.
+    Neo4j connection parameters fall back to environment variables when
+    left empty.
     """
 
     # Neo4j connection
@@ -31,11 +31,12 @@ class InferConfig:
     neo4j_password: str = ""
     neo4j_database: Optional[str] = None
 
-    # pattern mining (None -> use mine_patterns default)
-    type_sample_limit: Optional[int] = None
+    # pattern mining
+    chunk_size: int = 5000
+    expand_edge_subsets: bool = True
 
     # LLM
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3-flash-preview"
     response_mime_type: str = "application/json"
 
     # logging
@@ -47,12 +48,6 @@ class InferConfig:
 # ============================================================
 
 def _p(verbose: bool, *args, **kwargs):
-    """
-    Conditional print helper for verbose logging.
-
-    Args:
-        verbose (bool): Whether logging is enabled.
-    """
     if verbose:
         print(*args, **kwargs)
 
@@ -87,18 +82,14 @@ def call_gemini_api(
     model_name: str,
     response_mime_type: str,
     verbose: bool,
+    max_output_tokens: int = 65536,
 ) -> Optional[str]:
     """
     Invoke the Gemini LLM API for schema inference.
 
-    Args:
-        prompt (str): Fully constructed inference prompt.
-        model_name (str): Gemini model identifier.
-        response_mime_type (str): Expected response MIME type.
-        verbose (bool): Whether to print diagnostic messages.
-
-    Returns:
-        Optional[str]: Raw response text, or None if the request fails.
+    Returns the raw text response (or None on failure).  Logs the
+    finish_reason and a preview of the response when verbose, so that
+    truncation, safety filtering, or malformed JSON are easy to diagnose.
     """
     load_dotenv()
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -112,95 +103,106 @@ def call_gemini_api(
     try:
         res = model.generate_content(
             prompt,
-            generation_config={"response_mime_type": response_mime_type},
+            generation_config={
+                "response_mime_type": response_mime_type,
+                "max_output_tokens": max_output_tokens,
+            },
         )
-        return res.text
     except Exception as e:
         _p(verbose, f"API Error: {e}")
         return None
 
+    # ---- diagnostics -------------------------------------------------
+    if verbose:
+        try:
+            cand = res.candidates[0] if getattr(res, "candidates", None) else None
+            finish = getattr(cand, "finish_reason", None) if cand else None
+            usage = getattr(res, "usage_metadata", None)
+            _p(verbose, f"  finish_reason: {finish}")
+            if usage:
+                _p(verbose,
+                   f"  tokens: prompt={getattr(usage, 'prompt_token_count', '?')} "
+                   f"output={getattr(usage, 'candidates_token_count', '?')} "
+                   f"total={getattr(usage, 'total_token_count', '?')}")
+        except Exception as e:
+            _p(verbose, f"  (could not read response metadata: {e})")
 
-def extract_json(text: Optional[str]) -> Optional[dict]:
+    # ---- extract text ------------------------------------------------
+    try:
+        text = res.text
+    except Exception:
+        # res.text raises when the candidate finished with a non-STOP reason
+        # (truncation, safety, etc.).  Fall back to manually concatenating parts.
+        text = None
+        try:
+            parts = res.candidates[0].content.parts
+            text = "".join(getattr(p, "text", "") for p in parts) or None
+        except Exception:
+            text = None
+
+    if verbose and text:
+        preview = text if len(text) <= 400 else text[:200] + "  …  " + text[-200:]
+        _p(verbose, f"  response preview: {preview}")
+
+    return text
+
+
+def extract_json(text: Optional[str], *, verbose: bool = False) -> Optional[dict]:
     """
     Extract and parse a JSON object from an LLM response.
 
-    Args:
-        text (Optional[str]): Raw LLM response text.
-
-    Returns:
-        Optional[dict]: Parsed JSON object, or None if parsing fails.
+    Tries:
+      1. Strip code-fences and parse.
+      2. Find the largest balanced {...} substring and parse.
+      3. Last-resort: trim trailing chars one at a time looking for
+         a parseable prefix (rescues simple truncations).
     """
     if not text:
         return None
+
+    cleaned = text.strip().replace("```json", "").replace("```", "").strip()
+
+    # 1. straight parse
     try:
-        cleaned = text.strip().replace("```json", "").replace("```", "")
         return json.loads(cleaned)
     except Exception:
-        return None
+        pass
 
+    # 2. balanced-brace substring
+    start = cleaned.find("{")
+    if start >= 0:
+        depth = 0
+        end = -1
+        for i in range(start, len(cleaned)):
+            ch = cleaned[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        if end > start:
+            try:
+                return json.loads(cleaned[start:end])
+            except Exception:
+                pass
 
-def _normalize_property(prop: dict) -> dict:
-    """
-    Normalize one property record to required shape:
-      {"name": str, "type": str, "mandatory": bool}
-    """
-    name = prop.get("name")
-    ptype = prop.get("type", "STRING")
-    if "mandatory" in prop:
-        mandatory = bool(prop.get("mandatory"))
-    else:
-        mandatory = str(prop.get("constraint", "")).upper() == "MANDATORY"
-    return {
-        "name": name,
-        "type": ptype,
-        "mandatory": mandatory,
-    }
+    # 3. truncation rescue: walk back from the end, closing braces as we go
+    if start >= 0:
+        body = cleaned[start:]
+        for trim in range(0, min(2000, len(body))):
+            candidate = body[: len(body) - trim]
+            for closers in ("", "}", "]}", "]]}", "]}]}"):
+                try:
+                    return json.loads(candidate + closers)
+                except Exception:
+                    continue
 
-
-def normalize_inferred_schema(schema: dict) -> dict:
-    """
-    Enforce canonical inferred schema contract before saving:
-    - Node/edge properties use mandatory boolean.
-    - Edge fields are labels[], start_node, end_node.
-    - Legacy source/target fields are removed.
-    """
-    out = dict(schema or {})
-
-    norm_nodes: List[dict] = []
-    for n in out.get("node_types", []) or []:
-        nn = dict(n)
-        labels = nn.get("labels")
-        if not isinstance(labels, list):
-            labels = []
-        nn["labels"] = labels
-        props = nn.get("properties", []) or []
-        nn["properties"] = [_normalize_property(p) for p in props if isinstance(p, dict)]
-        norm_nodes.append(nn)
-    out["node_types"] = norm_nodes
-
-    norm_edges: List[dict] = []
-    for e in out.get("edge_types", []) or []:
-        ne = dict(e)
-        name = ne.get("name")
-
-        labels = ne.get("labels")
-        if isinstance(labels, list):
-            final_labels = labels
-        else:
-            final_labels = [name] if name else []
-        ne["labels"] = final_labels
-
-        ne["start_node"] = ne.get("start_node") or ne.get("source")
-        ne["end_node"] = ne.get("end_node") or ne.get("target")
-        ne.pop("source", None)
-        ne.pop("target", None)
-
-        props = ne.get("properties", []) or []
-        ne["properties"] = [_normalize_property(p) for p in props if isinstance(p, dict)]
-        norm_edges.append(ne)
-    out["edge_types"] = norm_edges
-
-    return out
+    if verbose:
+        _p(True, f"  JSON parse failed; first 300 chars of cleaned text:")
+        _p(True, f"    {cleaned[:300]}")
+    return None
 
 
 # ============================================================
@@ -211,82 +213,89 @@ def build_profile_text_from_patterns(patterns: dict) -> str:
     """
     Convert mined patterns into structured text for LLM consumption.
 
-    Presents node and edge types with their patterns, property
-    constraints, data types, and (for edges) cardinalities.
+    Includes node patterns, edge patterns, source/target label sets,
+    cardinality, and is_canonical flag.
 
-    Args:
-        patterns: Dict returned by mine_patterns().
+    Compact format — minimises tokens while preserving every field the
+    LLM is required to copy.  Emitted shape::
 
-    Returns:
-        str: Profile text used to build the LLM prompt.
+        N: {Label1, Label2}
+          K: {prop_a, prop_b}
+          K: {prop_a}
+          P: prop_a:STRING/M, prop_b:INTEGER/O
+
+        E: {Src1}-[:REL]->{Tgt1}  card=1..1:0..N
+          K: {weight}
+          P: weight:INTEGER/O
+        E*: {Src1}-[:REL]->{Tgt1,Tgt2}      (subset, no cardinality)
+          K: {weight}
+          P: weight:INTEGER/O
+
+    Legend (placed once at the top):
+        N = node type, E = canonical edge, E* = subset edge,
+        K = pattern (property-key set), P = property list,
+        /M = MANDATORY, /O = OPTIONAL.
     """
     lines: List[str] = []
 
-    # ---- Node Types ----
-    lines.append("=" * 60)
-    lines.append("NODE TYPES")
-    lines.append("=" * 60)
+    # ---- Legend (once) ----
+    lines.append(
+        "# Legend: N=node, E=canonical edge, E*=subset edge, "
+        "K=pattern keys, P=properties; /M=MANDATORY, /O=OPTIONAL."
+    )
+    lines.append("")
 
+    # ---- Nodes ----
+    lines.append("## NODE TYPES")
     for nt in patterns["node_types"]:
         labels = nt["labels"]
-        label_str = ", ".join(labels) if labels else "(unlabeled)"
-        lines.append("")
-        lines.append(f"Node Type: labels={{{label_str}}}")
-        lines.append(f"  Total instances: {nt['count']}")
+        label_str = ", ".join(labels) if labels else ""
+        lines.append(f"N: {{{label_str}}}")
 
-        # patterns
-        lines.append(f"  Distinct patterns ({len(nt['patterns'])}):")
+        # patterns: one line per distinct (L, K) — only the K varies
         for pat in nt["patterns"]:
-            pk = ", ".join(pat["property_keys"]) if pat["property_keys"] else "(no properties)"
-            pct = round(100 * pat["count"] / nt["count"], 1) if nt["count"] > 0 else 0
-            lines.append(f"    - {{{pk}}}: {pat['count']} instances ({pct}%)")
+            keys = ", ".join(pat["property_keys"])
+            lines.append(f"  K: {{{keys}}}")
 
-        # properties
+        # properties: single dense line
         if nt["properties"]:
-            lines.append(f"  Properties ({len(nt['properties'])}):")
+            parts = []
             for pname, pinfo in nt["properties"].items():
-                fill_pct = round(100 * pinfo["fill_ratio"], 1)
-                lines.append(
-                    f"    - {pname}: {pinfo['data_type']}, "
-                    f"{pinfo['constraint']} ({fill_pct}%)"
-                )
-        else:
-            lines.append("  Properties: none")
+                flag = "M" if pinfo["constraint"] == "MANDATORY" else "O"
+                parts.append(f"{pname}:{pinfo['data_type']}/{flag}")
+            lines.append(f"  P: {', '.join(parts)}")
 
-    # ---- Edge Types ----
+    # ---- Edges ----
     lines.append("")
-    lines.append("=" * 60)
-    lines.append("EDGE TYPES")
-    lines.append("=" * 60)
+    lines.append("## EDGE TYPES")
 
-    for et in patterns["edge_types"]:
+    canonicals = [e for e in patterns["edge_types"] if e.get("is_canonical", True)]
+    subsets    = [e for e in patterns["edge_types"] if not e.get("is_canonical", True)]
+
+    def _emit_edge(et, marker: str):
         rel = et["labels"][0] if et["labels"] else "?"
-        src = ", ".join(et["source_labels"]) if et["source_labels"] else "(unlabeled)"
-        tgt = ", ".join(et["target_labels"]) if et["target_labels"] else "(unlabeled)"
-        lines.append("")
-        lines.append(f"Edge Type: ({{{src}}})-[:{rel}]->({{{tgt}}})")
-        lines.append(f"  Total instances: {et['count']}")
-        lines.append(f"  Cardinality: {et['cardinality']}  "
-                      f"(max_out={et['max_out_degree']}, max_in={et['max_in_degree']})")
+        src = ", ".join(et["source_labels"]) if et["source_labels"] else ""
+        tgt = ", ".join(et["target_labels"]) if et["target_labels"] else ""
+        head = f"{marker}: {{{src}}}-[:{rel}]->{{{tgt}}}"
+        if et.get("cardinality"):
+            head += f"  card={et['cardinality']}"
+        lines.append(head)
 
-        # patterns
-        lines.append(f"  Distinct patterns ({len(et['patterns'])}):")
         for pat in et["patterns"]:
-            pk = ", ".join(pat["property_keys"]) if pat["property_keys"] else "(no properties)"
-            pct = round(100 * pat["count"] / et["count"], 1) if et["count"] > 0 else 0
-            lines.append(f"    - {{{pk}}}: {pat['count']} instances ({pct}%)")
+            keys = ", ".join(pat["property_keys"])
+            lines.append(f"  K: {{{keys}}}")
 
-        # properties
         if et["properties"]:
-            lines.append(f"  Properties ({len(et['properties'])}):")
+            parts = []
             for pname, pinfo in et["properties"].items():
-                fill_pct = round(100 * pinfo["fill_ratio"], 1)
-                lines.append(
-                    f"    - {pname}: {pinfo['data_type']}, "
-                    f"{pinfo['constraint']} ({fill_pct}%)"
-                )
-        else:
-            lines.append("  Properties: none")
+                flag = "M" if pinfo["constraint"] == "MANDATORY" else "O"
+                parts.append(f"{pname}:{pinfo['data_type']}/{flag}")
+            lines.append(f"  P: {', '.join(parts)}")
+
+    for et in canonicals:
+        _emit_edge(et, "E")
+    for et in subsets:
+        _emit_edge(et, "E*")
 
     return "\n".join(lines)
 
@@ -302,10 +311,9 @@ def infer_schema_from_folder(
     """
     Infer a property-graph schema.
 
-    ``data_dir`` is accepted for backward compatibility but is no
-    longer used — the graph is read directly from Neo4j.  Connection
-    details come from ``config`` or from the environment variables
-    in ``.env``.
+    ``data_dir`` is accepted for backward compatibility but is no longer
+    used — the graph is read directly from Neo4j.  Connection details
+    come from ``config`` or from the environment variables in ``.env``.
 
     Args:
         data_dir (str): Ignored; retained so existing call sites need no change.
@@ -316,14 +324,16 @@ def infer_schema_from_folder(
     """
     cfg = config or InferConfig()
 
-    _p(cfg.verbose, f"--- Connecting to Neo4j (data_dir arg ignored) ---")
+    _p(cfg.verbose, "--- Connecting to Neo4j (data_dir arg ignored) ---")
 
     driver = _make_driver(cfg)
     try:
-        mine_kw: Dict[str, Any] = {"database": cfg.neo4j_database}
-        if cfg.type_sample_limit is not None:
-            mine_kw["type_sample_limit"] = cfg.type_sample_limit
-        patterns = mine_patterns(driver, **mine_kw)
+        patterns = mine_patterns(
+            driver,
+            chunk_size=cfg.chunk_size,
+            expand_edge_subsets=cfg.expand_edge_subsets,
+            database=cfg.neo4j_database,
+        )
     finally:
         driver.close()
 
@@ -342,13 +352,12 @@ def infer_schema_from_folder(
         response_mime_type=cfg.response_mime_type,
         verbose=cfg.verbose,
     )
-    schema = extract_json(raw_res)
+    schema = extract_json(raw_res, verbose=cfg.verbose)
     if not schema:
         _p(cfg.verbose, "LLM returned no JSON schema (parse failed).")
         return None
-    schema = normalize_inferred_schema(schema)
 
-    # attach raw patterns for downstream use / comparison
+    # attach raw patterns for downstream comparison
     schema["_mined_patterns"] = patterns
     return schema
 
@@ -361,11 +370,8 @@ def run_infer_schema(
     """
     Run schema inference and write the result to disk.
 
-    ``data_dir`` is accepted for backward compatibility but is no
-    longer used — see ``infer_schema_from_folder``.
-
     Args:
-        data_dir (str): Ignored; retained so existing call sites need no change.
+        data_dir (str): Ignored; kept for backward compatibility.
         output_path (str): Path to the output JSON file.
         config (Optional[InferConfig]): Inference configuration.
 
