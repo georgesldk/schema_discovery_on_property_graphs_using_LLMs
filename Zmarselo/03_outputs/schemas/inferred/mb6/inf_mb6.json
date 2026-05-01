@@ -8171,7 +8171,7 @@
             "properties": []
         }
     ],
-    "notes": "Node types with multiple labels have their 'name' field set to the first label listed in the profile, as per Rule R2 'most semantically meaningful identifier'.",
+    "notes": "All node types have explicit labels; no unnamed node types were generated.",
     "_mined_patterns": {
         "node_types": [
             {

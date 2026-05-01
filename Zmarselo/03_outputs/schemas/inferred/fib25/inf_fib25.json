@@ -520,6 +520,444 @@
         {
             "name": "CONNECTS_TO",
             "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
                 "Neuron",
                 "Segment"
             ],
@@ -548,43 +986,4729 @@
             ]
         },
         {
-            "name": "CONTAINS",
+            "name": "CONNECTS_TO",
             "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
                 "Neuron"
             ],
-            "target_labels": [
-                "SynapseSet"
-            ],
             "is_canonical": false,
             "cardinality": null,
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
         },
         {
-            "name": "CONTAINS",
+            "name": "CONNECTS_TO",
             "source_labels": [
-                "SynapseSet"
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
             ],
             "target_labels": [
-                "Synapse"
+                "Neuron",
+                "Segment"
             ],
             "is_canonical": false,
             "cardinality": null,
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
         },
         {
-            "name": "SYNAPSES_TO",
+            "name": "CONNECTS_TO",
             "source_labels": [
-                "Synapse"
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
             ],
             "target_labels": [
-                "Synapse"
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
             ],
             "is_canonical": false,
             "cardinality": null,
-            "properties": []
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ],
+            "target_labels": [
+                "Neuron",
+                "medulla7column_Neuron",
+                "medulla7column_Segment"
+            ],
+            "is_canonical": false,
+            "cardinality": null,
+            "properties": [
+                {
+                    "name": "roiInfo",
+                    "type": "STRING",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weight",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                },
+                {
+                    "name": "weightHP",
+                    "type": "INTEGER",
+                    "constraint": "MANDATORY"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTS_TO",
+            "source_labels": [
+                "Segment",
+                "medulla7column_Segment"
+            ]
         }
     ],
-    "notes": "Node types sharing the 'Neuron' name are distinguished by the presence or absence of the 'medulla7column_Neuron' label. The schema reflects an exhaustive profile of 225+ possible endpoint permutations for CONNECTS_TO, CONTAINS, and SYNAPSES_TO, although only a representative sample of these subset edges (is_canonical: false) is detailed in this truncated output to satisfy length constraints while preserving the structure required by the architect's mission.",
     "_mined_patterns": {
         "node_types": [
             {

@@ -550,7 +550,7 @@
             ]
         }
     ],
-    "notes": "Node type 'Post' contains optional properties (content, imageFile, language) due to heterogeneous property-key sets (K) found during pattern mining. All relationship types from the profile are included as canonical edge types.",
+    "notes": "",
     "_mined_patterns": {
         "node_types": [
             {

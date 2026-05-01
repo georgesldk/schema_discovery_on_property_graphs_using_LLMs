@@ -32,11 +32,10 @@ class InferConfig:
     neo4j_database: Optional[str] = None
 
     # pattern mining
-    chunk_size: int = 5000
     expand_edge_subsets: bool = True
 
     # LLM
-    gemini_model: str = "gemini-3-flash-preview"
+    gemini_model: str = "gemini-2.5-flash"
     response_mime_type: str = "application/json"
 
     # logging
@@ -330,7 +329,6 @@ def infer_schema_from_folder(
     try:
         patterns = mine_patterns(
             driver,
-            chunk_size=cfg.chunk_size,
             expand_edge_subsets=cfg.expand_edge_subsets,
             database=cfg.neo4j_database,
         )

@@ -7,15 +7,14 @@ Sideri et al., "PG-HIVE", EDBT 2026.
 This version
 
 * does a **full parse** of every property value for type inference (no
-  sampling), in chunks to keep memory/CPU bounded;
+  sampling), using streaming queries with driver-level fetch_size for
+  bounded memory and O(n) time;
 * supports **0-cardinality** (the relationship is optional on either side):
   cardinality is reported as ``"{src_min}..{src_max} : {tgt_min}..{tgt_max}"``
   with each side ∈ {``0..1``, ``0..N``, ``1..1``, ``1..N``};
-* expands every multi-label edge into **all label-subset permutations**
-  so that downstream code sees, for an edge between ``{A,B}`` and
-  ``{C,D}``, all of:
-  ``[A]→[C], [A]→[D], [A]→{C,D}, [B]→[C], …, {A,B}→{C,D}`` —
-  with ``is_canonical`` marking the entry that matches the actual data.
+* optionally expands every multi-label edge into **all label-subset
+  permutations** with ``is_canonical`` marking the entries that match
+  the actual data.
 """
 from __future__ import annotations
 
@@ -138,79 +137,78 @@ def _format_cardinality(min_out: int, max_out: int,
 
 
 # ============================================================
-# Full-scan property type inference (chunked)
+# Full-scan property type inference (streaming, O(n))
 # ============================================================
 
-def _full_scan_node_property_types(
+def _stream_node_property_types(
     session,
     label_set: Tuple[str, ...],
-    total: int,
-    chunk_size: int,
 ) -> Dict[str, Counter]:
     """
-    Full scan of property values for nodes with EXACTLY this label set,
-    chunked to bound memory.  Returns Counter of observed types per prop.
+    Full scan of property values for nodes with EXACTLY this label set.
+    Uses a single streaming query — O(n) time, bounded memory via the
+    driver's fetch_size.  Returns Counter of observed types per property.
     """
     type_counts: Dict[str, Counter] = defaultdict(Counter)
-    if total == 0:
-        return type_counts
-
     where = _build_label_match_exact("n", label_set)
-    skip = 0
-    while skip < total:
-        rows = list(session.run(
-            f"MATCH (n) WHERE {where} "
-            f"WITH n SKIP $skip LIMIT $chunk "
-            f"UNWIND keys(n) AS k "
-            f"WITH k, n[k] AS val "
-            f"RETURN k AS prop, collect(val) AS vals",
-            skip=skip, chunk=chunk_size,
-        ))
-        for r in rows:
-            prop = r["prop"]
-            for v in r["vals"]:
-                t = _infer_value_type(v)
-                if t:
-                    type_counts[prop][t] += 1
-        skip += chunk_size
+
+    # Return one row per node with its full property map.
+    # The driver streams this lazily — no SKIP/LIMIT needed.
+    result = session.run(
+        f"MATCH (n) WHERE {where} "
+        f"RETURN properties(n) AS props"
+    )
+    processed = 0
+    for record in result:
+        props = record["props"]
+        if not props:
+            processed += 1
+            continue
+        for key, val in props.items():
+            t = _infer_value_type(val)
+            if t:
+                type_counts[key][t] += 1
+        processed += 1
+        if processed % 50_000 == 0:
+            print(f"      ... {processed:>10,} nodes scanned")
+
     return type_counts
 
 
-def _full_scan_edge_property_types(
+def _stream_edge_property_types(
     session,
     rel_type: str,
     src_lk: Tuple[str, ...],
     tgt_lk: Tuple[str, ...],
-    total: int,
-    chunk_size: int,
 ) -> Dict[str, Counter]:
-    """Full chunked scan of edge property values for canonical (rt, src, tgt)."""
+    """
+    Full streaming scan of edge property values for a canonical
+    (rel_type, src_labels, tgt_labels) combination.  O(n) time.
+    """
     type_counts: Dict[str, Counter] = defaultdict(Counter)
-    if total == 0:
-        return type_counts
-
     esc = _escape_label(rel_type)
     sf = _build_label_match_exact("a", src_lk)
     tf = _build_label_match_exact("b", tgt_lk)
 
-    skip = 0
-    while skip < total:
-        rows = list(session.run(
-            f"MATCH (a)-[r:{esc}]->(b) "
-            f"WHERE {sf} AND {tf} "
-            f"WITH r SKIP $skip LIMIT $chunk "
-            f"UNWIND keys(r) AS k "
-            f"WITH k, r[k] AS val "
-            f"RETURN k AS prop, collect(val) AS vals",
-            skip=skip, chunk=chunk_size,
-        ))
-        for r in rows:
-            prop = r["prop"]
-            for v in r["vals"]:
-                t = _infer_value_type(v)
-                if t:
-                    type_counts[prop][t] += 1
-        skip += chunk_size
+    result = session.run(
+        f"MATCH (a)-[r:{esc}]->(b) "
+        f"WHERE {sf} AND {tf} "
+        f"RETURN properties(r) AS props"
+    )
+    processed = 0
+    for record in result:
+        props = record["props"]
+        if not props:
+            processed += 1
+            continue
+        for key, val in props.items():
+            t = _infer_value_type(val)
+            if t:
+                type_counts[key][t] += 1
+        processed += 1
+        if processed % 50_000 == 0:
+            print(f"      ... {processed:>10,} edges scanned")
+
     return type_counts
 
 
@@ -267,7 +265,6 @@ def _compute_edge_cardinality_exact(
 def mine_patterns(
     driver,
     *,
-    chunk_size: int = 5_000,
     expand_edge_subsets: bool = True,
     database: Optional[str] = None,
 ) -> dict:
@@ -276,7 +273,6 @@ def mine_patterns(
 
     Args:
         driver: Open ``neo4j.Driver``.
-        chunk_size: Rows per chunk for full-scan property type inference.
         expand_edge_subsets: When True, every multi-label edge is expanded
             into all non-empty source × target label-subset combinations.
         database: Neo4j database name (None → default).
@@ -311,7 +307,7 @@ def mine_patterns(
           "properties": {...}
         }
     """
-    session_kw: dict = {}
+    session_kw: dict = {"fetch_size": 1000}
     if database:
         session_kw["database"] = database
 
@@ -341,16 +337,14 @@ def mine_patterns(
             acc["patterns_map"][pk] += cnt
             acc["all_props"].update(r["props"])
 
-        # ---- node property types: FULL parse, chunked --------------
+        # ---- node property types: FULL streaming scan ----------------
         print(f">>> Full-scan node property types "
-              f"({len(node_acc)} label sets, chunk={chunk_size}) ...")
+              f"({len(node_acc)} label sets, streaming) ...")
         node_types_out: List[dict] = []
 
         for lk, acc in sorted(node_acc.items()):
             total = acc["count"]
-            type_counts = _full_scan_node_property_types(
-                session, lk, total, chunk_size,
-            )
+            type_counts = _stream_node_property_types(session, lk)
 
             prop_fill: Counter = Counter()
             for pk, cnt in acc["patterns_map"].items():
@@ -407,18 +401,17 @@ def mine_patterns(
 
         # ---- compute canonical cardinality + property types --------
         print(f">>> Full-scan edge property types & cardinality "
-              f"({len(edge_acc)} canonical edge types) ...")
+              f"({len(edge_acc)} canonical edge types, streaming) ...")
 
         canonical_entries: List[dict] = []
-        # remember canonical props/types so we can derive subset entries
         canonical_meta: Dict[Tuple, dict] = {}
 
         for ekey, acc in sorted(edge_acc.items()):
             rt, sk, tk = ekey
             total = acc["count"]
 
-            type_counts = _full_scan_edge_property_types(
-                session, rt, sk, tk, total, chunk_size,
+            type_counts = _stream_edge_property_types(
+                session, rt, sk, tk,
             )
 
             prop_fill: Counter = Counter()
