@@ -83,12 +83,19 @@ def _resolve_property_type(type_counts: Counter) -> str:
 # Helpers
 # ============================================================
 
+# Labels / properties added by label_noise.py for evaluation bookkeeping.
+# They must be invisible to the mining pipeline so they don't corrupt the
+# inferred schema.
+_INTERNAL_LABELS = frozenset({"OriginalLabel"})
+_INTERNAL_PROPS  = frozenset({"_orig_labels", "_orig_label_concat", "_label_stripped"})
+
+
 def _label_key(label_list) -> Tuple[str, ...]:
-    return tuple(sorted(label_list))
+    return tuple(sorted(l for l in label_list if l not in _INTERNAL_LABELS))
 
 
 def _props_key(props_list) -> Tuple[str, ...]:
-    return tuple(sorted(props_list))
+    return tuple(sorted(p for p in props_list if p not in _INTERNAL_PROPS))
 
 
 def _escape_label(label: str) -> str:
@@ -96,11 +103,18 @@ def _escape_label(label: str) -> str:
 
 
 def _build_label_match_exact(var: str, label_set: Tuple[str, ...]) -> str:
-    """WHERE clause: node has exactly this label set."""
-    parts = [f"size(labels({var})) = {len(label_set)}"]
+    """WHERE clause: node has exactly this label set (internal labels ignored)."""
+    # Count only non-internal labels so OriginalLabel doesn't inflate the size.
+    internal_excl = ", ".join(f"'{l}'" for l in sorted(_INTERNAL_LABELS))
+    size_expr = (
+        f"size([l IN labels({var}) WHERE NOT l IN [{internal_excl}] | l]) = {len(label_set)}"
+    )
+    parts = [size_expr]
     for lbl in label_set:
         parts.append(f"'{lbl.replace(chr(39), chr(92)+chr(39))}' IN labels({var})")
-    return " AND ".join(parts) if label_set else f"size(labels({var})) = 0"
+    return " AND ".join(parts) if label_set else (
+        f"size([l IN labels({var}) WHERE NOT l IN [{internal_excl}] | l]) = 0"
+    )
 
 
 def _build_label_match_contains(var: str, label_set: Tuple[str, ...]) -> str:
@@ -165,6 +179,8 @@ def _stream_node_property_types(
             processed += 1
             continue
         for key, val in props.items():
+            if key in _INTERNAL_PROPS:
+                continue
             t = _infer_value_type(val)
             if t:
                 type_counts[key][t] += 1

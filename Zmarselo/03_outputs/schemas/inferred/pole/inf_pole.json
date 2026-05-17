@@ -521,7 +521,7 @@
             "properties": []
         }
     ],
-    "notes": "All node types are explicitly labeled in the provided profile. No unlabeled node types found.",
+    "notes": "",
     "_mined_patterns": {
         "node_types": [
             {
