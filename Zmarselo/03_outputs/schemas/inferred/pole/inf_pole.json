@@ -521,7 +521,7 @@
             "properties": []
         }
     ],
-    "notes": "The relationship type 'INVOLVED_IN' appears twice as a canonical edge with different endpoint pairs ({Object}->{Crime} and {Vehicle}->{Crime}) and differing cardinalities.",
+    "notes": "All node types are explicitly labeled in the provided profile. No unlabeled node types found.",
     "_mined_patterns": {
         "node_types": [
             {
