@@ -28,6 +28,7 @@ from typing import Any, Dict, FrozenSet, Iterable, List, Optional, Tuple
 # Data-type inference
 # ============================================================
 
+# Recognize dates, in all formats.
 _DATE_RE = [
     re.compile(r"^\d{4}-\d{2}-\d{2}"),
     re.compile(r"^\d{1,2}/\d{1,2}/\d{2,4}$"),
@@ -39,7 +40,7 @@ _TYPE_RANK = {
     "DATE": 3, "STRING": 4, "LIST": 5,
 }
 
-
+# This function looks at one value and decides its type.
 def _infer_value_type(v: Any) -> Optional[str]:
     if v is None:
         return None
@@ -72,6 +73,14 @@ def _infer_value_type(v: Any) -> Optional[str]:
     return "STRING"
 
 
+# This receives a histogram of observed types for one property.
+# EXAMPLE
+# Counter({
+#    "INTEGER": 100,
+#    "STRING": 1
+# })
+# 
+# Then it chooses the most general type using _TYPE_RANK. So the result is STRING 
 def _resolve_property_type(type_counts: Counter) -> str:
     """Most general compatible type: BOOLEAN < INTEGER < DOUBLE < DATE < STRING < LIST."""
     if not type_counts:
@@ -90,18 +99,24 @@ _INTERNAL_LABELS = frozenset({"OriginalLabel"})
 _INTERNAL_PROPS  = frozenset({"_orig_labels", "_orig_label_concat", "_label_stripped"})
 
 
+# This converts a Neo4j label list into a stable tuple. 
+# Tuples are selected so it can be used as dictionary keys, since Lists cannot
+# This lets the code group nodes by exact label sets.
 def _label_key(label_list) -> Tuple[str, ...]:
     return tuple(sorted(l for l in label_list if l not in _INTERNAL_LABELS))
 
-
+# This is used to group node/edge patterns by exact property-key set.
 def _props_key(props_list) -> Tuple[str, ...]:
     return tuple(sorted(p for p in props_list if p not in _INTERNAL_PROPS))
 
-
+# This safely formats a Neo4j label or relationship type inside backticks.
+# (For safer cypher)
 def _escape_label(label: str) -> str:
     return f"`{label.replace('`', '``')}`"
 
 
+# The following builds a Cypher condition for `node has exactly this label set`
+# It does exact label matching, not partial.
 def _build_label_match_exact(var: str, label_set: Tuple[str, ...]) -> str:
     """WHERE clause: node has exactly this label set (internal labels ignored)."""
     # Count only non-internal labels so OriginalLabel doesn't inflate the size.
@@ -116,7 +131,7 @@ def _build_label_match_exact(var: str, label_set: Tuple[str, ...]) -> str:
         f"size([l IN labels({var}) WHERE NOT l IN [{internal_excl}] | l]) = 0"
     )
 
-
+# Not used anymore
 def _build_label_match_contains(var: str, label_set: Tuple[str, ...]) -> str:
     """WHERE clause: node contains every label in this set (may have more)."""
     if not label_set:
@@ -126,6 +141,7 @@ def _build_label_match_contains(var: str, label_set: Tuple[str, ...]) -> str:
         for lbl in label_set
     ]
     return " AND ".join(parts)
+
 
 
 def _all_nonempty_subsets(label_set: Tuple[str, ...]) -> List[Tuple[str, ...]]:
