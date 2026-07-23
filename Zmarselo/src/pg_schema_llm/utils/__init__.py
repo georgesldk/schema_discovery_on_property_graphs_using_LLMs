@@ -1,15 +1,17 @@
-"""
-Utility helpers.
+"""Utility helpers for dataset and output naming."""
 
-This package contains small, reusable helpers extracted from existing code.
-No new behavior is introduced here.
-"""
-
-from pg_schema_llm.utils.text import strip_comments
-from pg_schema_llm.utils.paths import get_dataset_name, ensure_dir
+from pg_schema_llm.utils.datasets import (
+    DatasetScenario,
+    gt_schema_path,
+    inferred_schema_path,
+    parse_dataset_scenario,
+    pgsb_metrics_path,
+)
 
 __all__ = [
-    "strip_comments",
-    "get_dataset_name",
-    "ensure_dir",
+    "DatasetScenario",
+    "parse_dataset_scenario",
+    "gt_schema_path",
+    "inferred_schema_path",
+    "pgsb_metrics_path",
 ]

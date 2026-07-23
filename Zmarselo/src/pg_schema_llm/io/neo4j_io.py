@@ -21,7 +21,7 @@ from __future__ import annotations
 import re
 from collections import Counter, defaultdict
 from itertools import combinations
-from typing import Any, Dict, FrozenSet, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 # ============================================================
@@ -92,11 +92,16 @@ def _resolve_property_type(type_counts: Counter) -> str:
 # Helpers
 # ============================================================
 
-# Labels / properties added by label_noise.py for evaluation bookkeeping.
+# Labels / properties added by noise/evaluation bookkeeping.
 # They must be invisible to the mining pipeline so they don't corrupt the
 # inferred schema.
 _INTERNAL_LABELS = frozenset({"OriginalLabel"})
-_INTERNAL_PROPS  = frozenset({"_orig_labels", "_orig_label_concat", "_label_stripped"})
+_INTERNAL_PROPS  = frozenset({
+    "_orig_labels",
+    "_orig_label_concat",
+    "_label_stripped",
+    "original_label",
+})
 
 
 # This converts a Neo4j label list into a stable tuple. 
@@ -130,19 +135,6 @@ def _build_label_match_exact(var: str, label_set: Tuple[str, ...]) -> str:
     return " AND ".join(parts) if label_set else (
         f"size([l IN labels({var}) WHERE NOT l IN [{internal_excl}] | l]) = 0"
     )
-
-# Not used anymore
-def _build_label_match_contains(var: str, label_set: Tuple[str, ...]) -> str:
-    """WHERE clause: node contains every label in this set (may have more)."""
-    if not label_set:
-        return "true"
-    parts = [
-        f"'{lbl.replace(chr(39), chr(92)+chr(39))}' IN labels({var})"
-        for lbl in label_set
-    ]
-    return " AND ".join(parts)
-
-
 
 def _all_nonempty_subsets(label_set: Tuple[str, ...]) -> List[Tuple[str, ...]]:
     """All non-empty subsets of a label tuple, each sorted."""

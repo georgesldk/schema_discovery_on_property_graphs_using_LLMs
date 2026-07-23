@@ -1,12 +1,12 @@
 import argparse
 import sys
-import os
 from pathlib import Path
 
 # Add src to sys.path automatically
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pg_schema_llm.pipeline.infer_schema import run_infer_schema
+from pg_schema_llm.utils.datasets import inferred_schema_path, parse_dataset_scenario
 
 
 def main():
@@ -20,8 +20,9 @@ def main():
 
     args = parser.parse_args()
 
-    data_dir = f"02_pgs/pg_data_{args.dataset.lower()}"
-    out_file = f"03_outputs/schemas/inferred/{args.dataset.lower()}/inf_{args.dataset.lower()}.json"
+    dataset = parse_dataset_scenario(args.dataset)
+    data_dir = f"02_pgs/pg_data_{dataset.base}"
+    out_file = inferred_schema_path(dataset)
 
     run_infer_schema(data_dir, out_file)
 

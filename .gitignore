@@ -2,14 +2,13 @@
 venv/
 __pycache__/
 .venv/
-03_outputs/schemas/
+
 
 pg_data_ldbc/
 pg_data_pole/
 pg_data_starwars/
 pg_data_mb6/
 pg_data_fib25/
-
 gt_data_ldbc/
 gt_data_mb6/
 gt_data_pole/
@@ -17,3 +16,6 @@ gt_data_starwars/
 gt_data_fib25/
 
 .agent/
+
+PG-SB/
+/Zmarselo/03_outputs
