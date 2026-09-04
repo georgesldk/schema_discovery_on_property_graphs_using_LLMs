@@ -10,7 +10,7 @@ from pg_schema_llm.utils.datasets import inferred_schema_path, parse_dataset_sce
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Infer schema from raw PG CSV data")
+    parser = argparse.ArgumentParser(description="Infer schema from the currently loaded Neo4j graph")
 
     # NEW: positional dataset name
     parser.add_argument(

@@ -35,35 +35,6 @@
                 <div id="datasetDescription" class="dataset-description"></div>
             </div>
 
-            <!-- New Dataset Mode (Upload Section) -->
-            <div class="card hidden" id="uploadCard">
-                <h2>New Dataset Mode</h2>
-                <p class="description">Upload your CSV files containing node and edge data. The system will
-                    automatically detect node types, edge types, and properties.</p>
-                <p class="description hint-important">Select all your CSV files at once (hold Ctrl/Cmd and click each
-                    file)</p>
-
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="fileInput" name="files[]" multiple accept=".csv" required>
-                        <div class="upload-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p>Click to select CSV files or drag and drop</p>
-                            <p class="hint">Hold Ctrl (or Cmd on Mac) to select multiple files</p>
-                        </div>
-                        <div class="file-list" id="fileList"></div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        Start Schema Discovery
-                    </button>
-                </form>
-            </div>
-
             <!-- Progress Section -->
             <div class="card hidden" id="progressCard">
                 <h2>Processing</h2>

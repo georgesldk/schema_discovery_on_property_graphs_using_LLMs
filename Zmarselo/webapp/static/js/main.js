@@ -7,7 +7,6 @@ let currentSchema = null;
 let inferredGraphNetwork = null;
 let groundTruthGraphNetwork = null;
 let groundTruthSchema = null;
-let currentMode = 'proof_of_concept'; // 'proof_of_concept' or 'new_dataset'
 let currentDatasetId = null;
 
 // State persistence keys
@@ -17,8 +16,7 @@ const STATE_KEYS = {
     DATASET_ID: 'schemaDiscovery_datasetId',
     COMPARISON_RESULTS: 'schemaDiscovery_comparisonResults',
     JOB_ID: 'schemaDiscovery_currentJobId',
-    COMPARE_JOB_ID: 'schemaDiscovery_currentCompareJobId',
-    MODE: 'schemaDiscovery_currentMode'
+    COMPARE_JOB_ID: 'schemaDiscovery_currentCompareJobId'
 };
 
 // Save state to sessionStorage
@@ -39,9 +37,6 @@ function saveState() {
         if (currentCompareJobId) {
             sessionStorage.setItem(STATE_KEYS.COMPARE_JOB_ID, currentCompareJobId);
         }
-        if (currentMode) {
-            sessionStorage.setItem(STATE_KEYS.MODE, currentMode);
-        }
     } catch (e) {
         console.warn('Failed to save state:', e);
     }
@@ -55,7 +50,6 @@ function restoreState() {
         const savedDatasetId = sessionStorage.getItem(STATE_KEYS.DATASET_ID);
         const savedJobId = sessionStorage.getItem(STATE_KEYS.JOB_ID);
         const savedCompareJobId = sessionStorage.getItem(STATE_KEYS.COMPARE_JOB_ID);
-        const savedMode = sessionStorage.getItem(STATE_KEYS.MODE);
 
         if (savedSchema) {
             currentSchema = JSON.parse(savedSchema);
@@ -71,9 +65,6 @@ function restoreState() {
         }
         if (savedCompareJobId) {
             currentCompareJobId = savedCompareJobId;
-        }
-        if (savedMode) {
-            currentMode = savedMode;
         }
 
         return !!savedSchema; // Return true if we have a schema to restore
@@ -105,10 +96,7 @@ function startStatusCheck() {
             const response = await fetch(`/status/${currentJobId}`);
             const data = await response.json();
 
-            // Update mode and dataset_id from response
-            if (data.mode) {
-                currentMode = data.mode;
-            }
+            // Update dataset_id from response
             if (data.dataset_id) {
                 currentDatasetId = data.dataset_id;
             }
@@ -399,7 +387,6 @@ function showResults(schema) {
 
     renderSchema(schema);
 
-    // Show/hide comparison tab based on mode
     const comparisonTabBtn = document.querySelector('[data-tab="comparison"]');
     comparisonTabBtn.style.display = '';
 
@@ -635,7 +622,7 @@ if (newAnalysisBtn) {
     newAnalysisBtn.addEventListener('click', resetForm);
 }
 
-// Proof of Concept mode - Load datasets on page load
+// Load available Neo4j-backed datasets on page load.
 document.addEventListener('DOMContentLoaded', async () => {
     await loadDatasets();
 
@@ -718,11 +705,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
-
-function switchMode(mode) {
-    // Mode switching disabled, always proof_of_concept
-    return;
-}
 
 async function loadDatasets() {
     try {
@@ -840,11 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function getAvailableTabs() {
-    const tabs = ['schema', 'graph'];
-    if (currentMode === 'proof_of_concept') {
-        tabs.push('comparison');
-    }
-    return tabs;
+    return ['schema', 'graph', 'comparison'];
 }
 
 function getCurrentTabIndex() {
@@ -873,11 +851,6 @@ function updateTabNavigation() {
 }
 
 function switchTab(tabName) {
-    // Don't switch to comparison tab if in new_dataset mode
-    if (tabName === 'comparison' && currentMode !== 'proof_of_concept') {
-        return;
-    }
-
     // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
